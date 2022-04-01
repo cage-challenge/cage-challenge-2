@@ -1,5 +1,5 @@
 # TTCP CAGE Challenge 2
-![Banner](/images/TTCP-Logo-small.png) ![Banner](/images/CAGE-Logo-small.png)
+![Banner](./images/TTCP-Logo-small.png) ![Banner](./images/CAGE-Logo-small.png)
 
 # Introduction
 
@@ -29,7 +29,7 @@ The network owner has undertaken an evaluation of the factory systems and contra
 
 This challenge is designed for teams to create a blue agent to defend a network against a red agent, with a green agent representing the effect of network users\. The network is illustrated below in Figure 1\. It is divided into three subnets\. Subnet 1 consists of user hosts that are not critical\. Subnet 2 consists of enterprise servers designed to support the user activities on Subnet 1\. Subnet 3 contains the critical operational server and three user hosts\.
 
-![Figure1](/images/figure1.png)
+![Figure1](./images/figure1.png)
 
 <p align="center">
  <em>Figure 1 Network of the scenario and challenge problem</em>
@@ -47,7 +47,7 @@ The blue agent can also perform several different decoy actions, allowing it to 
 
 The effect of each action on the state of a targeted host is summarised in Figure 2\. 
 
-![Figure2](/images/figure2.png)
+![Figure2](./images/figure2.png)
 
 <p align="center">
  <em>Figure 2 Effect of actions on host state</em>
