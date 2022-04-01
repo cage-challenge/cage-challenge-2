@@ -1,7 +1,0 @@
-README.md
-setup.py
-CybORG.egg-info/PKG-INFO
-CybORG.egg-info/SOURCES.txt
-CybORG.egg-info/dependency_links.txt
-CybORG.egg-info/requires.txt
-CybORG.egg-info/top_level.txt
