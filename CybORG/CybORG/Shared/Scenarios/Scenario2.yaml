@@ -64,7 +64,6 @@ Agents:
       - Monitor
       - Analyse
       - Remove
-      - Misinform
       - DecoyApache
       - DecoyFemitter
       - DecoyHarakaSMPT
