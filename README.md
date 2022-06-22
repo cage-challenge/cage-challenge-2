@@ -1,6 +1,104 @@
 # TTCP CAGE Challenge 2
 ![Banner](./images/TTCP-Logo-small.png) ![Banner](./images/CAGE-Logo-small.png)
 
+# Leader Board (baseline)
+
+<table>
+    <thead>
+        <tr>
+            <th colspan="5" rowspan="2"></th>
+            <th colspan="9">Validated Test Scores</th>
+        </tr>
+        <tr>
+            <th colspan="3">30 steps</th>
+            <th colspan="3">50 steps</th>
+            <th colspan="3">100 steps</th>
+        </tr>
+        <tr>
+            <th>Ranking</th>
+            <th>Team Name</th>
+            <th>Method</th>
+            <th>CybORG Version</th>
+            <th>Total Score</th>
+            <th>B-line</th>
+            <th>Meander</th>
+            <th>Sleep</th>
+            <th>B-line</th>
+            <th>Meander</th>
+            <th>Sleep</th>
+            <th>B-line</th>
+            <th>Meander</th>
+            <th>Sleep</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>1</td>
+            <td>CCS RL Benchmark</td>
+            <td>PPO</td>
+            <td>2</td>
+            <td>-123.97 ± 16.59</td>
+            <td>-7.47</td>
+            <td>-8.77</td>
+            <td>0</td>
+            <td>-13.66</td>
+            <td>-19.54</td>
+            <td>0</td>
+            <td>-27.12</td>
+            <td>-47.41</td>
+            <td>0</td>
+        </tr>
+        <tr>
+            <td>2</td>
+            <td>CCS Heuristic</td>
+            <td>Blue React Restore</td>
+            <td>2</td>
+            <td>-759.4 ± 122.53</td>
+            <td>-69.27</td>
+            <td>-24.73</td>
+            <td>-12</td>
+            <td>-127.04</td>
+            <td>-58.98</td>
+            <td>-12</td>
+            <td>-275.63</td>
+            <td>-167.75</td>
+            <td>-12</td>
+        </tr>
+        <tr>
+            <td>3</td>
+            <td>CCS Random</td>
+            <td>Random Agent</td>
+            <td>2</td>
+            <td>-2011.3 ± 511.58</td>
+            <td>-153.13</td>
+            <td>-30.1</td>
+            <td>-2.66</td>
+            <td>-363.06</td>
+            <td>-160.9</td>
+            <td>-4.69</td>
+            <td>-746.28</td>
+            <td>-541.57</td>
+            <td>-8.91</td>
+        </tr>
+        <tr>
+            <td>4</td>
+            <td>CCS Sleeper</td>
+            <td>Sleeping Agent</td>
+            <td>2</td>
+            <td>-3106.77 ± 102.08</td>
+            <td>-213.83</td>
+            <td>-38.12</td>
+            <td>0</td>
+            <td>-480.14</td>
+            <td>-268.17</td>
+            <td>0</td>
+            <td>-1134.1</td>
+            <td>-972.41</td>
+            <td>0</td>
+        </tr>
+    </tbody>
+</table>
+
 # Introduction
 
 Recent advances in artificial intelligence \(AI\) technologies show promise for autonomous cyber operations \(ACO\), offering the potential for distributed, adaptive defensive measures at machine speed and scale\. The cyber domain is a particularly challenging domain for autonomous AI\. We nominate a challenge in this space which we believe requires further research in order to enable ACO to become an operational capability\. To facilitate this AI research, we, the TTCP[^1] CAGE[^2] Working Group, are releasing an update to CybORG, an experimental platform using the OpenAI Gym interface together with a new cyber security scenario and challenge to which we invite researchers to respond\. 
