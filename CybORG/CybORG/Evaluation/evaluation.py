@@ -52,7 +52,7 @@ if __name__ == "__main__":
         data.write(f"wrappers: {wrap_line}\n")
 
     path = str(inspect.getfile(CybORG))
-    path = path[:-10] + '/Shared/Scenarios/Scenario1b.yaml'
+    path = path[:-10] + f'/Shared/Scenarios/{scenario}.yaml'
 
     print(f'using CybORG v{cyborg_version}, {scenario}\n')
     for num_steps in [30, 50, 100]:
