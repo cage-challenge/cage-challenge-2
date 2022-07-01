@@ -1,4 +1,6 @@
 # CybORG Changelog
+## Version 2.1
+evaluation.py now calls agent.end_episode() at the end of an evaluation episode
 ## Version 2.0
 Scenario 2 added.
 New exploit actions added for red team.
