@@ -17,6 +17,7 @@ pip install -e .
 ## Creating the environment
 Create a CybORG environment with:
 ```
+from CybORG import CybORG
 path = str(inspect.getfile(CybORG))
 path = path[:-10] + '/Shared/Scenarios/Scenario2.yaml'
 cyborg = CybORG(path, 'sim')
