@@ -156,6 +156,7 @@ class BlueTableWrapper(BaseWrapper):
 
     def _interpret_connections(self,activity:list):                
         num_connections = len(activity)
+
         ports = set([item['Connections'][0]['local_port'] \
             for item in activity if 'Connections' in item])
         port_focus = len(ports)
@@ -171,6 +172,8 @@ class BlueTableWrapper(BaseWrapper):
             anomaly = 'Exploit'
         elif num_connections >= 3 and port_focus == 1:
             anomaly = 'Exploit'
+        elif 'Service Name' in activity[0]:
+            anomaly = 'None'
         else:
             anomaly = 'Scan'
 
