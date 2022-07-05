@@ -339,10 +339,10 @@ class Host(Entity):
 
     def restore(self):
         self.events = {'NetworkConnections': [], 'ProcessCreation': []}
-        self.original_files = []
-        if self.files is not None:
-            for file in self.files:
-                self.original_files.append(File(**file.get_state()))
+        self.files = []
+        if self.original_files is not None:
+            for file in self.original_files:
+                self.files.append(File(**file.get_state()))
 
         self.sessions = {}
         if self.original_sessions is not None:
