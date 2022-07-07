@@ -36,39 +36,39 @@
             <td>1</td>
             <td>CCS RL Benchmark</td>
             <td>PPO</td>
-            <td>2</td>
-            <td>-123.97 ± 16.59</td>
-            <td>-7.47</td>
-            <td>-8.77</td>
+            <td>2.1</td>
+            <td>-99.53 ± 22.98</td>
+            <td>-8.83</td>
+            <td>-7.5</td>
+            <td>-0.01</td>
+            <td>-15.85</td>
+            <td>-11.6</td>
             <td>0</td>
-            <td>-13.66</td>
-            <td>-19.54</td>
-            <td>0</td>
-            <td>-27.12</td>
-            <td>-47.41</td>
-            <td>0</td>
+            <td>-32.65</td>
+            <td>-23.08</td>
+            <td>-0.01</td>
         </tr>
         <tr>
             <td>2</td>
             <td>CCS Heuristic</td>
             <td>Blue React Restore</td>
-            <td>2</td>
-            <td>-759.4 ± 122.53</td>
-            <td>-69.27</td>
-            <td>-24.73</td>
-            <td>-12</td>
-            <td>-127.04</td>
-            <td>-58.98</td>
-            <td>-12</td>
-            <td>-275.63</td>
-            <td>-167.75</td>
-            <td>-12</td>
+            <td>2.1</td>
+            <td>-712.13 ± 422.66</td>
+            <td>-24.72</td>
+            <td>-11.13</td>
+            <td>0</td>
+            <td>-75.17</td>
+            <td>-36.24</td>
+            <td>0</td>
+            <td>-379.59</td>
+            <td>-185.28</td>
+            <td>0</td>
         </tr>
         <tr>
             <td>3</td>
             <td>CCS Random</td>
             <td>Random Agent</td>
-            <td>2</td>
+            <td>2.1</td>
             <td>-2011.3 ± 511.58</td>
             <td>-153.13</td>
             <td>-30.1</td>
@@ -84,7 +84,7 @@
             <td>4</td>
             <td>CCS Sleeper</td>
             <td>Sleeping Agent</td>
-            <td>2</td>
+            <td>2.1</td>
             <td>-3106.77 ± 102.08</td>
             <td>-213.83</td>
             <td>-38.12</td>
@@ -246,9 +246,9 @@ The validation process involves summing the average scores of 1000 episodes for 
 
 1 April 2022: Challenge 2 released and open for submissions\.
 
-11 July 2022 \(any time zone\): Final day for challenge submissions\.
+18 July 2022 \(any time zone\): Final day for challenge submissions\.
 
-23 July 2022: Final results announced\.
+30 July 2022: Final results announced\.
 
 # Future challenges
 
