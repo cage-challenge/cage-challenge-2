@@ -77,12 +77,12 @@ To evaluate an agent's performance please use the [evaluation script](CybORG/Eva
  
 
 
-The [wrap function](https://github.com/cage-challenge/cage-challenge-2/blob/e16bc08e760458a894d5e46d9e9585b0061dff23/CybORG/CybORG/Evaluation/evaluation.py#L22-L23) defines what wrappers will be used during evaluation.
+The [wrap function](CybORG/Evaluation/evaluation.py#L22-L23) defines what wrappers will be used during evaluation.
 ```
 def wrap(env):
     return ChallengeWrapper(env=env, agent_name='Blue')
 ```
-The agent under evaluation is defined [here](https://github.com/cage-challenge/cage-challenge-2/blob/e16bc08e760458a894d5e46d9e9585b0061dff23/CybORG/CybORG/Evaluation/evaluation.py#L42-L43). 
+The agent under evaluation is defined [here](CybORG/Evaluation/evaluation.py#L42-L43). 
 To evaluate an agent, extend the [BaseAgent](CybORG/Agents/SimpleAgents/BaseAgent.py). 
 We have included the [BlueLoadAgent](CybORG/Agents/SimpleAgents/BlueLoadAgent.py) as an example of an agent that uses the stable_baselines3 library.
 ```
