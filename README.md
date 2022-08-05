@@ -248,7 +248,7 @@ The validation process involves summing the average scores of 1000 episodes for 
 
 18 July 2022 \(any time zone\): Final day for challenge submissions\.
 
-30 July 2022: Final results announced\.
+12 August 2022 ~~30 July 2022~~: Final results announced\. (Note due to various unforeseen issues we have had to delay the announcement of the final results.)
 
 # Future challenges
 
