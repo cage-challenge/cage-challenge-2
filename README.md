@@ -1,8 +1,8 @@
 # TTCP CAGE Challenge 2
 ![Banner](./images/TTCP-Logo-small.png) ![Banner](./images/CAGE-Logo-small.png)
 
-# Leader Board (baseline)
-
+# Leader Board (final)
+We are pleased to announce the final results for the TTCP CAGE Challenge 2 in the table below.
 <table>
     <thead>
         <tr>
@@ -32,72 +32,332 @@
         </tr>
     </thead>
     <tbody>
-        <tr>
+       <tr>
             <td>1</td>
-            <td>CCS RL Benchmark</td>
-            <td>PPO</td>
+            <td>CardiffUni</td>
+            <td>PPO + Greedy Decoys</td>
             <td>2.1</td>
-            <td>-99.53 ± 22.98</td>
-            <td>-8.83</td>
-            <td>-7.5</td>
-            <td>-0.01</td>
-            <td>-15.85</td>
-            <td>-11.6</td>
+            <td>-54.57 ± 0.43</td>
+            <td>-3.47</td>
+            <td>-5.64</td>
             <td>0</td>
-            <td>-32.65</td>
-            <td>-23.08</td>
-            <td>-0.01</td>
+            <td>-6.41</td>
+            <td>-8.69</td>
+            <td>0</td>
+            <td>-13.76</td>
+            <td>-16.6</td>
+            <td>0</td>
         </tr>
         <tr>
             <td>2</td>
-            <td>CCS Heuristic</td>
-            <td>Blue React Restore</td>
+            <td>Keeping it RL</td>
+            <td>Ensemble of Ensembles</td>
             <td>2.1</td>
-            <td>-712.13 ± 422.66</td>
-            <td>-24.72</td>
-            <td>-11.13</td>
+            <td>-56.9 ± 0.59</td>
+            <td>-3.48</td>
+            <td>-6.47</td>
             <td>0</td>
-            <td>-75.17</td>
-            <td>-36.24</td>
+            <td>-5.85</td>
+            <td>-10.33</td>
             <td>0</td>
-            <td>-379.59</td>
-            <td>-185.28</td>
+            <td>-11.39</td>
+            <td>-19.38</td>
             <td>0</td>
         </tr>
         <tr>
             <td>3</td>
-            <td>CCS Random</td>
-            <td>Random Agent</td>
+            <td>Mindrake</td>
+            <td>HIPPO Float Observations</td>
             <td>2.1</td>
-            <td>-2011.3 ± 511.58</td>
-            <td>-153.13</td>
-            <td>-30.1</td>
-            <td>-2.66</td>
-            <td>-363.06</td>
-            <td>-160.9</td>
-            <td>-4.69</td>
-            <td>-746.28</td>
-            <td>-541.57</td>
-            <td>-8.91</td>
+            <td>-57.05 ± 0.56</td>
+            <td>-3.53</td>
+            <td>-6.76</td>
+            <td>0</td>
+            <td>-6.2</td>
+            <td>-10.13</td>
+            <td>0</td>
+            <td>-12.78</td>
+            <td>-17.65</td>
+            <td>0</td>
         </tr>
         <tr>
             <td>4</td>
+            <td>Mindrake</td>
+            <td>HIPPO-Heuristic</td>
+            <td>2.1</td>
+            <td>-57.29 ± 0.59</td>
+            <td>-3.69</td>
+            <td>-6.81</td>
+            <td>0</td>
+            <td>-6.24</td>
+            <td>-10.09</td>
+            <td>0</td>
+            <td>-12.86</td>
+            <td>-17.6</td>
+            <td>0</td>
+        </tr>
+        <tr>
+            <td>5</td>
+            <td>Mindrake</td>
+            <td>HIPPO Bandit Controller</td>
+            <td>2.1</td>
+            <td>-57.46 ± 0.74</td>
+            <td>-3.73</td>
+            <td>-6.85</td>
+            <td>0</td>
+            <td>-6.65</td>
+            <td>-9.98</td>
+            <td>0</td>
+            <td>-12.86</td>
+            <td>-17.39</td>
+            <td>0</td>
+        </tr>
+        <tr>
+            <td>6</td>
+            <td>Keeping it RL</td>
+            <td>Ensemble</td>
+            <td>2.1</td>
+            <td>-58.68 ± 0.61</td>
+            <td>-3.62</td>
+            <td>-6.57</td>
+            <td>0</td>
+            <td>-6.1</td>
+            <td>-10.32</td>
+            <td>0</td>
+            <td>-11.9</td>
+            <td>-20.16</td>
+            <td>0</td>
+        </tr>
+        <tr>
+            <td>7</td>
+            <td>UoA</td>
+            <td>Belief Ensemble</td>
+            <td>2.1</td>
+            <td>-69.88 ± 0.88</td>
+            <td>-3.87</td>
+            <td>-6.54</td>
+            <td>0</td>
+            <td>-6.74</td>
+            <td>-12.01</td>
+            <td>0</td>
+            <td>-14.63</td>
+            <td>-26.09</td>
+            <td>0</td>
+        </tr>
+        <tr>
+            <td>8</td>
+            <td>Keeping it RL</td>
+            <td>Transfer Learning</td>
+            <td>2.1</td>
+            <td>-70.12 ± 0.71</td>
+            <td>-5.54</td>
+            <td>-6.4</td>
+            <td>0</td>
+            <td>-9.74</td>
+            <td>-10.21</td>
+            <td>0</td>
+            <td>-19.57</td>
+            <td>-18.65</td>
+            <td>0</td>
+        </tr>
+        <tr>
+            <td>9</td>
+            <td>Keeping it RL</td>
+            <td>Action Masking</td>
+            <td>2.1</td>
+            <td>-72.17 ± 1.6</td>
+            <td>-4.61</td>
+            <td>-6.45</td>
+            <td>0</td>
+            <td>-7.92</td>
+            <td>-11.22</td>
+            <td>0</td>
+            <td>-17.75</td>
+            <td>-24.22</td>
+            <td>0</td>
+        </tr>
+        <tr>
+            <td>10</td>
+            <td>Keeping it RL</td>
+            <td>PPO</td>
+            <td>2.1</td>
+            <td>-73.98 ± 0.94</td>
+            <td>-4.76</td>
+            <td>-8.03</td>
+            <td>0</td>
+            <td>-8.13</td>
+            <td>-12.91</td>
+            <td>0</td>
+            <td>-17.19</td>
+            <td>-22.94</td>
+            <td>-0.01</td>
+        </tr>
+        <tr>
+            <td>11</td>
+            <td>SRG Raytheon</td>
+            <td>HPPO</td>
+            <td>2.1</td>
+            <td>-75.7 ± 1.29</td>
+            <td>-4.44</td>
+            <td>-6.57</td>
+            <td>0</td>
+            <td>-7.7</td>
+            <td>-11.78</td>
+            <td>0</td>
+            <td>-15.68</td>
+            <td>-29.52</td>
+            <td>0</td>
+        </tr>
+        <tr>
+            <td>12</td>
+            <td>UoA</td>
+            <td>Ensemble</td>
+            <td>2.1</td>
+            <td>-81.83 ± 0.86</td>
+            <td>-6.02</td>
+            <td>-6.23</td>
+            <td>0</td>
+            <td>-10.19</td>
+            <td>-11.74</td>
+            <td>0</td>
+            <td>-22.09</td>
+            <td>-25.55</td>
+            <td>0</td>
+        </tr>
+        <tr>
+            <td>13</td>
+            <td>CCS RL Benchmark</td>
+            <td>PPO</td>
+            <td>2.1</td>
+            <td>-95.47 ± 1.36</td>
+            <td>-8.75</td>
+            <td>-7.31</td>
+            <td>-0.01</td>
+            <td>-14.92</td>
+            <td>-12.04</td>
+            <td>-0.01</td>
+            <td>-30.19</td>
+            <td>-22.21</td>
+            <td>-0.03</td>
+        </tr>
+        <tr>
+            <td>14</td>
+            <td>Keeping it RL</td>
+            <td>HPPO</td>
+            <td>2.1</td>
+            <td>-119.7 ± 1.63</td>
+            <td>-4.64</td>
+            <td>-9.15</td>
+            <td>0</td>
+            <td>-8.45</td>
+            <td>-22.3</td>
+            <td>0</td>
+            <td>-17.44</td>
+            <td>-57.72</td>
+            <td>0</td>
+        </tr>
+        <tr>
+            <td>15</td>
+            <td>Reward is not Enough</td>
+            <td>ACME IMPALA CAGE 2</td>
+            <td>2.1</td>
+            <td>-122.91 ± 1.11</td>
+            <td>-6</td>
+            <td>-9.27</td>
+            <td>-0.12</td>
+            <td>-10.25</td>
+            <td>-22.27</td>
+            <td>-0.16</td>
+            <td>-19.72</td>
+            <td>-54.79</td>
+            <td>-0.33</td>
+        </tr>
+        <tr>
+            <td>16</td>
+            <td>KingMatthew</td>
+            <td>PPO with RE3 Exploration</td>
+            <td>2.1</td>
+            <td>-137.79 ± 3.89</td>
+            <td>-12.48</td>
+            <td>-6.99</td>
+            <td>0</td>
+            <td>-23.33</td>
+            <td>-12.26</td>
+            <td>-0.01</td>
+            <td>-54.01</td>
+            <td>-28.69</td>
+            <td>-0.02</td>
+        </tr>
+        <tr>
+            <td>17</td>
+            <td>UTS_CIBCI</td>
+            <td>Ensembled DDDQN</td>
+            <td>2.1</td>
+            <td>-154.71 ± 1.95</td>
+            <td>-5.87</td>
+            <td>-10.93</td>
+            <td>0</td>
+            <td>-10.82</td>
+            <td>-26.29</td>
+            <td>0</td>
+            <td>-23.96</td>
+            <td>-67.89</td>
+            <td>0</td>
+        </tr>
+        <tr>
+            <td>18</td>
+            <td>CCS Heuristic </td>
+            <td>Blue React Restore</td>
+            <td>2.1</td>
+            <td>-823.89 ± 1.03</td>
+            <td>-58.83</td>
+            <td>-44.29</td>
+            <td>-27</td>
+            <td>-93.05</td>
+            <td>-85.75</td>
+            <td>-46</td>
+            <td>-184.34</td>
+            <td>-192.63</td>
+            <td>-92</td>
+        </tr>
+        <tr>
+            <td>19</td>
+            <td>CCS Random</td>
+            <td>Random Agent</td>
+            <td>2.1</td>
+            <td>-2015.61 ± 30.93</td>
+            <td>-154.06</td>
+            <td>-33.43</td>
+            <td>-2.8</td>
+            <td>-347.1</td>
+            <td>-171.49</td>
+            <td>-4.45</td>
+            <td>-726.92</td>
+            <td>-566.41</td>
+            <td>-8.94</td>
+        </tr>
+        <tr>
+            <td>20</td>
             <td>CCS Sleeper</td>
             <td>Sleeping Agent</td>
             <td>2.1</td>
-            <td>-3106.77 ± 102.08</td>
-            <td>-213.83</td>
-            <td>-38.12</td>
+            <td>-3112.2 ± 6.67</td>
+            <td>-218.65</td>
+            <td>-39.31</td>
             <td>0</td>
-            <td>-480.14</td>
-            <td>-268.17</td>
+            <td>-480.17</td>
+            <td>-267.6</td>
             <td>0</td>
-            <td>-1134.1</td>
-            <td>-972.41</td>
+            <td>-1134.03</td>
+            <td>-972.43</td>
             <td>0</td>
         </tr>
     </tbody>
 </table>
+
+We would like to thank all those who participated in this challenge. There was a myriad of approaches taken by all teams, and multiple unique strategies that were implemented by the agents. Our congratulations go to the victor, team ‘CardiffUni’, who implemented a hierarchical proximal policy optimisation in combination with a greedy decoy heuristic agent. Owing to how close the competition was, we would also like to congratulate teams ‘Keeping it RL’ and ‘Mindrake’ for their outstanding agents. The validated total scores are the result of summing the average scores of 1000 episodes for each combination of trial length and red agent with random.seed(153), with 95% confidence intervals calculated and shown. 
+
+TTCP CAGE Challenge 3 will be launched later in September 2022.  
 
 # Introduction
 
