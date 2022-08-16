@@ -410,6 +410,8 @@ class ProcessVersion(enum.Enum):
             return cls.SMBv1
         elif version_string == "haraka 2.7.0":
             return cls.HARAKA_2_7_0
+        elif version_string is not None:
+            return version_string
         else:
             return cls.UNKNOWN
 
