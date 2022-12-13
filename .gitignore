@@ -29,3 +29,7 @@ CybORG/Shared/Config/config.ini
 CybORG/Emulator/AWS/Config/awsconfig.ini
 
 *.swp
+
+
+CybORG/CybORG/Notebooks/results
+CybORG/CybORG/Notebooks/logs*

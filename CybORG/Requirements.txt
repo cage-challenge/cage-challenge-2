@@ -5,3 +5,4 @@ numpy
 gym
 prettytable
 docutils
+ray

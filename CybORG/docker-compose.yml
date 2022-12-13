@@ -1,0 +1,21 @@
+version: '3.8'
+
+services:
+  gcpn:
+    build:
+        context: .
+        dockerfile : Dockerfile
+        shm_size: '84gb'
+    shm_size: '84gb'  
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              device_ids: ['1']
+              capabilities: [gpu]
+    volumes:
+      - /home/adamprice/u75a-Data-Efficient-Decisions/CybORG/CybORG:/tf/Cage
+    ports:
+      - 8886:8888 
+      - 6005:6006
