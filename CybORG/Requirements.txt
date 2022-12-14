@@ -6,3 +6,4 @@ gym
 prettytable
 docutils
 ray
+numpy_indexed
