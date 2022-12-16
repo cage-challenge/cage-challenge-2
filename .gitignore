@@ -33,3 +33,8 @@ CybORG/Emulator/AWS/Config/awsconfig.ini
 
 CybORG/CybORG/Notebooks/results
 CybORG/CybORG/Notebooks/logs*
+
+CybORG/Dockerfile
+CybORG/docker-compose.yml
+CybORG/Dockerfile
+CybORG/Dockerfile
