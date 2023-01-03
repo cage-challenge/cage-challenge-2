@@ -219,11 +219,11 @@ class BlueTableWrapper(BaseWrapper):
             # Activity
             activity = row[3]
             if activity == 'None':
-                value = [0,0]
+                value = [0,0,1]
             elif activity == 'Scan':
-                value = [1,0]
+                value = [0,1,0]
             elif activity == 'Exploit':
-                value = [1,1]
+                value = [1,0,0]
             else:
                 raise ValueError('Table had invalid Access Level')
             proto_vector.extend(value)
@@ -231,13 +231,13 @@ class BlueTableWrapper(BaseWrapper):
             # Compromised
             compromised = row[4]
             if compromised == 'No':
-                value = [0, 0]
+                value = [0,0,0,1]
             elif compromised == 'Unknown':
-                value = [1, 0]
+                value = [0,0,1,0]
             elif compromised == 'User':
-                value = [0,1]
+                value = [0,1,0,0]
             elif compromised == 'Privileged':
-                value = [1,1]
+                value = [1,0,0,0]
             else:
                 raise ValueError('Table had invalid Access Level')
             proto_vector.extend(value)

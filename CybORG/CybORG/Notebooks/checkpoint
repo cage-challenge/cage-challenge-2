@@ -1,0 +1,2 @@
+model_checkpoint_path: "RewardModel"
+all_model_checkpoint_paths: "RewardModel"
