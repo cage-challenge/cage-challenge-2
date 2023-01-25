@@ -101,7 +101,9 @@ class CybORG (CybORGLogger):
         Results
             the result of agent performing the action
         """
-        return self.environment_controller.step(agent, action, skip_valid_action_check)
+        obs_dict = self.environment_controller.step(agent, action, skip_valid_action_check)
+        # self.true_obs = self.environment_controller.get_true_state_sequences()
+        return obs_dict
 
     def start(self, steps: int, log_file=None) -> bool:
         """Start CybORG and run for a specified number of steps.

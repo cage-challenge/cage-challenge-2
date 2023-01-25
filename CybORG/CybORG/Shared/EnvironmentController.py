@@ -3,6 +3,7 @@
 
 import sys
 import yaml
+from copy import deepcopy
 
 from CybORG.Shared import Scenario
 from CybORG.Shared.Actions.Action import Sleep, InvalidAction
@@ -13,6 +14,7 @@ from CybORG.Shared.Actions import Action, FindFlag, Monitor
 from CybORG.Shared.AgentInterface import AgentInterface
 import CybORG.Agents
 
+import numpy as np
 
 class EnvironmentController:
     """The abstract base controller for all CybORG environment controllers.
@@ -67,6 +69,12 @@ class EnvironmentController:
             self.observation[agent_name] = self._filter_obs(self.get_true_state(self.INFO_DICT[agent_name]), agent_name)
             agent.set_init_obs(self.observation[agent_name].data, self.init_state)
 
+        self.true_state_pres = []
+        self.true_state_after_blues = []
+        self.true_state_after_all = []
+        self.scanned_ips = set()
+        self.step_counter = 0
+
     def reset(self, agent: str = None) -> Results:
         """Resets the environment and get initial agent observation and actions.
 
@@ -89,11 +97,109 @@ class EnvironmentController:
             agent_object.reset()
             self.observation[agent_name] = self._filter_obs(self.get_true_state(self.INFO_DICT[agent_name]), agent_name)
             agent_object.set_init_obs(self.observation[agent_name].data, self.init_state)
+
+        # self.true_state_pres = []
+        # self.true_state_after_blues = []
+        # self.true_state_after_all = []
+        # self.scanned_ips = set()
+        # self.step_counter = 0
+
         if agent is None:
             return Results(observation=self.init_state)
         else:
             return Results(observation=self.observation[agent].data,
                            action_space=self.agent_interfaces[agent].action_space.get_action_space())
+        
+
+    def _update_scanned(self):
+        if self.step_counter <= 0:
+            return
+
+        action = self.get_last_action(agent='Red')
+        if action.__class__.__name__ == 'DiscoverNetworkServices':
+            red_obs = deepcopy(self.get_last_observation(agent='Red').data)
+            success = red_obs['success']
+            if success:
+                ip = red_obs.popitem()[0]
+                self.scanned_ips.add(ip)
+
+    def make_true_state_vector(self):
+        state = deepcopy(self._filter_obs(self.get_true_state(self.INFO_DICT['True'])).data)
+        self._update_scanned()
+        # table = PrettyTable([
+        #     'Subnet',
+        #     'IP Address',
+        #     'Hostname',
+        #     'Known',
+        #     'Scanned',
+        #     'Access',
+        #     ])
+        # output = {"known":[],"scanned":[],"access":[]} # ,"persistent":[] red agent is always user0!
+        output_list = []
+        for hostid in state:
+            # print(hostid,flush=True)
+            host = state[hostid]
+            if isinstance(host, dict) and "Interface" in host:
+                for interface in host['Interface']:
+                    ip = interface['IP Address']
+                    if str(ip) == '127.0.0.1':
+                        continue
+                    if 'Subnet' not in interface:
+                        continue
+                    # subnet = interface['Subnet']
+                    # hostname = host['System info']['Hostname']
+                    action_space = self.get_action_space(agent = 'Red')
+                    known = action_space['ip_address'][ip]
+                    scanned = True if str(ip) in self.scanned_ips else False
+                    if scanned:
+                        assert known, "assumpution failed that there are 3 possible discovery states unknown->known->scanned"
+
+                    access = self._determine_red_access(host['Sessions'])
+
+                    output_list.extend([not (known or scanned), known and not scanned, scanned]+access)
+                    # output["known"].append(action_space['ip_address'][ip])
+                    # output["scanned"].append(True if str(ip) in self.scanned_ips else False)
+                    # output["access"].append(self._determine_red_access(host['Sessions']))
+
+
+                # table.add_row([subnet,str(ip),hostname,known,scanned,access])
+        
+        # table.sortby = 'Hostname'
+        # table.success = success
+        return np.array(output_list)
+
+    def _determine_red_access(self,session_list):
+        for session in session_list:
+            if session['Agent'] != 'Red':
+                continue
+            privileged = session['Username'] in {'root','SYSTEM'}
+            return [0,0,1] if privileged else [0,1,0]#'Privileged' if privileged else 'User'
+
+        return [1,0,0]# 'None'
+
+    def record_true_states(self, pre, after_blue, after_all):
+        if len(self.true_state_after_all)>0:
+            last_red = self.true_state_after_all[len(self.true_state_after_all)-1]
+            assert last_red.shape == (78,)
+            assert pre.shape == (78,)
+            assert np.all(last_red == pre), "broken assumption that states after red action and before blue action are always equal"
+            # if not np.all(self.true_state_after_all[len(self.true_state_after_all)-1] == pre):
+            #     print(f"NOT EQUAL!:  {self.true_state_after_all[len(self.true_state_after_all)-1] == pre}")
+        self.true_state_pres.append(pre)
+        self.true_state_after_blues.append(after_blue)
+        self.true_state_after_all.append(after_all)
+        
+
+    def pop_true_state_sequences(self):
+        return_tuple = (self.true_state_pres, self.true_state_after_blues, self.true_state_after_all)
+
+        self.true_state_pres = []
+        self.true_state_after_blues = []
+        self.true_state_after_all = []
+        self.scanned_ips = set()
+        self.step_counter = 0
+
+        return return_tuple
 
     def step(self, agent: str = None, action: Action = None, skip_valid_action_check: bool = False) -> Results:
         """Perform a step in the environment for given agent.
@@ -110,11 +216,12 @@ class EnvironmentController:
         Results
             the result of agent performing the action
         """
+        true_obs_pre_any_actions = self.make_true_state_vector()
 
         # for each agent:
         next_observation = {}
         # all agents act on the state
-        for agent_name, agent_object in self.agent_interfaces.items():
+        for i, (agent_name, agent_object) in enumerate(self.agent_interfaces.items()):
             # pass observation to agent to get action
 
             if agent is None or action is None or agent != agent_name:
@@ -129,6 +236,10 @@ class EnvironmentController:
 
             # perform action on state
             next_observation[agent_name] = self._filter_obs(self.execute_action(self.action[agent_name]), agent_name)
+            if agent_name == "Blue":
+                assert i == 0, "Assert that blue's is the first action failed, this means the saved true state will include the effects of the red action"
+                # Assumes blue is first agent in the list as it is added first in _create_agents() since it is the first agent in Scenario2.yaml
+                true_obs_post_blue_action = self.make_true_state_vector()
 
         # get true observation
         true_observation = self._filter_obs(self.get_true_state(self.INFO_DICT['True'])).data
@@ -169,12 +280,19 @@ class EnvironmentController:
                 agent_object.update(self.observation[agent_name])
         # if done then complete other agent's turn
 
+        true_obs_post_all_actions = self.make_true_state_vector()
+
+        self.record_true_states(true_obs_pre_any_actions, true_obs_post_blue_action, true_obs_post_all_actions)
+
         if agent is None:
             result = Results(observation=true_observation, done=self.done)
         else:
             result = Results(observation=self.observation[agent].data, done=self.done, reward=round(self.reward[agent], 1),
                              action_space=self.agent_interfaces[agent].action_space.get_action_space(),
                              action=self.action[agent])
+        
+        self.step_counter += 1
+        
         return result
 
     def execute_action(self, action: Action) -> Observation:
