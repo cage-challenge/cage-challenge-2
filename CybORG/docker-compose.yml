@@ -1,5 +1,4 @@
 version: '3.8'
-
 services:
   gcpn:
     build:
@@ -9,7 +8,12 @@ services:
     shm_size: '84gb'  
     deploy:
       resources:
+        limits:
+          memory: 10G
+          cpus: '0.8'          
         reservations:
+          cpus: '0.5'
+          memory: 1G
           devices:
             - driver: nvidia
               device_ids: ['0']

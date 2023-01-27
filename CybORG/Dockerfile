@@ -22,6 +22,7 @@ RUN pip install ray[air]
 RUN pip install ray[serve]
 RUN pip install gputil
 RUN pip install graphviz
+RUN pip install tensorflow-probability
 
 
 # COMMENT THESE TO MOUNT APP FOR DEV MODE
