@@ -4,7 +4,7 @@
 import sys
 import yaml
 from copy import deepcopy
-
+from prettytable import PrettyTable
 from CybORG.Shared import Scenario
 from CybORG.Shared.Actions.Action import Sleep, InvalidAction
 from CybORG.Shared.Enums import FileType, OperatingSystemType
@@ -15,6 +15,253 @@ from CybORG.Shared.AgentInterface import AgentInterface
 import CybORG.Agents
 
 import numpy as np
+
+
+from copy import deepcopy
+from prettytable import PrettyTable
+import numpy as np
+
+class Afterstate():
+    def __init__(self,init_state):
+        self.blue_info = {}
+        self._process_initial_obs(init_state)
+
+    def reset(self,init_state):   
+        self.blue_info = {}     
+        self._process_initial_obs(init_state)
+        self.observation_change(init_state,baseline=True)
+
+    def get_table(self,output_mode='blue_table'):
+        if output_mode == 'blue_table':
+            return self._create_blue_table(success=None)
+        elif output_mode == 'true_table':
+            return self.env.get_table()
+
+    def observation_change(self,observation,baseline=False):
+        obs = observation if type(observation) == dict else observation.data
+        obs = deepcopy(observation)
+        success = obs['success']
+
+        self._process_last_action()
+        anomaly_obs = self._detect_anomalies(obs) if not baseline else obs
+        del obs['success']
+        # TODO check what info is for baseline
+        info = self._process_anomalies(anomaly_obs)
+        if baseline:
+            for host in info:
+                info[host][-2] = 'None'
+                info[host][-1] = 'No'
+                self.blue_info[host][-1] = 'No'
+
+        self.info = info
+
+        return self._create_vector(success)
+
+
+    def _process_initial_obs(self, obs):
+        obs = obs.copy()
+        self.baseline = obs
+        del self.baseline['success']
+        for hostid in obs:
+            if hostid == 'success':
+                continue
+            host = obs[hostid]
+            interface = host['Interface'][0]
+            subnet = interface['Subnet']
+            ip = str(interface['IP Address'])
+            hostname = host['System info']['Hostname']
+            self.blue_info[hostname] = [str(subnet),str(ip),hostname, 'None','No']
+        return self.blue_info
+
+    def _process_last_action(self):
+        action = self.last_action
+        if action is not None:
+            name = action.__class__.__name__
+            hostname = action.get_params()['hostname'] if name in ('Restore','Remove') else None
+
+            if name == 'Restore':
+                self.blue_info[hostname][-1] = 'No'
+            elif name == 'Remove':
+                compromised = self.blue_info[hostname][-1]
+                if compromised != 'No':
+                    self.blue_info[hostname][-1] = 'Unknown'
+
+    def _detect_anomalies(self,obs):
+        if self.baseline is None:
+            raise TypeError('BlueTableWrapper was unable to establish baseline. This usually means the environment was not reset before calling the step method.')
+
+        anomaly_dict = {}
+
+        for hostid,host in obs.items():
+            if hostid == 'success':
+                continue
+
+            host_baseline = self.baseline[hostid]
+            if host == host_baseline:
+                continue
+
+            host_anomalies = {}
+            if 'Files' in host:
+                baseline_files = host_baseline.get('Files',[])
+                anomalous_files = []
+                for f in host['Files']:
+                    if f not in baseline_files:
+                        anomalous_files.append(f)
+                if anomalous_files:
+                    host_anomalies['Files'] = anomalous_files
+
+            if 'Processes' in host:
+                baseline_processes = host_baseline.get('Processes',[])
+                anomalous_processes = []
+                for p in host['Processes']:
+                    if p not in baseline_processes:
+                        anomalous_processes.append(p)
+                if anomalous_processes:
+                    host_anomalies['Processes'] = anomalous_processes
+
+            if host_anomalies:
+                anomaly_dict[hostid] = host_anomalies
+
+        return anomaly_dict
+
+    def _process_anomalies(self,anomaly_dict):
+        info = deepcopy(self.blue_info)
+        for hostid, host_anomalies in anomaly_dict.items():
+            assert len(host_anomalies) > 0
+            if 'Processes' in host_anomalies:
+                connection_type = self._interpret_connections(host_anomalies['Processes'])
+                info[hostid][-2] = connection_type
+                if connection_type == 'Exploit':
+                    info[hostid][-1] = 'User'
+                    self.blue_info[hostid][-1] = 'User'
+            if 'Files' in host_anomalies:
+                malware = [f['Density'] >= 0.9 for f in host_anomalies['Files']]
+                if any(malware):
+                    info[hostid][-1] = 'Privileged'
+                    self.blue_info[hostid][-1] = 'Privileged'
+
+        return info
+
+    def _interpret_connections(self,activity:list):                
+        num_connections = len(activity)
+
+        ports = set([item['Connections'][0]['local_port'] \
+            for item in activity if 'Connections' in item])
+        port_focus = len(ports)
+
+        remote_ports = set([item['Connections'][0].get('remote_port') \
+            for item in activity if 'Connections' in item])
+        if None in remote_ports:
+            remote_ports.remove(None)
+
+        if num_connections >= 3 and port_focus >=3:
+            anomaly = 'Scan'
+        elif 4444 in remote_ports:
+            anomaly = 'Exploit'
+        elif num_connections >= 3 and port_focus == 1:
+            anomaly = 'Exploit'
+        elif 'Service Name' in activity[0]:
+            anomaly = 'None'
+        else:
+            anomaly = 'Scan'
+
+        return anomaly
+
+    # def _malware_analysis(self,obs,hostname):
+        # anomaly_dict = {hostname: {'Files': []}}
+        # if hostname in obs:
+            # if 'Files' in obs[hostname]:
+                # files = obs[hostname]['Files']
+            # else:
+                # return anomaly_dict
+        # else:
+            # return anomaly_dict
+
+        # for f in files:
+            # if f['Density'] >= 0.9:
+                # anomaly_dict[hostname]['Files'].append(f)
+
+        # return anomaly_dict
+
+
+    def _create_blue_table(self, success):
+        table = PrettyTable([
+            'Subnet',
+            'IP Address',
+            'Hostname',
+            'Activity',
+            'Compromised'
+            ])
+        for hostid in self.info:
+            table.add_row(self.info[hostid])
+        
+        table.sortby = 'Hostname'
+        table.success = success
+        return table
+
+    def _create_vector(self, success):
+        table = self._create_blue_table(success)._rows
+
+        proto_vector = []
+        for row in table:
+            # Activity
+            activity = row[3]
+            if activity == 'None':
+                value = [0,0,1]
+            elif activity == 'Scan':
+                value = [0,1,0]
+            elif activity == 'Exploit':
+                value = [1,0,0]
+            else:
+                raise ValueError('Table had invalid Access Level')
+            proto_vector.extend(value)
+
+            # Compromised
+            compromised = row[4]
+            if compromised == 'No':
+                value = [0,0,0,1]
+            elif compromised == 'Unknown':
+                value = [0,0,1,0]
+            elif compromised == 'User':
+                value = [0,1,0,0]
+            elif compromised == 'Privileged':
+                value = [1,0,0,0]
+            else:
+                raise ValueError('Table had invalid Access Level')
+            proto_vector.extend(value)
+
+        return np.array(proto_vector)
+
+    def get_attr(self,attribute:str):
+        return self.env.get_attr(attribute)
+
+    def get_observation(self, agent: str):
+        if agent == 'Blue' and self.output_mode == 'table':
+            output = self.get_table()
+        else:
+            output = self.get_attr('get_observation')(agent)
+
+        return output
+
+    def get_agent_state(self,agent:str):
+        return self.get_attr('get_agent_state')(agent)
+
+    def get_action_space(self,agent):
+        return self.env.get_action_space(agent)
+
+    def get_last_action(self,agent):
+        return self.get_attr('get_last_action')(agent)
+
+    def get_ip_map(self):
+        return self.get_attr('get_ip_map')()
+
+    def get_rewards(self):
+        return self.get_attr('get_rewards')()
+
+
+"""
+-----------------------------------------------------------------------------
+"""
 
 class EnvironmentController:
     """The abstract base controller for all CybORG environment controllers.
@@ -68,10 +315,13 @@ class EnvironmentController:
         for agent_name, agent in self.agent_interfaces.items():
             self.observation[agent_name] = self._filter_obs(self.get_true_state(self.INFO_DICT[agent_name]), agent_name)
             agent.set_init_obs(self.observation[agent_name].data, self.init_state)
+            if agent_name == 'Blue':
+                self.afterstate = Afterstate(self.observation[agent_name].data)
 
         self.true_state_pres = []
         self.true_state_after_blues = []
         self.true_state_after_all = []
+        self.afterstates = []
         self.scanned_ips = set()
         self.step_counter = 0
 
@@ -97,6 +347,8 @@ class EnvironmentController:
             agent_object.reset()
             self.observation[agent_name] = self._filter_obs(self.get_true_state(self.INFO_DICT[agent_name]), agent_name)
             agent_object.set_init_obs(self.observation[agent_name].data, self.init_state)
+            if agent_name == 'Blue':
+                self.afterstate = Afterstate(self.observation[agent_name].data)
 
         # self.true_state_pres = []
         # self.true_state_after_blues = []
@@ -177,25 +429,27 @@ class EnvironmentController:
 
         return [1,0,0]# 'None'
 
-    def record_true_states(self, pre, after_blue, after_all):
+    def record_additional_states(self, pre, after_blue, after_all, afterstate):
         if len(self.true_state_after_all)>0:
             last_red = self.true_state_after_all[len(self.true_state_after_all)-1]
-            assert last_red.shape == (78,)
-            assert pre.shape == (78,)
+            assert last_red.shape == (36,)
+            assert pre.shape == (36,)
             assert np.all(last_red == pre), "broken assumption that states after red action and before blue action are always equal"
             # if not np.all(self.true_state_after_all[len(self.true_state_after_all)-1] == pre):
             #     print(f"NOT EQUAL!:  {self.true_state_after_all[len(self.true_state_after_all)-1] == pre}")
         self.true_state_pres.append(pre)
         self.true_state_after_blues.append(after_blue)
         self.true_state_after_all.append(after_all)
+        self.afterstates.append(afterstate)
         
 
-    def pop_true_state_sequences(self):
-        return_tuple = (self.true_state_pres, self.true_state_after_blues, self.true_state_after_all)
+    def pop_additional_states_sequences(self):
+        return_tuple = (self.true_state_pres, self.true_state_after_blues, self.true_state_after_all, self.afterstates)
 
         self.true_state_pres = []
         self.true_state_after_blues = []
         self.true_state_after_all = []
+        self.afterstates = []
         self.scanned_ips = set()
         self.step_counter = 0
 
@@ -222,7 +476,7 @@ class EnvironmentController:
         next_observation = {}
         # all agents act on the state
         for i, (agent_name, agent_object) in enumerate(self.agent_interfaces.items()):
-            # pass observation to agent to get action
+            # pass observation to agent to get actio
 
             if agent is None or action is None or agent != agent_name:
                 agent_action = agent_object.get_action(self.observation[agent_name])
@@ -240,6 +494,18 @@ class EnvironmentController:
                 assert i == 0, "Assert that blue's is the first action failed, this means the saved true state will include the effects of the red action"
                 # Assumes blue is first agent in the list as it is added first in _create_agents() since it is the first agent in Scenario2.yaml
                 true_obs_post_blue_action = self.make_true_state_vector()
+
+                #Get afterstate
+                agent_session = list(self.get_action_space(agent_name)['session'].keys())[0]
+                agent_observation = self._filter_obs(
+                    self.execute_action(Monitor(session=agent_session, agent='Blue')), agent_name)
+                first_action_success = self.observation[agent_name].success
+                self.observation[agent_name].combine_obs(agent_observation)
+                self.observation[agent_name].set_success(first_action_success)
+                agent_object.update(self.observation[agent_name])
+                self.afterstate.last_action = self.get_last_action(agent_name)
+                afterstate_vector = self.afterstate.observation_change(self.observation[agent].data)
+                #print('After Action: ', afterstate_vector)
 
         # get true observation
         true_observation = self._filter_obs(self.get_true_state(self.INFO_DICT['True'])).data
@@ -262,6 +528,7 @@ class EnvironmentController:
                 agent_object.train(Results(observation=self.observation[agent_name].data, reward=reward,
                                            next_observation=next_observation[agent_name].data, done=self.done))
             self.observation[agent_name] = next_observation[agent_name]
+
             agent_object.update(self.observation[agent_name])
 
             # if self.verbose and type(self.action[agent_name]) != Sleep and self.observation[agent_name].dict['success'] == True:
@@ -278,11 +545,17 @@ class EnvironmentController:
                 self.observation[agent_name].combine_obs(agent_observation)
                 self.observation[agent_name].set_success(first_action_success)
                 agent_object.update(self.observation[agent_name])
+
+                #self.afterstate.last_action = self.get_last_action(agent_name)
+                #vec2 = self.afterstate.observation_change(self.observation[agent].data)
+                #print('Latest Info: ', vec2)
         # if done then complete other agent's turn
+
+        #print('Delta: ', afterstate_vector - vec2)
 
         true_obs_post_all_actions = self.make_true_state_vector()
 
-        self.record_true_states(true_obs_pre_any_actions, true_obs_post_blue_action, true_obs_post_all_actions)
+        self.record_additional_states(true_obs_pre_any_actions, true_obs_post_blue_action, true_obs_post_all_actions, afterstate_vector)
 
         if agent is None:
             result = Results(observation=true_observation, done=self.done)
@@ -523,6 +796,7 @@ class EnvironmentController:
 
     def get_reward_breakdown(self, agent:str):
         return self.agent_interfaces[agent].reward_calculator.host_scores
+
 
         
 

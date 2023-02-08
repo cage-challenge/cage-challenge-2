@@ -1,0 +1,242 @@
+Agents:
+  Blue:
+    AllowedSubnets:
+      - User
+      - Enterprise
+      - Operational
+    INT:
+      Hosts:
+        Defender:
+          Interfaces: All
+          System info: All
+          User info: All
+        Enterprise0:
+          Interfaces: All
+          System info: All
+          User info: All
+        Op_Host0:
+          Interfaces: All
+          System info: All
+          User info: All
+        Op_Server0:
+          Interfaces: All
+          System info: All
+          User info: All
+        User0:
+          Interfaces: All
+          System info: All
+          User info: All
+        User1:
+          Interfaces: All
+          System info: All
+          User info: All
+    adversary: Red
+    actions:
+      - Sleep
+      - Monitor
+      - Analyse
+      - Remove
+      - Restore
+    agent_type: SleepAgent
+    reward_calculator_type: HybridAvailabilityConfidentiality
+    starting_sessions:
+      - hostname: User0
+        name: VeloUser0
+        parent: VeloServer
+        type: VelociraptorClient
+        username: ubuntu
+      - hostname: User1
+        name: VeloUser1
+        parent: VeloServer
+        type: VelociraptorClient
+        username: ubuntu
+      - hostname: Enterprise0
+        name: VeloEnterprise0
+        parent: VeloServer
+        type: VelociraptorClient
+        username: ubuntu
+      - hostname: Defender
+        name: VeloDefender
+        parent: VeloServer
+        type: VelociraptorClient
+        username: ubuntu
+      - hostname: Op_Server0
+        name: VeloOp_Server0
+        parent: VeloServer
+        type: VelociraptorClient
+        username: ubuntu
+      - hostname: Op_Host0
+        name: VeloOp_Host0
+        parent: VeloServer
+        type: VelociraptorClient
+        username: ubuntu
+      - artifacts:
+          - NetworkConnections
+          - ProcessCreation
+        hostname: Defender
+        name: VeloServer
+        num_children_sessions: 2
+        type: VelociraptorServer
+        username: ubuntu
+    wrappers: [ ]
+  Green:
+    AllowedSubnets:
+      - User
+      - Enterprise
+      - Operational
+    INT:
+      Hosts:
+        Defender:
+          Interfaces: All
+          System info: All
+          User info: All
+        Enterprise0:
+          Interfaces: All
+          System info: All
+          User info: All
+        Op_Host0:
+          Interfaces: All
+          System info: All
+          User info: All
+        Op_Server0:
+          Interfaces: All
+          System info: All
+          User info: All
+        User0:
+          Interfaces: All
+          System info: All
+          User info: All
+        User1:
+          Interfaces: All
+          System info: All
+          User info: All
+    actions:
+    - Sleep
+    - GreenPingSweep
+    - GreenPortScan
+    - GreenConnection
+    agent_type: SleepAgent
+    reward_calculator_type: None
+    starting_sessions:
+    - hostname: User0
+      name: GreenSession
+      type: green_session
+      username: GreenAgent
+    - hostname: User1
+      name: GreenSession
+      type: green_session
+      username: GreenAgent
+    - hostname: Op_Host0
+      name: GreenSession
+      type: green_session
+      username: GreenAgent
+    wrappers: []
+  Red:
+    AllowedSubnets:
+      - User
+      - Enterprise
+      - Operational
+    INT:
+      Hosts:
+        User0:
+          Interfaces: All
+          System info: All
+    actions:
+    - Sleep
+    - DiscoverRemoteSystems
+    - DiscoverNetworkServices
+    - ExploitRemoteService
+    - BlueKeep
+    - EternalBlue
+    - FTPDirectoryTraversal
+    - HarakaRCE
+    - HTTPRFI
+    - HTTPSRFI
+    - SQLInjection
+    - PrivilegeEscalate
+    - Impact
+    - SSHBruteForce
+    agent_type: SleepAgent
+    reward_calculator_type: HybridImpactPwn
+    starting_sessions:
+    - hostname: User0
+      name: RedPhish
+      type: RedAbstractSession
+      username: SYSTEM
+    wrappers: []
+Hosts:
+  Defender:
+    AWS_Info: []
+    image: Velociraptor_Server
+  Enterprise0:
+    AWS_Info: []
+    image: Gateway
+    info:
+      Enterprise0:
+        Interfaces: All
+    ConfidentialityValue: Medium
+    AvailabilityValue: Medium
+  Op_Host0:
+    AWS_Info: []
+    image: Gateway
+    info:
+      Op_Host0:
+        Interfaces: All
+  Op_Server0:
+    AWS_Info: []
+    image: OP_Server
+    info:
+      Op_Server0:
+        Interfaces: All
+        Services:
+        - OTService
+    ConfidentialityValue: Medium
+    AvailabilityValue: High
+  User0:
+    AWS_Info: []
+    image: windows_user_host1
+    info:
+      User0:
+        Interfaces: All
+    ConfidentialityValue: None
+    AvailabilityValue: None
+  User1:
+    AWS_Info: []
+    image: windows_user_host1
+    info:
+      Enterprise0:
+        Interfaces: IP Address
+      User1:
+        Interfaces: All
+    AvailabilityValue: None
+Subnets:
+  Enterprise:
+    Hosts:
+    - Enterprise0
+    - Defender
+    NACLs:
+      all:
+        in: all
+        out: all
+    Size: 2
+  Operational:
+    Hosts:
+    - Op_Server0
+    - Op_Host0
+    NACLs:
+      User:
+        in: None
+        out: all
+      all:
+        in: all
+        out: all
+    Size: 2
+  User:
+    Hosts:
+    - User0
+    - User1
+    NACLs:
+      all:
+        in: all
+        out: all
+    Size: 2
