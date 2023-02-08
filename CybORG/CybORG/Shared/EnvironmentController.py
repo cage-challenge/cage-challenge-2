@@ -432,8 +432,8 @@ class EnvironmentController:
     def record_additional_states(self, pre, after_blue, after_all, afterstate):
         if len(self.true_state_after_all)>0:
             last_red = self.true_state_after_all[len(self.true_state_after_all)-1]
-            assert last_red.shape == (36,)
-            assert pre.shape == (36,)
+            assert last_red.shape == (78,)
+            assert pre.shape == (78,)
             assert np.all(last_red == pre), "broken assumption that states after red action and before blue action are always equal"
             # if not np.all(self.true_state_after_all[len(self.true_state_after_all)-1] == pre):
             #     print(f"NOT EQUAL!:  {self.true_state_after_all[len(self.true_state_after_all)-1] == pre}")
@@ -476,7 +476,7 @@ class EnvironmentController:
         next_observation = {}
         # all agents act on the state
         for i, (agent_name, agent_object) in enumerate(self.agent_interfaces.items()):
-            # pass observation to agent to get actio
+            # pass observation to agent to get action
 
             if agent is None or action is None or agent != agent_name:
                 agent_action = agent_object.get_action(self.observation[agent_name])

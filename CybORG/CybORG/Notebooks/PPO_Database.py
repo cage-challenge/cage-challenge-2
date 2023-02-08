@@ -34,11 +34,14 @@ warnings.filterwarnings('ignore')
 #     id += 1
 #     return id
 
-NUM_WORKER = 20
-BATCH_SIZE = 8000
-ITERS = 100
+NUM_WORKER = 4
+BATCH_SIZE = 4000
+ITERS = 200
 # RED_AGENT = "B_Line"
 RED_AGENT = "Meander"
+SCENARIO_PATH = '/Shared/Scenarios/Scenario2_No_Decoy.yaml'
+
+DATA_PATH = f"logs/APPO/TrueStates_{ITERS}_{BATCH_SIZE}_{RED_AGENT}_badblue_nodecoys"
 
 class CustomTrueStateCallbackSaver(DefaultCallbacks):
     def __init__(self, legacy_callbacks_dict: Dict[str, callable] = None):
@@ -135,7 +138,7 @@ class CustomTrueStateCallbackSaver(DefaultCallbacks):
 def env_creator(env_config: dict):
     # import pdb; pdb.set_trace()
     path = str(inspect.getfile(CybORG))
-    path = path[:-10] + '/Shared/Scenarios/Scenario2Small.yaml'
+    path = path[:-10] + SCENARIO_PATH
     if RED_AGENT == "B_Line":
         agents = {"Red": B_lineAgent, "Green": GreenAgent}
     else:
@@ -164,14 +167,16 @@ config = (
     #Each rollout worker uses a single cpu
     .rollouts(num_rollout_workers=NUM_WORKER, num_envs_per_worker=2, horizon=100)\
     .training(train_batch_size=BATCH_SIZE, gamma=0.8, lr=0.00005, 
+            # Swap the comments to get a bad agent or not (for true state capture/analysis purposes)
             #   model={"fcnet_hiddens": [512, 512], "fcnet_activation": "tanh",})\
-                model={"fcnet_hiddens": [256, 256], "fcnet_activation": "tanh",})\
+                model={"fcnet_hiddens": [4, 4], "fcnet_activation": "tanh",})\
     .environment(disable_env_checking=True, env = 'CybORG')\
     # .resources(num_gpus=0)\
     .framework('tf')\
+    # Swap the comments to get a bad agent or not (for true state capture/analysis purposes)
     # .exploration(explore=True, exploration_config={"type": "RE3", "embeds_dim": 128, "beta_schedule": "constant", "sub_exploration": {"type": "StochasticSampling",},})\
     .exploration(explore=True, exploration_config={"type": "RE3", "embeds_dim": 2, "beta_schedule": "constant", "sub_exploration": {"type": "StochasticSampling",},})\
-    .offline_data(output=f"logs/APPO/TrueStates_{ITERS}_{BATCH_SIZE}_{RED_AGENT}_small", output_compress_columns=['prev_actions', 'prev_rewards', 'dones', 't', 'action_prob', 'action_logp', 'action_dist_inputs', 'advantages', 'value_targets'], #'eps_id', 'unroll_id', 'agent_index',
+    .offline_data(output=DATA_PATH, output_compress_columns=['prev_actions', 'prev_rewards', 'dones', 't', 'action_prob', 'action_logp', 'action_dist_inputs', 'advantages', 'value_targets'], #'eps_id', 'unroll_id', 'agent_index',
                  output_config={"format": "json"},)\
     .callbacks(CustomTrueStateCallbackSaver)
 )
