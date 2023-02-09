@@ -39,6 +39,9 @@ BATCH_SIZE = 1000
 ITERS = 200
 # RED_AGENT = "B_Line"
 RED_AGENT = "Meander"
+SCENARIO_PATH = '/Shared/Scenarios/Scenario2_No_Decoy.yaml'
+
+DATA_PATH = f"logs/APPO/TrueStates_{ITERS}_{BATCH_SIZE}_{RED_AGENT}_badblue_nodecoys"
 
 class CustomTrueStateCallbackSaver(DefaultCallbacks):
     def __init__(self, legacy_callbacks_dict: Dict[str, callable] = None):
@@ -135,7 +138,7 @@ class CustomTrueStateCallbackSaver(DefaultCallbacks):
 def env_creator(env_config: dict):
     # import pdb; pdb.set_trace()
     path = str(inspect.getfile(CybORG))
-    path = path[:-10] + '/Shared/Scenarios/Scenario2Small.yaml'
+    path = path[:-10] + SCENARIO_PATH
     if RED_AGENT == "B_Line":
         agents = {"Red": B_lineAgent, "Green": GreenAgent}
     else:
@@ -165,10 +168,11 @@ config = (
     .rollouts(num_rollout_workers=NUM_WORKER, num_envs_per_worker=1, horizon=100)\
     .training(train_batch_size=BATCH_SIZE, gamma=0.99, lr=0.00005, 
             #   model={"fcnet_hiddens": [512, 512], "fcnet_activation": "tanh",})\
-                model={"fcnet_hiddens": [256, 256], "fcnet_activation": "tanh",})\
+                model={"fcnet_hiddens": [4, 4], "fcnet_activation": "tanh",})\
     .environment(disable_env_checking=True, env = 'CybORG')\
     # .resources(num_gpus=0)\
     .framework('tf')\
+    # Swap the comments to get a bad agent or not (for true state capture/analysis purposes)
     # .exploration(explore=True, exploration_config={"type": "RE3", "embeds_dim": 128, "beta_schedule": "constant", "sub_exploration": {"type": "StochasticSampling",},})\
     .exploration(explore=True, exploration_config={"type": "RE3", "embeds_dim": 64, "beta_schedule": "constant", "sub_exploration": {"type": "StochasticSampling",},})\
     .offline_data(output=f"logs/APPO/TrueStates_{ITERS}_{BATCH_SIZE}_{RED_AGENT}_small_4_bit", output_compress_columns=['prev_actions', 'prev_rewards', 'dones', 't', 'action_prob', 'action_logp', 'action_dist_inputs', 'advantages', 'value_targets'], #'eps_id', 'unroll_id', 'agent_index',

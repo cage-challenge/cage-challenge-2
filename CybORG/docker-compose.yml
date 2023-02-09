@@ -10,7 +10,7 @@ services:
       resources:
         limits:
           memory: 13G
-          cpus: '0.8'          
+          cpus: '4.0'          
         reservations:
           cpus: '0.5'
           memory: 1G
