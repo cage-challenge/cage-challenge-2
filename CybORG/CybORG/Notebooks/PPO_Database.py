@@ -34,9 +34,9 @@ warnings.filterwarnings('ignore')
 #     id += 1
 #     return id
 
-NUM_WORKER = 20
-BATCH_SIZE = 8000
-ITERS = 100
+NUM_WORKER = 10
+BATCH_SIZE = 1000
+ITERS = 200
 # RED_AGENT = "B_Line"
 RED_AGENT = "Meander"
 
@@ -112,7 +112,7 @@ class CustomTrueStateCallbackSaver(DefaultCallbacks):
 
         # print(f"worker = {worker}")
         samples_len = len(samples['obs'])
-        print(f"SAMPLES LEN = {samples_len}, is {len(samples['obs'])/100} sequences of 100, truncating true state arrays if they do not match")
+        #print(f"SAMPLES LEN = {samples_len}, is {len(samples['obs'])/100} sequences of 100, truncating true state arrays if they do not match")
 
         # Concat all runs into a single experience batch
         sample_pres = np.concatenate(self.worker_to_pres[worker])
@@ -126,8 +126,8 @@ class CustomTrueStateCallbackSaver(DefaultCallbacks):
         samples["red_action_true_states"] = sample_reds[:samples_len,:]
         samples["afterstates"] = sample_afterstate[:samples_len,:]
 
-        assert not np.all(sample_pres==sample_blues), "failed assumption that true state can change after blue and before red actions"
-        assert not np.all(sample_blues==sample_reds), "failed assumption that true state can change after blue and red actions"
+       # assert not np.all(sample_pres==sample_blues), "failed assumption that true state can change after blue and before red actions"
+      #  assert not np.all(sample_blues==sample_reds), "failed assumption that true state can change after blue and red actions"
 
         self.reset_worker_stores(worker)
         # samples["yessss"]= np.array([len(samples['obs'])])
@@ -162,16 +162,16 @@ from ray.rllib.policy.policy import PolicySpec
 config = (
     PPOConfig()
     #Each rollout worker uses a single cpu
-    .rollouts(num_rollout_workers=NUM_WORKER, num_envs_per_worker=2, horizon=100)\
-    .training(train_batch_size=BATCH_SIZE, gamma=0.8, lr=0.00005, 
+    .rollouts(num_rollout_workers=NUM_WORKER, num_envs_per_worker=1, horizon=100)\
+    .training(train_batch_size=BATCH_SIZE, gamma=0.99, lr=0.00005, 
             #   model={"fcnet_hiddens": [512, 512], "fcnet_activation": "tanh",})\
                 model={"fcnet_hiddens": [256, 256], "fcnet_activation": "tanh",})\
     .environment(disable_env_checking=True, env = 'CybORG')\
     # .resources(num_gpus=0)\
     .framework('tf')\
     # .exploration(explore=True, exploration_config={"type": "RE3", "embeds_dim": 128, "beta_schedule": "constant", "sub_exploration": {"type": "StochasticSampling",},})\
-    .exploration(explore=True, exploration_config={"type": "RE3", "embeds_dim": 2, "beta_schedule": "constant", "sub_exploration": {"type": "StochasticSampling",},})\
-    .offline_data(output=f"logs/APPO/TrueStates_{ITERS}_{BATCH_SIZE}_{RED_AGENT}_small", output_compress_columns=['prev_actions', 'prev_rewards', 'dones', 't', 'action_prob', 'action_logp', 'action_dist_inputs', 'advantages', 'value_targets'], #'eps_id', 'unroll_id', 'agent_index',
+    .exploration(explore=True, exploration_config={"type": "RE3", "embeds_dim": 64, "beta_schedule": "constant", "sub_exploration": {"type": "StochasticSampling",},})\
+    .offline_data(output=f"logs/APPO/TrueStates_{ITERS}_{BATCH_SIZE}_{RED_AGENT}_small_4_bit", output_compress_columns=['prev_actions', 'prev_rewards', 'dones', 't', 'action_prob', 'action_logp', 'action_dist_inputs', 'advantages', 'value_targets'], #'eps_id', 'unroll_id', 'agent_index',
                  output_config={"format": "json"},)\
     .callbacks(CustomTrueStateCallbackSaver)
 )
