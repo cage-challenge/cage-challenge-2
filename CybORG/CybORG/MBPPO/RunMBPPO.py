@@ -33,17 +33,27 @@ import warnings
 warnings.filterwarnings("ignore", category=DeprecationWarning) 
 #ray.init(log_to_driver=False)
 
-os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"
-os.environ["CUDA_VISIBLE_DEVICES"]="1"
+import logging
+logging.getLogger("tensorflow").setLevel(logging.ERROR)
+import tensorflow as tf
+print("Num GPUs Available: ", len(tf.config.list_physical_devices('GPU')))
+
+tf.autograph.set_verbosity(0)
+
 
 NUM_WORKER = 20
 BATCH_SIZE = 2000
-ITERS = 400
-RED_AGENT = "Meander"
+ITERS = 100
+RED_AGENT = "B_Line"
+import os
+os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"
+os.environ["CUDA_VISIBLE_DEVICES"]="0"
 
 def env_creator(env_config: dict):
     # import pdb; pdb.set_trace()
-    path = '/home/adamprice/u75a-Data-Efficient-Decisions/CybORG/CybORG/Shared/Scenarios/Scenario2_No_Decoy.yaml'
+    path = '../Shared/Scenarios/Scenario2_No_Decoy.yaml'
+    #path = str(inspect.getfile(CybORG))
+    #path = path[:-10] + '/Shared/Scenarios/Scenario2_No_Decoy.yaml'
     if RED_AGENT == "B_Line":
         agents = {"Red": B_lineAgent, "Green": GreenAgent}
     else:
@@ -59,26 +69,31 @@ def print_results(results_dict):
     r_max = results_dict["episode_reward_max"]
     r_min = results_dict["episode_reward_min"]
     print(f"{train_iter:4d} \tr_mean: {r_mean:.1f} \tr_max: {r_max:.1f} \tr_min: {r_min: .1f}")
+    return r_mean
 
 register_env(name="CybORG", env_creator=env_creator)
 
 from MBPPO import MBPPOConfig
 
+for t in range(7):
 # TODO: maybe add horizon to the callback initialiser
-config = (
-    MBPPOConfig()
-    #Each rollout worker uses a single cpu
-    .rollouts(num_rollout_workers=NUM_WORKER, num_envs_per_worker=1, horizon=100)\
-    .training(train_batch_size=BATCH_SIZE, gamma=0.99, lr=0.00005, 
-            #   model={"fcnet_hiddens": [512, 512], "fcnet_activation": "tanh",})\
-                model={"fcnet_hiddens": [256, 256], "fcnet_activation": "tanh",})\
-    .environment(disable_env_checking=True, env = 'CybORG')\
-    .framework('tf2')\
-)
-trainer = config.build() 
+    config = (
+        MBPPOConfig()
+        #Each rollout worker uses a single cpu
+        .rollouts(num_rollout_workers=NUM_WORKER, num_envs_per_worker=1)\
+        .training(train_batch_size=BATCH_SIZE, gamma=0.9, lr=0.0001, 
+                #   model={"fcnet_hiddens": [512, 512], "fcnet_activation": "tanh",})\
+                    model={"fcnet_hiddens": [256, 256], "fcnet_activation": "tanh",})\
+        .environment(disable_env_checking=True, env = 'CybORG')\
+        .framework('tf2')\
+        .resources(num_gpus=1)
+    )
+    trainer = config.build() 
 
-import warnings
-warnings.filterwarnings("ignore")
+    import warnings
+    warnings.filterwarnings("ignore")
 
-for i in range(ITERS):
-    print_results(trainer.train())
+    rewards = np.zeros(ITERS)
+    for i in range(ITERS):
+        rewards[i] = print_results(trainer.train())
+        np.save('node_with_obs'+str(t), rewards)

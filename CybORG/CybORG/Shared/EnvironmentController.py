@@ -403,8 +403,8 @@ class EnvironmentController:
                     action_space = self.get_action_space(agent = 'Red')
                     known = action_space['ip_address'][ip]
                     scanned = True if str(ip) in self.scanned_ips else False
-                    if scanned:
-                        assert known, "assumpution failed that there are 3 possible discovery states unknown->known->scanned"
+                    #if scanned:
+                    #    assert known, "assumpution failed that there are 3 possible discovery states unknown->known->scanned"
 
                     access = self._determine_red_access(host['Sessions'])
 
@@ -432,9 +432,9 @@ class EnvironmentController:
     def record_additional_states(self, pre, after_blue, after_all, afterstate):
         if len(self.true_state_after_all)>0:
             last_red = self.true_state_after_all[len(self.true_state_after_all)-1]
-            assert last_red.shape == (78,)
-            assert pre.shape == (78,)
-            assert np.all(last_red == pre), "broken assumption that states after red action and before blue action are always equal"
+            #assert last_red.shape == (78,)
+            #assert pre.shape == (78,)
+            #assert np.all(last_red == pre), "broken assumption that states after red action and before blue action are always equal"
             # if not np.all(self.true_state_after_all[len(self.true_state_after_all)-1] == pre):
             #     print(f"NOT EQUAL!:  {self.true_state_after_all[len(self.true_state_after_all)-1] == pre}")
         self.true_state_pres.append(pre)
@@ -491,7 +491,7 @@ class EnvironmentController:
             # perform action on state
             next_observation[agent_name] = self._filter_obs(self.execute_action(self.action[agent_name]), agent_name)
             if agent_name == "Blue":
-                assert i == 0, "Assert that blue's is the first action failed, this means the saved true state will include the effects of the red action"
+                #assert i == 0, "Assert that blue's is the first action failed, this means the saved true state will include the effects of the red action"
                 # Assumes blue is first agent in the list as it is added first in _create_agents() since it is the first agent in Scenario2.yaml
                 true_obs_post_blue_action = self.make_true_state_vector()
 

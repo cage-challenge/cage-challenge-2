@@ -7,3 +7,4 @@ prettytable
 docutils
 ray
 numpy_indexed
+ray[rllib]==2.2.0

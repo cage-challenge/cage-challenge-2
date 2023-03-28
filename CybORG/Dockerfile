@@ -17,9 +17,11 @@ COPY . /app
 
 RUN pip install -U "ray[default]"
 RUN pip install ray[rllib]
+
 RUN pip install ray[tune]
 RUN pip install ray[air]
 RUN pip install ray[serve]
+
 RUN pip install gputil
 RUN pip install graphviz
 RUN pip install tensorflow-probability

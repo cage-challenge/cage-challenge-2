@@ -33,35 +33,39 @@ class CAGERewardModel(TFModelV2):
         self.ACTION_LEN = 41
 
         self.global_itr = 0
-        self.valid_split = 0.15
-        self.max_train_epochs = 20
-        self.reward_to_index = np.load('/home/adamprice/u75a-Data-Efficient-Decisions/CybORG/CybORG/Notebooks/reward_to_index.npy', allow_pickle=True).item()
-        self.index_to_reward = np.load('/home/adamprice/u75a-Data-Efficient-Decisions/CybORG/CybORG/Notebooks/index_to_reward.npy', allow_pickle=True).item()
-        
+        self.valid_split = 0.1
+        self.max_train_epochs = 50
+        self.reward_to_index = np.load('reward_to_index.npy', allow_pickle=True).item()
+        self.index_to_reward = np.load('index_to_reward.npy', allow_pickle=True).item()
+        self.number_rewards = int(len(self.reward_to_index.keys()))
        # super().__init__()
 
-        input_ = Input(shape=(self.STATE_LEN*2,))
+        input_ = Input(shape=(self.STATE_LEN,))
 
-        x = Dense(512, activation='relu')(input_)
-        x = Dense(512, activation='relu')(x)
-        x = Dense(512, activation='relu')(x)
-        out = Dense(int(len(self.reward_to_index.keys())), activation='softmax')(x)
+        x = Dense(256, activation='tanh')(input_)
+        x = Dense(256, activation='tanh')(x)
+        #x = Dense(256, activation='relu')(x)
+        out = Dense(self.number_rewards, activation='softmax')(x)
 
         self.base_model = Model(input_, out)
        
-        self.callback = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=3, min_delta=0.01)
+        self.callback = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=3, min_delta=0.005)
 
     def forward(self, x):
-        probs = self.base_model(x)
-        index = tf.random.categorical(probs, 1).numpy()
-        return self.index_to_reward[index[0][0]]
+        probs = self.base_model(x).numpy()[0]
+        index = np.random.choice(np.arange(self.number_rewards), p=probs)
+        ##index = np.random.categorical(probs, 1).numpy()
+        return self.index_to_reward[index]
         
     
     def fit(self, samples): 
         # Process Samples
         samples = self.process_samples(samples)
-        self.base_model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=0.001), loss=tf.keras.losses.CategoricalCrossentropy(), metrics=[tf.keras.metrics.CategoricalAccuracy()])
-        self.base_model.fit(samples['obs_concat'], samples['rewards'], epochs=self.max_train_epochs, validation_split=0.15, verbose=0, callbacks=[self.callback], batch_size=256)
+        self.base_model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=0.0005), loss=tf.keras.losses.CategoricalCrossentropy(), metrics=[tf.keras.metrics.CategoricalAccuracy()])
+        with tf.device("/device:GPU:0"):
+            history = self.base_model.fit(samples['obs_concat'], samples['rewards'], epochs=self.max_train_epochs, validation_split=self.valid_split, verbose=0, callbacks=[self.callback], batch_size=256)
+        print('reward val loss: ', history.history['val_loss'])
+        print('reward accuracy ', history.history['val_categorical_accuracy'])
         self.global_itr += 1
         # Returns Metric Dictionary
         return self.metrics
@@ -74,6 +78,7 @@ class CAGERewardModel(TFModelV2):
         reward_onehot = np.eye(int(len(self.reward_to_index.keys())))[np.array(reward_classes, dtype=np.int8)]
         processed['rewards'] = reward_onehot
         processed['obs_concat'] = np.concatenate([samples['obs'], samples['next_obs']], axis=1)
+        processed['obs_concat'] = samples['next_obs']
         return SampleBatch(processed)
 
 from bisect import bisect_left

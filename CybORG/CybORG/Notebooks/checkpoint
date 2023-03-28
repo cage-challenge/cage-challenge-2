@@ -1,2 +1,2 @@
-model_checkpoint_path: "RewardModel"
-all_model_checkpoint_paths: "RewardModel"
+model_checkpoint_path: "RewardModel_Insomnia"
+all_model_checkpoint_paths: "RewardModel_Insomnia"

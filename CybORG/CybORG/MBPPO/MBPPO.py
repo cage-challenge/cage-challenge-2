@@ -90,21 +90,21 @@ class MBPPOConfig(PGConfig):
         # PPO specific settings:
         self.use_critic = True
         self.use_gae = True
-        self.lambda_ = 1.0
+        self.lambda_ = 0.99
         self.kl_coeff = 0.2
-        self.sgd_minibatch_size = 128
-        self.num_sgd_iter = 30
+        self.sgd_minibatch_size = 500
+        self.num_sgd_iter = 20
         self.shuffle_sequences = True
         self.vf_loss_coeff = 1.0
-        self.entropy_coeff = 0.0
+        self.entropy_coeff = 0.001
         self.entropy_coeff_schedule = None
         self.clip_param = 0.3
-        self.vf_clip_param = 10.0
+        self.vf_clip_param = 0.0
         self.grad_clip = None
-        self.kl_target = 0.01
+        self.kl_target = 0.03
 
         # Override some of PG/AlgorithmConfig's default values with PPO-specific values.
-        self.num_rollout_workers = 2
+        self.num_rollout_workers = 20
         self.train_batch_size = 4000
         self.lr = 5e-5
         self.model["vf_share_layers"] = False
@@ -118,7 +118,7 @@ class MBPPOConfig(PGConfig):
             "prioritized_replay": DEPRECATED_VALUE,
             # Size of the replay buffer. Note that if async_updates is set,
             # then each worker will have a replay buffer of this size.
-            "capacity": 500000,
+            "capacity": 1000000,
             "prioritized_replay_alpha": 0.6,
             # Beta parameter for sampling from prioritized replay buffer.
             "prioritized_replay_beta": 0.4,
@@ -323,6 +323,14 @@ class MBPPO(Algorithm):
         else:
             from MBPPO_tf_policy import MBPPOTF2Policy
             return MBPPOTF2Policy
+        
+    def encode_batch(self, batch, dream):
+        if dream:
+            np.save('batch_encodings/dream_obs_' + str(self._counters[NUM_AGENT_STEPS_SAMPLED]) + '.npy',
+                np.mean(batch['obs'], axis=0))
+        else:
+            np.save('batch_encodings/obs_' + str(self._counters[NUM_AGENT_STEPS_SAMPLED]) + '.npy',
+                    np.mean(batch['obs'], axis=0))
 
     @ExperimentalAPI
     def training_step(self) -> ResultDict:
@@ -336,6 +344,7 @@ class MBPPO(Algorithm):
                 worker_set=self.workers, max_env_steps=self.config.train_batch_size
             )
             
+        self.encode_batch(train_batch, False)
         self.local_replay_buffer.add(self.process_experience(train_batch))
 
         train_batch = train_batch.as_multi_agent()
@@ -343,15 +352,16 @@ class MBPPO(Algorithm):
         self._counters[NUM_ENV_STEPS_SAMPLED] += train_batch.env_steps()
 
         train_results = self.learning_from_samples(train_batch)
+
+        dreams_start_at = 20000
    
-        if self._counters[NUM_AGENT_STEPS_SAMPLED] > 20000:
-            print('Train Model')
-            experience_data = self.local_replay_buffer.sample(20000)
+        if self._counters[NUM_AGENT_STEPS_SAMPLED] > dreams_start_at:
+            experience_data = self.local_replay_buffer.sample(self._counters[NUM_AGENT_STEPS_SAMPLED])
             for pid in self.workers.local_worker().get_policies_to_train(experience_data):
                 self.workers.local_worker().get_policy(pid).reward_model.fit(experience_data[pid])
                 self.workers.local_worker().get_policy(pid).state_tranistion_model.fit(experience_data[pid])
 
-                if self._counters[NUM_AGENT_STEPS_SAMPLED] > 100000:   
+                if self._counters[NUM_AGENT_STEPS_SAMPLED] > dreams_start_at:   
                     #Sync
                     reward_weights = self.workers.local_worker().get_policy(pid).reward_model.base_model.get_weights()
                     def set_reward_weights(policy, pid):
@@ -364,14 +374,16 @@ class MBPPO(Algorithm):
                     self.workers.foreach_policy(set_state_weights)
 
         #Dream
-        if self._counters[NUM_AGENT_STEPS_SAMPLED] > 100000:            
-            print('Dream')
-            samples = self.workers.foreach_policy(dream)
-            s = samples[0]
-            for i in range(1, len(samples)):
-                s.concat(samples[i])
-            self.learning_from_samples(s.as_multi_agent())
-
+        if self._counters[NUM_AGENT_STEPS_SAMPLED] > dreams_start_at:
+            s = []; 
+            for d in range(1):
+                for i in range(1):
+                    samples = self.workers.foreach_policy(dream)
+                    s.append(SampleBatch.concat_samples(samples))
+                samples = SampleBatch.concat_samples(s)
+                self.encode_batch(samples, True)
+                self.learning_from_samples(samples.as_multi_agent())
+        
         return train_results
 
     def learning_from_samples(self, samples):
@@ -454,19 +466,60 @@ class MBPPO(Algorithm):
         rewards = np.zeros((samples['dones'].shape[0]-samples['dones'].sum()))
 
         no_dones_pointer = 0
+        ts = 0
         for i in range(samples['dones'].shape[0]-1):
             if samples['dones'][i]:
+                ts =0
                 continue
+            #obs[no_dones_pointer,:] = np.concatenate([samples['obs'][i], [ts/100]])
             obs[no_dones_pointer,:] = samples['obs'][i]
             next_obs[no_dones_pointer,:] = samples['obs'][i+1]
             actions[no_dones_pointer] = samples['actions'][i]
             rewards[no_dones_pointer] = samples['rewards'][i]
             no_dones_pointer += 1
+            ts += 1
 
         return SampleBatch({'obs': obs,
                             'next_obs': next_obs,
                             'actions': actions,
                             'rewards': rewards})
+    
+    def process_experience_nodes(self, samples):    
+        #TODO vectorises this
+        STATE_LEN = 91
+        obs = np.zeros((samples['dones'].shape[0]-samples['dones'].sum(), STATE_LEN+1))
+        next_obs = np.zeros((samples['dones'].shape[0]-samples['dones'].sum(), STATE_LEN))
+        actions = np.zeros(((samples['dones'].shape[0]-samples['dones'].sum())*13))
+        rewards = np.zeros((samples['dones'].shape[0]-samples['dones'].sum()))
+
+        no_dones_pointer = 0
+        ts = 0
+        for i in range(samples['dones'].shape[0]-1):
+            if samples['dones'][i]:
+                ts =0
+                continue
+            #obs[no_dones_pointer,:] = np.concatenate([samples['obs'][i], [ts/100]])
+            obs[no_dones_pointer,:] = samples['obs'][i]
+            next_obs[no_dones_pointer,:] = samples['obs'][i+1]
+            actions[no_dones_pointer] = samples['actions'][i]
+            rewards[no_dones_pointer] = samples['rewards'][i]
+            no_dones_pointer += 1
+            ts += 1
+
+        return SampleBatch({'obs': obs,
+                            'next_obs': next_obs,
+                            'actions': actions,
+                            'rewards': rewards})
+    
+    def node_action(self, action, node):
+        vec = np.zeros(3)
+        if action < 2: 
+            return vec
+        action -= 2
+        if action % node == 0:
+            #Analyse #Remove #Resotre
+            vec[(action // node) - 1] = 1
+        return vec
 
 
 def dream(policy, pid):

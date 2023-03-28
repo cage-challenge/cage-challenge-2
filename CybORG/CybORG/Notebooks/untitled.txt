@@ -1,0 +1,884 @@
+ROLLOUT:  1
+2023-02-17 17:50:51,769	INFO worker.py:1529 -- Started a local Ray instance. View the dashboard at http://127.0.0.1:8265 
+(pid=31058) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=31058)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=31038) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=31038)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=31056) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=31056)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=31036) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=31036)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=31043) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=31043)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=31044) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=31044)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=31039) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=31039)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=31060) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=31060)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=31068) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=31068)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=31064) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=31064)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=31037) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=31037)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=31061) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=31061)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=31041) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=31041)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=31057) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=31057)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=31066) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=31066)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=31054) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=31054)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=31042) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=31042)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=31055) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=31055)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=31040) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=31040)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=31072) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=31072)   if (distutils.version.LooseVersion(tf.__version__) <
+2023-02-17 17:51:11,859	INFO trainable.py:172 -- Trainable.setup took 23.349 seconds. If your trainable is slow to initialize, consider setting reuse_actors=True to reduce actor creation overheads.
+   1 	r_mean: -463.5 	r_max: -188.8 	r_min: -1098.7
+   2 	r_mean: -419.8 	r_max: -132.1 	r_min: -1098.7
+   3 	r_mean: -394.2 	r_max: -132.1 	r_min: -1098.7
+   4 	r_mean: -361.7 	r_max: -132.1 	r_min: -1098.7
+   5 	r_mean: -334.8 	r_max: -132.1 	r_min: -1098.7
+   6 	r_mean: -282.6 	r_max: -132.1 	r_min: -997.0
+   7 	r_mean: -257.4 	r_max: -155.1 	r_min: -997.0
+   8 	r_mean: -231.9 	r_max: -155.1 	r_min: -696.0
+   9 	r_mean: -223.9 	r_max: -155.1 	r_min: -611.8
+  10 	r_mean: -217.4 	r_max: -155.1 	r_min: -611.8
+  11 	r_mean: -217.1 	r_max: -155.1 	r_min: -611.8
+  12 	r_mean: -207.6 	r_max: -161.9 	r_min: -439.9
+  13 	r_mean: -207.5 	r_max: -161.9 	r_min: -439.9
+  14 	r_mean: -201.3 	r_max: -161.9 	r_min: -283.8
+  15 	r_mean: -200.1 	r_max: -161.9 	r_min: -283.8
+  16 	r_mean: -198.4 	r_max: -160.3 	r_min: -283.8
+  17 	r_mean: -196.5 	r_max: -160.3 	r_min: -283.8
+  18 	r_mean: -191.5 	r_max: -156.8 	r_min: -265.4
+  19 	r_mean: -190.5 	r_max: -156.8 	r_min: -245.3
+  20 	r_mean: -191.4 	r_max: -156.8 	r_min: -278.8
+  21 	r_mean: -189.0 	r_max: -156.8 	r_min: -278.8
+  22 	r_mean: -190.4 	r_max: -147.6 	r_min: -278.8
+  23 	r_mean: -191.3 	r_max: -147.6 	r_min: -278.8
+  24 	r_mean: -192.8 	r_max: -147.6 	r_min: -278.8
+  25 	r_mean: -194.2 	r_max: -146.0 	r_min: -279.7
+  26 	r_mean: -199.8 	r_max: -143.6 	r_min: -589.1
+  27 	r_mean: -197.2 	r_max: -142.8 	r_min: -589.1
+  28 	r_mean: -198.0 	r_max: -130.7 	r_min: -589.1
+  29 	r_mean: -198.4 	r_max: -130.7 	r_min: -589.1
+  30 	r_mean: -195.5 	r_max: -130.7 	r_min: -589.1
+  31 	r_mean: -190.1 	r_max: -130.7 	r_min: -303.5
+  32 	r_mean: -187.4 	r_max: -130.7 	r_min: -293.8
+  33 	r_mean: -187.1 	r_max: -138.8 	r_min: -348.0
+  34 	r_mean: -185.3 	r_max: -138.8 	r_min: -348.0
+  35 	r_mean: -183.7 	r_max: -138.8 	r_min: -348.0
+  36 	r_mean: -181.5 	r_max: -119.8 	r_min: -348.0
+  37 	r_mean: -181.4 	r_max: -119.8 	r_min: -348.0
+  38 	r_mean: -178.1 	r_max: -119.8 	r_min: -294.8
+  39 	r_mean: -177.0 	r_max: -119.5 	r_min: -353.8
+  40 	r_mean: -174.4 	r_max: -119.5 	r_min: -353.8
+  41 	r_mean: -174.2 	r_max: -119.5 	r_min: -353.8
+  42 	r_mean: -172.2 	r_max: -119.5 	r_min: -353.8
+  43 	r_mean: -169.1 	r_max: -119.5 	r_min: -353.8
+  44 	r_mean: -164.5 	r_max: -133.0 	r_min: -256.1
+  45 	r_mean: -162.9 	r_max: -134.8 	r_min: -256.1
+  46 	r_mean: -165.2 	r_max: -134.8 	r_min: -378.2
+  47 	r_mean: -163.6 	r_max: -132.6 	r_min: -378.2
+  48 	r_mean: -162.8 	r_max: -128.8 	r_min: -378.2
+  49 	r_mean: -161.9 	r_max: -126.1 	r_min: -378.2
+  50 	r_mean: -162.3 	r_max: -121.0 	r_min: -378.2
+  51 	r_mean: -159.9 	r_max: -121.0 	r_min: -404.4
+  52 	r_mean: -161.2 	r_max: -121.0 	r_min: -404.4
+  53 	r_mean: -159.3 	r_max: -121.0 	r_min: -404.4
+  54 	r_mean: -161.6 	r_max: -121.0 	r_min: -429.8
+  55 	r_mean: -161.2 	r_max: -125.8 	r_min: -429.8
+  56 	r_mean: -169.0 	r_max: -125.8 	r_min: -585.7
+  57 	r_mean: -168.5 	r_max: -127.8 	r_min: -585.7
+  58 	r_mean: -172.7 	r_max: -110.2 	r_min: -585.7
+  59 	r_mean: -174.8 	r_max: -110.2 	r_min: -585.7
+  60 	r_mean: -172.8 	r_max: -110.2 	r_min: -585.7
+  61 	r_mean: -161.8 	r_max: -110.2 	r_min: -502.8
+  62 	r_mean: -161.0 	r_max: -110.2 	r_min: -502.8
+  63 	r_mean: -159.4 	r_max: -115.7 	r_min: -502.8
+  64 	r_mean: -155.9 	r_max: -115.7 	r_min: -254.7
+  65 	r_mean: -157.3 	r_max: -121.8 	r_min: -254.7
+  66 	r_mean: -157.6 	r_max: -123.9 	r_min: -217.7
+  67 	r_mean: -157.9 	r_max: -124.6 	r_min: -217.7
+  68 	r_mean: -155.5 	r_max: -124.6 	r_min: -214.8
+  69 	r_mean: -154.3 	r_max: -124.6 	r_min: -226.7
+  70 	r_mean: -155.0 	r_max: -122.8 	r_min: -279.3
+  71 	r_mean: -157.0 	r_max: -122.8 	r_min: -279.3
+  72 	r_mean: -157.8 	r_max: -122.8 	r_min: -279.3
+  73 	r_mean: -159.5 	r_max: -122.8 	r_min: -279.3
+  74 	r_mean: -161.9 	r_max: -122.8 	r_min: -323.8
+  75 	r_mean: -162.4 	r_max: -126.5 	r_min: -323.8
+  76 	r_mean: -159.9 	r_max: -126.8 	r_min: -323.8
+  77 	r_mean: -159.5 	r_max: -126.3 	r_min: -323.8
+  78 	r_mean: -160.3 	r_max: -122.8 	r_min: -323.8
+  79 	r_mean: -161.3 	r_max: -120.8 	r_min: -355.8
+  80 	r_mean: -160.8 	r_max: -120.8 	r_min: -355.8
+  81 	r_mean: -161.0 	r_max: -120.8 	r_min: -355.8
+  82 	r_mean: -160.9 	r_max: -120.8 	r_min: -355.8
+  83 	r_mean: -158.9 	r_max: -120.8 	r_min: -355.8
+  84 	r_mean: -155.7 	r_max: -125.8 	r_min: -277.8
+  85 	r_mean: -155.1 	r_max: -127.4 	r_min: -189.7
+  86 	r_mean: -155.3 	r_max: -127.4 	r_min: -210.7
+  87 	r_mean: -156.2 	r_max: -127.4 	r_min: -248.8
+  88 	r_mean: -155.5 	r_max: -127.8 	r_min: -248.8
+  89 	r_mean: -154.5 	r_max: -127.7 	r_min: -248.8
+  90 	r_mean: -156.0 	r_max: -127.7 	r_min: -248.8
+  91 	r_mean: -156.7 	r_max: -127.7 	r_min: -265.8
+  92 	r_mean: -155.0 	r_max: -127.1 	r_min: -265.8
+  93 	r_mean: -154.0 	r_max: -126.8 	r_min: -265.8
+  94 	r_mean: -156.4 	r_max: -126.8 	r_min: -351.8
+  95 	r_mean: -154.5 	r_max: -126.8 	r_min: -351.8
+  96 	r_mean: -154.4 	r_max: -121.8 	r_min: -351.8
+  97 	r_mean: -156.0 	r_max: -121.8 	r_min: -351.8
+  98 	r_mean: -157.5 	r_max: -121.8 	r_min: -351.8
+  99 	r_mean: -156.0 	r_max: -121.8 	r_min: -292.8
+ 100 	r_mean: -155.7 	r_max: -119.7 	r_min: -270.8
+ 101 	r_mean: -153.8 	r_max: -119.7 	r_min: -270.8
+ 102 	r_mean: -153.0 	r_max: -119.7 	r_min: -270.8
+ 103 	r_mean: -151.5 	r_max: -119.7 	r_min: -186.7
+ 104 	r_mean: -154.1 	r_max: -119.7 	r_min: -316.7
+ 105 	r_mean: -155.8 	r_max: -126.8 	r_min: -316.7
+ 106 	r_mean: -158.3 	r_max: -126.8 	r_min: -316.7
+ 107 	r_mean: -158.0 	r_max: -126.8 	r_min: -316.7
+ 108 	r_mean: -160.8 	r_max: -121.7 	r_min: -316.7
+ 109 	r_mean: -157.9 	r_max: -121.7 	r_min: -280.8
+ 110 	r_mean: -155.7 	r_max: -120.7 	r_min: -265.8
+ 111 	r_mean: -157.5 	r_max: -120.7 	r_min: -228.5
+ 112 	r_mean: -159.4 	r_max: -120.7 	r_min: -233.8
+ 113 	r_mean: -157.3 	r_max: -120.7 	r_min: -233.8
+ 114 	r_mean: -160.4 	r_max: -120.7 	r_min: -373.8
+ 115 	r_mean: -163.9 	r_max: -121.6 	r_min: -373.8
+ 116 	r_mean: -160.7 	r_max: -120.8 	r_min: -373.8
+ 117 	r_mean: -157.6 	r_max: -116.0 	r_min: -373.8
+ 118 	r_mean: -157.9 	r_max: -116.0 	r_min: -373.8
+ 119 	r_mean: -154.1 	r_max: -116.0 	r_min: -303.8
+ 120 	r_mean: -150.1 	r_max: -116.0 	r_min: -220.7
+ 121 	r_mean: -149.3 	r_max: -116.0 	r_min: -197.8
+ 122 	r_mean: -149.6 	r_max: -120.7 	r_min: -197.8
+ 123 	r_mean: -147.5 	r_max: -120.7 	r_min: -196.8
+ 124 	r_mean: -148.6 	r_max: -112.7 	r_min: -384.8
+ 125 	r_mean: -148.4 	r_max: -112.7 	r_min: -384.8
+ 126 	r_mean: -147.6 	r_max: -110.8 	r_min: -384.8
+ 127 	r_mean: -146.6 	r_max: -110.8 	r_min: -384.8
+ 128 	r_mean: -149.7 	r_max: -104.7 	r_min: -422.7
+ 129 	r_mean: -148.0 	r_max: -104.7 	r_min: -422.7
+ 130 	r_mean: -149.2 	r_max: -104.7 	r_min: -422.7
+ 131 	r_mean: -148.9 	r_max: -104.7 	r_min: -422.7
+ 132 	r_mean: -147.6 	r_max: -104.7 	r_min: -422.7
+ 133 	r_mean: -144.7 	r_max: -106.8 	r_min: -259.8
+ 134 	r_mean: -148.9 	r_max: -106.8 	r_min: -407.7
+ 135 	r_mean: -145.8 	r_max: -106.8 	r_min: -407.7
+ 136 	r_mean: -145.7 	r_max: -106.8 	r_min: -407.7
+ 137 	r_mean: -146.4 	r_max: -109.0 	r_min: -407.7
+ 138 	r_mean: -145.2 	r_max: -109.0 	r_min: -407.7
+ 139 	r_mean: -140.2 	r_max: -109.0 	r_min: -245.7
+ 140 	r_mean: -142.3 	r_max: -103.8 	r_min: -245.7
+ 141 	r_mean: -142.2 	r_max: -103.8 	r_min: -245.7
+ 142 	r_mean: -139.3 	r_max: -103.7 	r_min: -225.7
+ 143 	r_mean: -140.1 	r_max: -103.7 	r_min: -225.7
+ 144 	r_mean: -138.3 	r_max: -103.7 	r_min: -225.7
+ 145 	r_mean: -136.3 	r_max: -103.7 	r_min: -225.7
+ 146 	r_mean: -137.5 	r_max: -103.7 	r_min: -305.6
+ 147 	r_mean: -138.5 	r_max: -100.8 	r_min: -305.6
+ 148 	r_mean: -137.7 	r_max: -100.8 	r_min: -305.6
+ 149 	r_mean: -139.4 	r_max: -100.8 	r_min: -305.6
+ 150 	r_mean: -139.3 	r_max: -100.8 	r_min: -305.6
+ 151 	r_mean: -137.2 	r_max: -100.8 	r_min: -216.8
+ 152 	r_mean: -136.7 	r_max: -102.7 	r_min: -216.8
+ 153 	r_mean: -138.1 	r_max: -102.7 	r_min: -216.8
+ 154 	r_mean: -136.3 	r_max: -102.7 	r_min: -206.8
+ 155 	r_mean: -137.2 	r_max: -103.8 	r_min: -295.4
+ 156 	r_mean: -137.4 	r_max: -103.8 	r_min: -295.4
+ 157 	r_mean: -138.6 	r_max: -103.8 	r_min: -295.4
+ 158 	r_mean: -138.5 	r_max: -103.8 	r_min: -295.4
+ 159 	r_mean: -140.0 	r_max: -103.8 	r_min: -295.4
+ 160 	r_mean: -139.4 	r_max: -111.5 	r_min: -196.2
+ 161 	r_mean: -138.6 	r_max: -111.5 	r_min: -196.2
+ 162 	r_mean: -138.8 	r_max: -110.1 	r_min: -196.2
+ 163 	r_mean: -136.7 	r_max: -110.1 	r_min: -188.7
+ 164 	r_mean: -136.4 	r_max: -110.1 	r_min: -188.7
+ 165 	r_mean: -136.8 	r_max: -108.8 	r_min: -194.4
+ 166 	r_mean: -137.7 	r_max: -108.8 	r_min: -194.4
+ 167 	r_mean: -136.6 	r_max: -105.8 	r_min: -194.4
+ 168 	r_mean: -135.7 	r_max: -105.8 	r_min: -194.4
+ 169 	r_mean: -135.2 	r_max: -105.8 	r_min: -194.4
+ 170 	r_mean: -133.7 	r_max: -97.0 	r_min: -177.8
+ 171 	r_mean: -133.0 	r_max: -97.0 	r_min: -189.8
+ 172 	r_mean: -132.7 	r_max: -97.0 	r_min: -189.8
+ 173 	r_mean: -134.7 	r_max: -97.0 	r_min: -197.8
+ 174 	r_mean: -133.3 	r_max: -94.8 	r_min: -197.8
+ 175 	r_mean: -131.4 	r_max: -94.8 	r_min: -197.8
+ 176 	r_mean: -128.7 	r_max: -94.8 	r_min: -197.8
+ 177 	r_mean: -128.5 	r_max: -94.8 	r_min: -197.8
+ 178 	r_mean: -128.3 	r_max: -94.8 	r_min: -229.7
+ 179 	r_mean: -127.7 	r_max: -96.8 	r_min: -229.7
+ 180 	r_mean: -128.5 	r_max: -91.8 	r_min: -229.7
+ 181 	r_mean: -128.3 	r_max: -91.8 	r_min: -229.7
+ 182 	r_mean: -128.9 	r_max: -91.8 	r_min: -229.7
+ 183 	r_mean: -127.4 	r_max: -91.8 	r_min: -229.8
+ 184 	r_mean: -126.5 	r_max: -91.8 	r_min: -229.8
+ 185 	r_mean: -127.6 	r_max: -92.8 	r_min: -229.8
+ 186 	r_mean: -130.2 	r_max: -92.8 	r_min: -229.8
+ 187 	r_mean: -129.4 	r_max: -92.8 	r_min: -229.8
+ 188 	r_mean: -129.5 	r_max: -92.8 	r_min: -197.8
+ 189 	r_mean: -132.3 	r_max: -94.8 	r_min: -197.8
+ 190 	r_mean: -133.2 	r_max: -88.1 	r_min: -277.2
+ 191 	r_mean: -131.3 	r_max: -88.1 	r_min: -277.2
+ 192 	r_mean: -132.3 	r_max: -88.1 	r_min: -277.2
+ 193 	r_mean: -132.3 	r_max: -88.1 	r_min: -277.2
+ 194 	r_mean: -129.5 	r_max: -88.1 	r_min: -277.2
+ 195 	r_mean: -125.6 	r_max: -83.8 	r_min: -198.7
+ 196 	r_mean: -125.3 	r_max: -83.8 	r_min: -198.7
+ 197 	r_mean: -123.2 	r_max: -83.8 	r_min: -201.8
+ 198 	r_mean: -123.0 	r_max: -83.8 	r_min: -317.4
+ 199 	r_mean: -122.0 	r_max: -83.8 	r_min: -317.4
+2023-02-17 18:52:59,463	WARNING json_reader.py:239 -- Treating input directory as glob patterns: ['/tf/Cage/Notebooks/logs/APPO/Insomnia0/*.json', '/tf/Cage/Notebooks/logs/APPO/Insomnia0/*.zip']
+ 200 	r_mean: -122.0 	r_max: -89.8 	r_min: -317.4
+PROCESS DATA:  1
+396000
+100%|██████████| 4000/4000 [01:09<00:00, 57.78it/s]
+(396000, 92)
+(792000, 92)
+TRAIN STATE TRANISION MODEL:  1
+TRAIN REWARD MODEL:  1
+DREAM:  1
+(pid=28782) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=28782)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=28797) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=28797)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=28783) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=28783)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=28804) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=28804)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=28785) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=28785)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=28805) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=28805)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=28791) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=28791)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=28799) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=28799)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=28795) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=28795)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=28793) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=28793)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=28786) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=28786)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=28803) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=28803)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=28794) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=28794)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=28787) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=28787)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=28790) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=28790)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=28784) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=28784)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=28792) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=28792)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=28788) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=28788)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=28796) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=28796)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=28789) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=28789)   if (distutils.version.LooseVersion(tf.__version__) <
+2023-02-17 19:05:47,839	INFO trainable.py:172 -- Trainable.setup took 13.263 seconds. If your trainable is slow to initialize, consider setting reuse_actors=True to reduce actor creation overheads.
+   1 	r_mean: -111.2 	r_max: -88.8 	r_min: -134.8
+   2 	r_mean: -111.7 	r_max: -81.8 	r_min: -138.8
+   3 	r_mean: -111.8 	r_max: -81.8 	r_min: -160.1
+   4 	r_mean: -119.6 	r_max: -81.8 	r_min: -548.8
+   5 	r_mean: -121.6 	r_max: -81.8 	r_min: -548.8
+   6 	r_mean: -125.1 	r_max: -81.8 	r_min: -548.8
+   7 	r_mean: -127.8 	r_max: -82.7 	r_min: -548.8
+   8 	r_mean: -129.4 	r_max: -82.7 	r_min: -548.8
+   9 	r_mean: -125.6 	r_max: -82.7 	r_min: -293.8
+  10 	r_mean: -124.4 	r_max: -82.7 	r_min: -252.8
+  11 	r_mean: -122.1 	r_max: -83.7 	r_min: -252.8
+  12 	r_mean: -120.8 	r_max: -83.7 	r_min: -252.8
+  13 	r_mean: -120.0 	r_max: -84.2 	r_min: -252.8
+  14 	r_mean: -119.0 	r_max: -82.8 	r_min: -275.8
+  15 	r_mean: -116.1 	r_max: -77.2 	r_min: -275.8
+  16 	r_mean: -114.6 	r_max: -77.2 	r_min: -275.8
+  17 	r_mean: -112.8 	r_max: -77.2 	r_min: -275.8
+  18 	r_mean: -110.9 	r_max: -77.2 	r_min: -275.8
+  19 	r_mean: -113.4 	r_max: -77.2 	r_min: -278.8
+  20 	r_mean: -113.9 	r_max: -82.8 	r_min: -278.8
+ROLLOUT:  2
+(pid=26577) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=26577)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=26578) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=26578)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=26582) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=26582)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=26581) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=26581)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=26579) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=26579)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=26567) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=26567)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=26586) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=26586)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=26597) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=26597)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=26580) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=26580)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=26596) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=26596)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=26593) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=26593)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=26592) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=26592)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=26589) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=26589)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=26599) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=26599)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=26587) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=26587)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=26591) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=26591)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=26584) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=26584)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=26585) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=26585)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=26583) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=26583)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=26602) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=26602)   if (distutils.version.LooseVersion(tf.__version__) <
+2023-02-17 19:15:32,372	INFO trainable.py:172 -- Trainable.setup took 13.266 seconds. If your trainable is slow to initialize, consider setting reuse_actors=True to reduce actor creation overheads.
+   1 	r_mean: -109.1 	r_max: -85.5 	r_min: -134.6
+   2 	r_mean: -108.7 	r_max: -82.9 	r_min: -141.7
+   3 	r_mean: -107.9 	r_max: -82.9 	r_min: -141.7
+   4 	r_mean: -108.1 	r_max: -82.9 	r_min: -174.8
+   5 	r_mean: -107.6 	r_max: -80.9 	r_min: -174.8
+   6 	r_mean: -108.0 	r_max: -79.7 	r_min: -190.2
+   7 	r_mean: -106.3 	r_max: -79.7 	r_min: -190.2
+   8 	r_mean: -106.7 	r_max: -79.7 	r_min: -190.2
+   9 	r_mean: -109.6 	r_max: -79.7 	r_min: -339.7
+  10 	r_mean: -114.7 	r_max: -79.7 	r_min: -507.3
+  11 	r_mean: -113.5 	r_max: -76.7 	r_min: -507.3
+  12 	r_mean: -114.8 	r_max: -76.7 	r_min: -507.3
+  13 	r_mean: -114.4 	r_max: -76.7 	r_min: -507.3
+  14 	r_mean: -110.6 	r_max: -76.7 	r_min: -507.3
+  15 	r_mean: -104.4 	r_max: -76.7 	r_min: -162.7
+  16 	r_mean: -104.1 	r_max: -78.1 	r_min: -162.7
+  17 	r_mean: -102.4 	r_max: -75.7 	r_min: -155.8
+  18 	r_mean: -99.8 	r_max: -75.7 	r_min: -155.8
+  19 	r_mean: -100.3 	r_max: -73.0 	r_min: -265.4
+2023-02-17 19:26:05,137	WARNING json_reader.py:239 -- Treating input directory as glob patterns: ['/tf/Cage/Notebooks/logs/APPO/Insomnia0/*.json', '/tf/Cage/Notebooks/logs/APPO/Insomnia0/*.zip']
+  20 	r_mean: -99.9 	r_max: -73.0 	r_min: -265.4
+PROCESS DATA:  2
+39600
+100%|██████████| 400/400 [00:09<00:00, 40.82it/s]
+(39600, 92)
+(831600, 92)
+TRAIN STATE TRANISION MODEL:  2
+TRAIN REWARD MODEL:  2
+DREAM:  2
+(pid=15952) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=15952)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=15970) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=15970)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=15956) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=15956)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=15976) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=15976)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=15982) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=15982)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=15962) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=15962)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=15957) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=15957)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=15966) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=15966)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=15958) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=15958)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=15961) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=15961)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=15983) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=15983)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=15974) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=15974)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=15953) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=15953)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=15964) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=15964)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=15955) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=15955)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=15959) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=15959)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=15960) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=15960)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=15978) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=15978)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=15972) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=15972)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=15954) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=15954)   if (distutils.version.LooseVersion(tf.__version__) <
+2023-02-17 19:39:41,497	INFO trainable.py:172 -- Trainable.setup took 14.937 seconds. If your trainable is slow to initialize, consider setting reuse_actors=True to reduce actor creation overheads.
+   1 	r_mean: -91.2 	r_max: -73.3 	r_min: -108.8
+   2 	r_mean: -96.7 	r_max: -72.2 	r_min: -329.7
+   3 	r_mean: -96.8 	r_max: -72.2 	r_min: -329.7
+   4 	r_mean: -96.6 	r_max: -72.2 	r_min: -329.7
+   5 	r_mean: -95.4 	r_max: -69.8 	r_min: -329.7
+   6 	r_mean: -96.4 	r_max: -69.8 	r_min: -329.7
+   7 	r_mean: -95.8 	r_max: -69.8 	r_min: -316.8
+   8 	r_mean: -94.4 	r_max: -69.8 	r_min: -316.8
+   9 	r_mean: -93.1 	r_max: -67.2 	r_min: -316.8
+  10 	r_mean: -92.8 	r_max: -67.2 	r_min: -316.8
+  11 	r_mean: -90.5 	r_max: -67.2 	r_min: -316.8
+  12 	r_mean: -89.1 	r_max: -67.2 	r_min: -174.8
+  13 	r_mean: -90.0 	r_max: -67.2 	r_min: -302.7
+  14 	r_mean: -90.1 	r_max: -67.3 	r_min: -302.7
+  15 	r_mean: -95.9 	r_max: -67.3 	r_min: -527.8
+  16 	r_mean: -96.1 	r_max: -67.3 	r_min: -527.8
+  17 	r_mean: -95.8 	r_max: -67.8 	r_min: -527.8
+  18 	r_mean: -95.2 	r_max: -64.5 	r_min: -527.8
+  19 	r_mean: -94.3 	r_max: -64.5 	r_min: -527.8
+  20 	r_mean: -88.6 	r_max: -64.5 	r_min: -129.9
+ROLLOUT:  3
+(pid=5119) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=5119)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=5116) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=5116)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=5124) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=5124)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=5109) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=5109)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=5114) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=5114)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=5130) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=5130)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=5127) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=5127)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=5111) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=5111)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=5131) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=5131)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=5137) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=5137)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=5117) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=5117)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=5122) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=5122)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=5112) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=5112)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=5126) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=5126)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=5115) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=5115)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=5120) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=5120)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=5113) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=5113)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=5110) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=5110)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=5134) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=5134)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=5136) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=5136)   if (distutils.version.LooseVersion(tf.__version__) <
+2023-02-17 19:52:38,347	INFO trainable.py:172 -- Trainable.setup took 13.926 seconds. If your trainable is slow to initialize, consider setting reuse_actors=True to reduce actor creation overheads.
+   1 	r_mean: -91.9 	r_max: -79.4 	r_min: -108.4
+   2 	r_mean: -90.9 	r_max: -71.0 	r_min: -131.8
+   3 	r_mean: -90.0 	r_max: -70.6 	r_min: -131.8
+   4 	r_mean: -88.0 	r_max: -69.9 	r_min: -131.8
+   5 	r_mean: -88.9 	r_max: -69.9 	r_min: -228.7
+   6 	r_mean: -90.3 	r_max: -69.9 	r_min: -251.0
+   7 	r_mean: -88.7 	r_max: -69.9 	r_min: -251.0
+   8 	r_mean: -88.4 	r_max: -69.9 	r_min: -251.0
+   9 	r_mean: -88.5 	r_max: -64.8 	r_min: -251.0
+  10 	r_mean: -87.6 	r_max: -64.8 	r_min: -251.0
+  11 	r_mean: -86.6 	r_max: -64.8 	r_min: -222.8
+  12 	r_mean: -87.3 	r_max: -64.8 	r_min: -222.8
+  13 	r_mean: -86.8 	r_max: -64.8 	r_min: -222.8
+  14 	r_mean: -87.3 	r_max: -65.4 	r_min: -222.8
+  15 	r_mean: -86.8 	r_max: -65.4 	r_min: -222.8
+  16 	r_mean: -86.3 	r_max: -68.8 	r_min: -179.8
+  17 	r_mean: -85.7 	r_max: -68.6 	r_min: -165.8
+  18 	r_mean: -84.6 	r_max: -65.1 	r_min: -165.8
+  19 	r_mean: -84.7 	r_max: -65.1 	r_min: -165.8
+2023-02-17 20:07:07,624	WARNING json_reader.py:239 -- Treating input directory as glob patterns: ['/tf/Cage/Notebooks/logs/APPO/Insomnia0/*.json', '/tf/Cage/Notebooks/logs/APPO/Insomnia0/*.zip']
+  20 	r_mean: -84.0 	r_max: -64.4 	r_min: -165.8
+PROCESS DATA:  3
+39600
+100%|██████████| 400/400 [00:17<00:00, 23.13it/s]
+(39600, 92)
+(871200, 92)
+TRAIN STATE TRANISION MODEL:  3
+TRAIN REWARD MODEL:  3
+DREAM:  3
+(pid=34878) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=34878)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=34884) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=34884)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=34894) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=34894)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=34885) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=34885)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=34882) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=34882)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=34887) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=34887)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=34893) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=34893)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=34880) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=34880)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=34897) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=34897)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=34886) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=34886)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=34879) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=34879)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=34892) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=34892)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=34903) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=34903)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=34881) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=34881)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=34883) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=34883)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=34906) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=34906)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=34902) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=34902)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=34899) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=34899)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=34908) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=34908)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=34890) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=34890)   if (distutils.version.LooseVersion(tf.__version__) <
+2023-02-17 20:31:23,679	INFO trainable.py:172 -- Trainable.setup took 14.945 seconds. If your trainable is slow to initialize, consider setting reuse_actors=True to reduce actor creation overheads.
+   1 	r_mean: -83.6 	r_max: -68.6 	r_min: -105.7
+   2 	r_mean: -84.3 	r_max: -68.6 	r_min: -105.7
+   3 	r_mean: -85.8 	r_max: -68.6 	r_min: -125.3
+   4 	r_mean: -84.9 	r_max: -68.6 	r_min: -125.3
+   5 	r_mean: -87.2 	r_max: -68.6 	r_min: -287.7
+   6 	r_mean: -87.2 	r_max: -66.9 	r_min: -287.7
+   7 	r_mean: -85.8 	r_max: -62.1 	r_min: -287.7
+   8 	r_mean: -84.5 	r_max: -62.1 	r_min: -287.7
+   9 	r_mean: -84.2 	r_max: -62.1 	r_min: -287.7
+  10 	r_mean: -81.9 	r_max: -62.1 	r_min: -113.8
+  11 	r_mean: -82.0 	r_max: -62.1 	r_min: -113.8
+  12 	r_mean: -82.4 	r_max: -63.3 	r_min: -113.8
+  13 	r_mean: -82.4 	r_max: -63.3 	r_min: -121.7
+  14 	r_mean: -82.6 	r_max: -63.1 	r_min: -121.7
+  15 	r_mean: -81.6 	r_max: -63.1 	r_min: -131.8
+  16 	r_mean: -80.3 	r_max: -63.1 	r_min: -131.8
+  17 	r_mean: -79.5 	r_max: -63.0 	r_min: -131.8
+  18 	r_mean: -78.4 	r_max: -62.4 	r_min: -131.8
+  19 	r_mean: -78.1 	r_max: -62.3 	r_min: -176.8
+  20 	r_mean: -78.4 	r_max: -62.3 	r_min: -176.8
+ROLLOUT:  4
+(pid=9076) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=9076)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=9093) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=9093)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=9271) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=9271)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=9149) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=9149)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=9804) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=9804)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=9276) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=9276)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=9780) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=9780)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=9272) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=9272)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=9273) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=9273)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=9275) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=9275)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=9805) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=9805)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=9550) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=9550)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=9802) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=9802)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=9500) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=9500)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=9774) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=9774)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=9625) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=9625)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=9775) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=9775)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=9800) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=9800)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=9776) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=9776)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=9786) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=9786)   if (distutils.version.LooseVersion(tf.__version__) <
+2023-02-17 20:52:46,770	INFO trainable.py:172 -- Trainable.setup took 16.718 seconds. If your trainable is slow to initialize, consider setting reuse_actors=True to reduce actor creation overheads.
+   1 	r_mean: -81.8 	r_max: -58.8 	r_min: -176.7
+   2 	r_mean: -80.4 	r_max: -58.8 	r_min: -176.7
+   3 	r_mean: -82.1 	r_max: -58.8 	r_min: -176.7
+   4 	r_mean: -80.1 	r_max: -58.8 	r_min: -176.7
+   5 	r_mean: -80.8 	r_max: -54.3 	r_min: -204.9
+   6 	r_mean: -79.6 	r_max: -54.3 	r_min: -204.9
+   7 	r_mean: -80.8 	r_max: -54.3 	r_min: -204.9
+   8 	r_mean: -79.5 	r_max: -54.3 	r_min: -204.9
+   9 	r_mean: -83.2 	r_max: -53.6 	r_min: -347.7
+  10 	r_mean: -85.4 	r_max: -53.6 	r_min: -347.7
+  11 	r_mean: -86.4 	r_max: -53.6 	r_min: -347.7
+  12 	r_mean: -89.6 	r_max: -53.6 	r_min: -357.8
+  13 	r_mean: -89.0 	r_max: -53.6 	r_min: -357.8
+  14 	r_mean: -86.8 	r_max: -59.9 	r_min: -357.8
+  15 	r_mean: -85.1 	r_max: -59.9 	r_min: -357.8
+  16 	r_mean: -85.7 	r_max: -59.9 	r_min: -357.8
+  17 	r_mean: -85.1 	r_max: -59.9 	r_min: -226.3
+  18 	r_mean: -86.5 	r_max: -59.9 	r_min: -226.3
+  19 	r_mean: -85.9 	r_max: -59.9 	r_min: -226.3
+2023-02-17 21:19:30,006	WARNING json_reader.py:239 -- Treating input directory as glob patterns: ['/tf/Cage/Notebooks/logs/APPO/Insomnia0/*.json', '/tf/Cage/Notebooks/logs/APPO/Insomnia0/*.zip']
+  20 	r_mean: -84.4 	r_max: -62.5 	r_min: -226.3
+PROCESS DATA:  4
+39600
+100%|██████████| 400/400 [00:34<00:00, 11.72it/s]
+(39600, 92)
+(910800, 92)
+TRAIN STATE TRANISION MODEL:  4
+TRAIN REWARD MODEL:  4
+DREAM:  4
+(pid=26324) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=26324)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=26497) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=26497)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=26537) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=26537)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=26284) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=26284)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=26272) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=26272)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=26365) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=26365)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=26364) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=26364)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=26574) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=26574)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=26496) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=26496)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=26271) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=26271)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=26635) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=26635)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=26538) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=26538)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=26904) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=26904)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=27160) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=27160)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=26921) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=26921)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=27176) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=27176)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=27152) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=27152)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=27173) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=27173)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=27125) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=27125)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=27137) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=27137)   if (distutils.version.LooseVersion(tf.__version__) <
+2023-02-17 22:15:13,462	INFO trainable.py:172 -- Trainable.setup took 16.417 seconds. If your trainable is slow to initialize, consider setting reuse_actors=True to reduce actor creation overheads.
+   1 	r_mean: -80.3 	r_max: -61.8 	r_min: -132.4
+   2 	r_mean: -80.0 	r_max: -61.8 	r_min: -175.7
+   3 	r_mean: -78.5 	r_max: -56.6 	r_min: -175.7
+   4 	r_mean: -77.3 	r_max: -56.6 	r_min: -175.7
+   5 	r_mean: -76.3 	r_max: -56.6 	r_min: -175.7
+   6 	r_mean: -75.2 	r_max: -56.6 	r_min: -175.7
+   7 	r_mean: -75.8 	r_max: -56.6 	r_min: -130.1
+   8 	r_mean: -76.6 	r_max: -59.1 	r_min: -177.8
+   9 	r_mean: -76.8 	r_max: -56.7 	r_min: -177.8
+  10 	r_mean: -77.2 	r_max: -54.5 	r_min: -177.8
+  11 	r_mean: -78.5 	r_max: -54.5 	r_min: -212.4
+  12 	r_mean: -76.5 	r_max: -54.5 	r_min: -212.4
+  13 	r_mean: -75.0 	r_max: -54.5 	r_min: -212.4
+  14 	r_mean: -75.1 	r_max: -54.5 	r_min: -212.4
+  15 	r_mean: -74.6 	r_max: -55.5 	r_min: -212.4
+  16 	r_mean: -73.3 	r_max: -56.9 	r_min: -160.8
+  17 	r_mean: -73.3 	r_max: -56.7 	r_min: -160.8
+  18 	r_mean: -75.0 	r_max: -56.7 	r_min: -160.8
+  19 	r_mean: -74.4 	r_max: -55.5 	r_min: -155.8
+  20 	r_mean: -74.9 	r_max: -55.5 	r_min: -155.8
+ROLLOUT:  5
+(pid=5046) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=5046)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=5054) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=5054)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=5052) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=5052)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=5053) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=5053)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=5048) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=5048)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=5047) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=5047)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=5050) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=5050)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=5055) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=5055)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=5970) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=5970)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=5049) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=5049)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=5051) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=5051)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=5058) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=5058)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=5191) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=5191)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=5623) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=5623)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=5640) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=5640)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=5962) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=5962)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=5932) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=5932)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=5689) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=5689)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=5972) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=5972)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=5864) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=5864)   if (distutils.version.LooseVersion(tf.__version__) <
+2023-02-17 22:55:22,279	INFO trainable.py:172 -- Trainable.setup took 19.195 seconds. If your trainable is slow to initialize, consider setting reuse_actors=True to reduce actor creation overheads.
+   1 	r_mean: -74.9 	r_max: -57.2 	r_min: -109.6
+   2 	r_mean: -79.5 	r_max: -57.2 	r_min: -131.8
+   3 	r_mean: -80.1 	r_max: -57.2 	r_min: -131.8
+   4 	r_mean: -81.3 	r_max: -57.2 	r_min: -169.8
+   5 	r_mean: -80.2 	r_max: -57.2 	r_min: -169.8
+   6 	r_mean: -80.2 	r_max: -58.4 	r_min: -169.8
+   7 	r_mean: -81.0 	r_max: -58.4 	r_min: -169.8
+   8 	r_mean: -81.1 	r_max: -58.4 	r_min: -169.8
+   9 	r_mean: -79.1 	r_max: -57.8 	r_min: -135.8
+  10 	r_mean: -78.5 	r_max: -57.8 	r_min: -135.8
+  11 	r_mean: -79.4 	r_max: -57.8 	r_min: -137.8
+  12 	r_mean: -77.0 	r_max: -57.8 	r_min: -137.8
+  13 	r_mean: -77.0 	r_max: -57.7 	r_min: -180.8
+  14 	r_mean: -77.0 	r_max: -54.3 	r_min: -180.8
+  15 	r_mean: -77.7 	r_max: -54.3 	r_min: -180.8
+  16 	r_mean: -77.6 	r_max: -54.3 	r_min: -180.8
+  17 	r_mean: -76.9 	r_max: -54.3 	r_min: -180.8
+  18 	r_mean: -74.9 	r_max: -54.3 	r_min: -172.8
+  19 	r_mean: -74.4 	r_max: -54.4 	r_min: -172.8
+2023-02-18 00:04:07,813	WARNING json_reader.py:239 -- Treating input directory as glob patterns: ['/tf/Cage/Notebooks/logs/APPO/Insomnia0/*.json', '/tf/Cage/Notebooks/logs/APPO/Insomnia0/*.zip']
+  20 	r_mean: -73.8 	r_max: -54.5 	r_min: -172.8
+PROCESS DATA:  5
+39600
+100%|██████████| 400/400 [01:07<00:00,  5.95it/s]
+(39600, 92)
+(950400, 92)
+TRAIN STATE TRANISION MODEL:  5
+TRAIN REWARD MODEL:  5
+DREAM:  5
+(pid=37810) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=37810)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=37980) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=37980)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=37846) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=37846)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=37969) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=37969)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=38081) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=38081)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=38246) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=38246)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=38226) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=38226)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=38416) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=38416)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=38527) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=38527)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=38608) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=38608)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=38804) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=38804)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=38905) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=38905)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=39293) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=39293)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=39048) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=39048)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=39037) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=39037)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=39099) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=39099)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=39426) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=39426)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=39101) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=39101)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=39283) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=39283)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=39551) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=39551)   if (distutils.version.LooseVersion(tf.__version__) <
+2023-02-18 04:35:41,899	INFO trainable.py:172 -- Trainable.setup took 26.184 seconds. If your trainable is slow to initialize, consider setting reuse_actors=True to reduce actor creation overheads.
+   1 	r_mean: -72.5 	r_max: -57.3 	r_min: -112.8
+   2 	r_mean: -71.6 	r_max: -51.9 	r_min: -133.7
+   3 	r_mean: -74.2 	r_max: -51.9 	r_min: -139.8
+   4 	r_mean: -74.0 	r_max: -51.9 	r_min: -141.8
+   5 	r_mean: -78.0 	r_max: -51.9 	r_min: -225.8
+   6 	r_mean: -78.1 	r_max: -51.9 	r_min: -225.8
+   7 	r_mean: -79.6 	r_max: -53.4 	r_min: -225.8
+   8 	r_mean: -78.7 	r_max: -53.4 	r_min: -225.8
+   9 	r_mean: -78.6 	r_max: -53.7 	r_min: -225.8
+  10 	r_mean: -72.9 	r_max: -52.3 	r_min: -141.8
+  11 	r_mean: -73.1 	r_max: -52.3 	r_min: -141.8
+  12 	r_mean: -71.9 	r_max: -52.3 	r_min: -138.3
+  13 	r_mean: -72.9 	r_max: -52.3 	r_min: -234.8
+  14 	r_mean: -72.6 	r_max: -52.3 	r_min: -234.8
+  15 	r_mean: -74.4 	r_max: -54.4 	r_min: -234.8
+  16 	r_mean: -73.7 	r_max: -54.4 	r_min: -234.8
+  17 	r_mean: -73.0 	r_max: -54.4 	r_min: -234.8
+  18 	r_mean: -71.2 	r_max: -54.4 	r_min: -151.8
+  19 	r_mean: -70.0 	r_max: -55.7 	r_min: -112.8
+  20 	r_mean: -69.6 	r_max: -55.7 	r_min: -122.8
+ROLLOUT:  6
+(pid=1748) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=1748)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=1747) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=1747)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=1853) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=1853)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=1897) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=1897)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=2157) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=2157)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=1992) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=1992)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=2251) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=2251)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=2421) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=2421)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=2365) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=2365)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=2555) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=2555)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=2676) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=2676)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=2797) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=2797)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=2959) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=2959)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=3032) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=3032)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=3156) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=3156)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=3290) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=3290)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=3158) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=3158)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=3361) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=3361)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=3537) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=3537)   if (distutils.version.LooseVersion(tf.__version__) <
+(pid=3590) /usr/local/lib/python3.8/dist-packages/tensorflow_probability/python/__init__.py:57: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+(pid=3590)   if (distutils.version.LooseVersion(tf.__version__) <
+2023-02-18 08:25:53,793	INFO trainable.py:172 -- Trainable.setup took 26.749 seconds. If your trainable is slow to initialize, consider setting reuse_actors=True to reduce actor creation overheads.
+   1 	r_mean: -69.7 	r_max: -58.5 	r_min: -95.3
