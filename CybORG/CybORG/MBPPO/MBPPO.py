@@ -41,7 +41,7 @@ from ray.rllib.utils.metrics import (
     SYNCH_WORKER_WEIGHTS_TIMER,
 )
 from ray.rllib.policy.sample_batch import SampleBatch
-
+from ray.rllib.utils.replay_buffers import ReplayBuffer, StorageUnit 
 logger = logging.getLogger(__name__)
 
 
@@ -126,10 +126,14 @@ class MBPPOConfig(PGConfig):
             "prioritized_replay_eps": 1e-6,
             # The number of continuous environment steps to replay at once. This may
             # be set to greater than 1 to support recurrent models.
-            "replay_sequence_length": 1,
+            "storage_unit": StorageUnit.SEQUENCES,
+            "replay_sequence_length": 5,
+            "replay_burn_in": 0,
             # Whether to compute priorities on workers.
             "worker_side_prioritization": False,
         }
+
+        
 
         # Deprecated keys.
         self.vf_share_layers = DEPRECATED_VALUE
@@ -305,6 +309,16 @@ class UpdateKL:
 
 
 class MBPPO(Algorithm):
+
+    def __init__(self, config, logger_creator) -> None:
+        super().__init__(config, logger_creator)
+        self.memeory = {}
+        self.memeory['obs'] = []
+        self.memeory['obs_seq'] = []
+        self.memeory['next_obs'] = []
+        self.memeory['rewards'] = []
+        self.memeory['actions'] = []
+
     @classmethod
     @override(Algorithm)
     def get_default_config(cls) -> AlgorithmConfig:
@@ -345,21 +359,25 @@ class MBPPO(Algorithm):
             )
             
         self.encode_batch(train_batch, False)
-        self.local_replay_buffer.add(self.process_experience(train_batch))
+        
+        self.process_experience_lstm(train_batch)
+        #self.local_replay_buffer.add(train_batch)
 
         train_batch = train_batch.as_multi_agent()
         self._counters[NUM_AGENT_STEPS_SAMPLED] += train_batch.agent_steps()
         self._counters[NUM_ENV_STEPS_SAMPLED] += train_batch.env_steps()
 
+
         train_results = self.learning_from_samples(train_batch)
 
-        dreams_start_at = 20000
+        dreams_start_at = 80000
    
         if self._counters[NUM_AGENT_STEPS_SAMPLED] > dreams_start_at:
-            experience_data = self.local_replay_buffer.sample(self._counters[NUM_AGENT_STEPS_SAMPLED])
-            for pid in self.workers.local_worker().get_policies_to_train(experience_data):
-                self.workers.local_worker().get_policy(pid).reward_model.fit(experience_data[pid])
-                self.workers.local_worker().get_policy(pid).state_tranistion_model.fit(experience_data[pid])
+            #experience_data = self.local_replay_buffer.sample(self._counters[NUM_AGENT_STEPS_SAMPLED])
+            #for pid in self.workers.local_worker().get_policies_to_train({'default_policy'}):
+            for pid in {'default_policy'}: #Could extend to multiagent here
+                self.workers.local_worker().get_policy(pid).reward_model.fit(np.array(self.memeory['obs_seq']), np.array(self.memeory['next_obs']), np.array(self.memeory['rewards']))
+                self.workers.local_worker().get_policy(pid).state_tranistion_model.fit(np.array(self.memeory['obs_seq']), np.array(self.memeory['actions']), np.array(self.memeory['next_obs']))
 
                 if self._counters[NUM_AGENT_STEPS_SAMPLED] > dreams_start_at:   
                     #Sync
@@ -457,6 +475,41 @@ class MBPPO(Algorithm):
         self.workers.local_worker().set_global_vars(global_vars)
         return train_results
     
+    def process_experience_lstm(self, samples):    
+        #TODO vectorises this
+        STATE_LEN = 91
+        self.seq_len = 10
+        obs = np.zeros((samples['dones'].shape[0]-samples['dones'].sum(), STATE_LEN))
+        obs_seq = np.zeros((samples['dones'].shape[0]-samples['dones'].sum(), self.seq_len, STATE_LEN))
+        next_obs = np.zeros((samples['dones'].shape[0]-samples['dones'].sum(), STATE_LEN))
+        actions = np.zeros(((samples['dones'].shape[0]-samples['dones'].sum()), self.seq_len))
+        rewards = np.zeros((samples['dones'].shape[0]-samples['dones'].sum()))
+        #eps_id = np.zeros((samples['dones'].shape[0]-samples['dones'].sum()))
+        #ts_ = np.zeros((samples['dones'].shape[0]-samples['dones'].sum()))
+
+        no_dones_pointer = 0
+        ts = 0
+        for i in range(samples['dones'].shape[0]-1):
+            steps = ts if ts < self.seq_len else self.seq_len-1     
+            if samples['dones'][i]:
+                ts = 0
+                continue
+            obs[no_dones_pointer,:] = samples['obs'][i]
+            obs_seq[no_dones_pointer,:steps+1,:] = samples['obs'][i-steps:i+1,:]
+            next_obs[no_dones_pointer,:] = samples['obs'][i+1,:]
+            actions[no_dones_pointer,:steps+1] = samples['actions'][i-steps:i+1]
+            rewards[no_dones_pointer] = samples['rewards'][i]
+            #eps_id[no_dones_pointer] = samples['eps_id'][i]
+           # ts_[no_dones_pointer] = ts
+            no_dones_pointer += 1
+            ts += 1
+
+        self.memeory['obs'].extend(list(obs))
+        self.memeory['obs_seq'].extend(list(obs_seq))
+        self.memeory['next_obs'].extend(list(next_obs))
+        self.memeory['rewards'].extend(list(rewards))
+        self.memeory['actions'].extend(list(actions))
+    
     def process_experience(self, samples):    
         #TODO vectorises this
         STATE_LEN = 91
@@ -464,6 +517,8 @@ class MBPPO(Algorithm):
         next_obs = np.zeros((samples['dones'].shape[0]-samples['dones'].sum(), STATE_LEN))
         actions = np.zeros((samples['dones'].shape[0]-samples['dones'].sum()))
         rewards = np.zeros((samples['dones'].shape[0]-samples['dones'].sum()))
+        #eps_id = np.zeros((samples['dones'].shape[0]-samples['dones'].sum()))
+        #ts_ = np.zeros((samples['dones'].shape[0]-samples['dones'].sum()))
 
         no_dones_pointer = 0
         ts = 0
@@ -476,40 +531,23 @@ class MBPPO(Algorithm):
             next_obs[no_dones_pointer,:] = samples['obs'][i+1]
             actions[no_dones_pointer] = samples['actions'][i]
             rewards[no_dones_pointer] = samples['rewards'][i]
+            #eps_id[no_dones_pointer] = samples['eps_id'][i]
+           # ts_[no_dones_pointer] = ts
             no_dones_pointer += 1
             ts += 1
 
-        return SampleBatch({'obs': obs,
-                            'next_obs': next_obs,
-                            'actions': actions,
-                            'rewards': rewards})
+        self.memeory['obs'].extend(list(obs))
+        self.memeory['next_obs'].extend(list(next_obs))
+        self.memeory['rewards'].extend(list(rewards))
+        self.memeory['actions'].extend(list(actions))
+        # return SampleBatch({'obs': obs,
+        #                     'next_obs': next_obs,
+        #                     'actions': actions,
+        #                     'rewards': rewards,
+        #                     'eps_id': eps_id,
+        #                     'ts': ts_})
     
-    def process_experience_nodes(self, samples):    
-        #TODO vectorises this
-        STATE_LEN = 91
-        obs = np.zeros((samples['dones'].shape[0]-samples['dones'].sum(), STATE_LEN+1))
-        next_obs = np.zeros((samples['dones'].shape[0]-samples['dones'].sum(), STATE_LEN))
-        actions = np.zeros(((samples['dones'].shape[0]-samples['dones'].sum())*13))
-        rewards = np.zeros((samples['dones'].shape[0]-samples['dones'].sum()))
-
-        no_dones_pointer = 0
-        ts = 0
-        for i in range(samples['dones'].shape[0]-1):
-            if samples['dones'][i]:
-                ts =0
-                continue
-            #obs[no_dones_pointer,:] = np.concatenate([samples['obs'][i], [ts/100]])
-            obs[no_dones_pointer,:] = samples['obs'][i]
-            next_obs[no_dones_pointer,:] = samples['obs'][i+1]
-            actions[no_dones_pointer] = samples['actions'][i]
-            rewards[no_dones_pointer] = samples['rewards'][i]
-            no_dones_pointer += 1
-            ts += 1
-
-        return SampleBatch({'obs': obs,
-                            'next_obs': next_obs,
-                            'actions': actions,
-                            'rewards': rewards})
+ 
     
     def node_action(self, action, node):
         vec = np.zeros(3)
@@ -523,7 +561,7 @@ class MBPPO(Algorithm):
 
 
 def dream(policy, pid):
-    return policy.fetch_dream()
+    return policy.fetch_dream_lstm()
 
 # Deprecated: Use ray.rllib.algorithms.ppo.PPOConfig instead!
 class _deprecated_default_config(dict):

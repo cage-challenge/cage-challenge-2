@@ -8,10 +8,11 @@ from ray.rllib.policy.sample_batch import SampleBatch
 from ray.rllib.policy.sample_batch import convert_ma_batch_to_sample_batch
 from ray.rllib.utils.typing import SampleBatchType
 from ray.rllib.models.tf.tf_modelv2 import TFModelV2
-from keras.models import Model
-from keras.layers.core import Activation, Dropout, Dense
-from keras.layers import Flatten, LSTM, Input
+from tensorflow.keras.models import Model
+from tensorflow.keras.layers import Activation, Dropout, Dense, Flatten, LSTM, Input
 import tensorflow as tf
+from tensorflow.keras.layers import Activation, Dropout, Dense, Flatten, LSTM, Input, Bidirectional
+from tensorflow.keras import backend as K
 
 class CAGERewardModel(TFModelV2):
     """Transition Dynamics Model (FC Network with Weight Norm)"""
@@ -33,23 +34,32 @@ class CAGERewardModel(TFModelV2):
         self.ACTION_LEN = 41
 
         self.global_itr = 0
-        self.valid_split = 0.1
+        self.valid_split = 0.2
         self.max_train_epochs = 50
         self.reward_to_index = np.load('reward_to_index.npy', allow_pickle=True).item()
         self.index_to_reward = np.load('index_to_reward.npy', allow_pickle=True).item()
         self.number_rewards = int(len(self.reward_to_index.keys()))
        # super().__init__()
 
-        input_ = Input(shape=(self.STATE_LEN,))
+        #input_ = Input(shape=(self.STATE_LEN*2,))
 
-        x = Dense(256, activation='tanh')(input_)
-        x = Dense(256, activation='tanh')(x)
+        #x = Dense(256, activation='relu')(input_)
         #x = Dense(256, activation='relu')(x)
+        #x = Dense(256, activation='relu')(x)
+        #out = Dense(self.number_rewards, activation='softmax')(x)
+
+        input_ = Input(shape=(10,self.STATE_LEN,))
+        x = Bidirectional(LSTM(64))(input_)
+        x = Flatten()(x)
+        x = Dropout(0.2)(x)
+        x = Dense(64, activation='relu', name='hidden')(x)
+        #x = Dense(128, activation='relu', name='hidden2')(x)
         out = Dense(self.number_rewards, activation='softmax')(x)
 
         self.base_model = Model(input_, out)
        
-        self.callback = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=3, min_delta=0.005)
+        self.callback = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=2, min_delta=0.05)
+        self.base_model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=0.00005), loss=tf.keras.losses.CategoricalCrossentropy(), metrics=[tf.keras.metrics.CategoricalAccuracy()])
 
     def forward(self, x):
         probs = self.base_model(x).numpy()[0]
@@ -58,27 +68,42 @@ class CAGERewardModel(TFModelV2):
         return self.index_to_reward[index]
         
     
-    def fit(self, samples): 
+    def fit(self, obs, next_obs, rewards): 
         # Process Samples
-        samples = self.process_samples(samples)
-        self.base_model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=0.0005), loss=tf.keras.losses.CategoricalCrossentropy(), metrics=[tf.keras.metrics.CategoricalAccuracy()])
-        with tf.device("/device:GPU:0"):
-            history = self.base_model.fit(samples['obs_concat'], samples['rewards'], epochs=self.max_train_epochs, validation_split=self.valid_split, verbose=0, callbacks=[self.callback], batch_size=256)
-        print('reward val loss: ', history.history['val_loss'])
-        print('reward accuracy ', history.history['val_categorical_accuracy'])
-        self.global_itr += 1
-        # Returns Metric Dictionary
+        print(obs.shape)
+        samples = self.process_samples(obs, next_obs, rewards)
+        p = np.random.permutation(samples['obs_concat'].shape[0])
+        dataset = tf.data.Dataset.from_tensor_slices((obs, samples['rewards']))
+        #val_size = int(0.2 * obs.shape[0])
+        #train_size = int(0.8 * obs.shape[0])
+        #val_dataset = dataset.skip(train_size)
+        #train_dataset = dataset.take(train_size)
+        #train_dataset = train_dataset.shuffle(buffer_size=1024).batch(128, drop_remainder=True)
+        #val_dataset  = val_dataset.shuffle(buffer_size=1024).batch(128, drop_remainder=True)
+        try:
+            with tf.device("/device:GPU:0"):
+                history = self.base_model.fit(samples['obs_concat'], samples['rewards'], epochs=self.max_train_epochs, validation_split=self.valid_split, 
+                                                verbose=0, callbacks=[self.callback], batch_size=256, shuffle=True, workers=4)
+                #history = self.base_model.fit(train_dataset, validation_data=val_dataset, epochs=self.max_train_epochs, 
+                #                             verbose=0, callbacks=[self.callback])
+            K.clear_session()
+            print('reward val loss: ', history.history['val_loss'])
+            print('reward accuracy ', history.history['val_categorical_accuracy'])
+            self.global_itr += 1
+            # Returns Metric Dictionary
+        except:
+            print('reward train fail')
         return self.metrics
         
-    def process_samples(self, samples: SampleBatchType):
+    def process_samples(self, obs, next_obs, rewards):
         processed = {}
-        for i, r in enumerate(samples['rewards']):
-            samples['rewards'][i] = take_closest(list(self.reward_to_index.keys()), r)
-        reward_classes = np.vectorize(self.reward_to_index.get)(samples['rewards'])
+        for i, r in enumerate(rewards):
+            rewards[i] = take_closest(list(self.reward_to_index.keys()), r)
+        reward_classes = np.vectorize(self.reward_to_index.get)(rewards)
         reward_onehot = np.eye(int(len(self.reward_to_index.keys())))[np.array(reward_classes, dtype=np.int8)]
         processed['rewards'] = reward_onehot
-        processed['obs_concat'] = np.concatenate([samples['obs'], samples['next_obs']], axis=1)
-        processed['obs_concat'] = samples['next_obs']
+        #processed['obs_concat'] = np.concatenate([obs, next_obs], axis=1)
+        processed['obs_concat'] = obs
         return SampleBatch(processed)
 
 from bisect import bisect_left

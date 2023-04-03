@@ -26,13 +26,13 @@ from ray.rllib.utils.annotations import override
 from ray.rllib.utils.framework import try_import_tf
 from ray.rllib.utils.tf_utils import explained_variance, warn_if_infinite_kl_divergence
 from ray.rllib.utils.typing import AlgorithmConfigDict, TensorType, TFPolicyV2Type
-from keras.layers.core import Activation, Dropout, Dense
-from keras.layers import Flatten, LSTM, Input
-from keras.models import Model, Sequential
+from tensorflow.keras.models import Model
+from tensorflow.keras.layers import Activation, Dropout, Dense, Flatten, LSTM, Input
 import numpy as np
 from ray.rllib.policy.sample_batch import SampleBatch
 from state_tranistion_model import CAGEStateTranistionModel
 from node_tranistion_model import CAGENodeTranistionModel
+from lstm_node_tranistion_model import CAGENodeTranistionModelLSTM
 from reward_model import CAGERewardModel
 
 import logging
@@ -127,12 +127,52 @@ def get_mbppo_tf_policy(name: str, base: TFPolicyV2Type) -> TFPolicyV2Type:
             
         def make_world_model(self):
             
-            self.state_tranistion_model = CAGENodeTranistionModel()#CAGENodeTranistionModel()  CAGEStateTranistionModel
+            self.state_tranistion_model = CAGENodeTranistionModelLSTM()#CAGENodeTranistionModel()#CAGENodeTranistionModel()  CAGEStateTranistionModel
             self.reward_model = CAGERewardModel()
 
         
         #TODO this can probably be parallelised to run simultaneous dreams on one thread? 
         #also fix all the array shapes on calls
+        def fetch_dream_lstm(self):
+            obs = np.zeros((100, self.STATE_LEN))
+            actions = np.zeros(100, dtype=np.float64)
+            action_dist_inputs = np.zeros((100, self.ACTION_LEN), dtype=np.float64)
+            values = np.zeros(100)
+            action_logps = np.zeros(100, dtype=np.float64)
+            rewards = np.zeros(100)
+            dones = np.zeros(100)
+            dones[-1] = 1
+            states = np.zeros((10, self.STATE_LEN))
+            states[0,:] = self.inital_state
+            actions_seq = np.zeros(10)
+            state = self.inital_state
+            for i in range(100):
+                obs[i,:] = states[0,:]
+                action, _, info = self.compute_actions(np.array([state]), explore=True)
+                actions_seq[-1] = action
+                actions_seq = np.roll(actions_seq,1,axis=0)
+                actions[i] = np.float64(action[0])
+                action_logps[i] = np.float64(info['action_logp'][0])
+                action_dist_inputs[i,:] = info['action_dist_inputs'][0]
+                values[i] = info['vf_preds'][0]
+                state = self.state_tranistion_model.forward(states, actions_seq)
+                states[-1,:] = state
+                states = np.roll(states,1,axis=0)
+                #rewards[i] = self.reward_model.forward(np.array([np.concatenate([obs[i,:], state])]))
+                rewards[i] = self.reward_model.forward(np.array([states]))
+                
+            batch = SampleBatch({'obs': obs,
+                                'actions': actions,
+                                'rewards': rewards,
+                                'vf_preds': values,
+                                'action_dist_inputs': action_dist_inputs,
+                                'action_logp': action_logps,
+                                'dones': dones})
+
+            return compute_advantages(batch, values[-1], self.config['gamma'], self.config['lambda'], 
+                                        self.config["use_gae"], self.config['use_critic'])
+        
+
         def fetch_dream(self):
             obs = np.zeros((100, self.STATE_LEN))
             actions = np.zeros(100, dtype=np.float64)
@@ -150,13 +190,17 @@ def get_mbppo_tf_policy(name: str, base: TFPolicyV2Type) -> TFPolicyV2Type:
                 action_logps[i] = np.float64(info['action_logp'][0])
                 action_dist_inputs[i,:] = info['action_dist_inputs'][0]
                 values[i] = info['vf_preds'][0]
-                action_one_hot = np.zeros(self.ACTION_LEN)
-                action_one_hot[action[0]] = 1
-                state = self.state_tranistion_model.forward(np.array([np.concatenate([state, [i/100], [action[0]]])]))
+                #action_one_hot = np.zeros(self.ACTION_LEN)
+                #action_one_hot[action[0]] = 1
+                if i == 0:
+                    prev_action = 0
+                else:
+                    prev_action = actions[i-1]
+                state = self.state_tranistion_model.forward(np.array([np.concatenate([state, [i/100], [action[0]]])]), prev_action)
                 #state = self.state_tranistion_model.forward(np.array([np.concatenate([state, [i/100], action_one_hot])]))
                 #rewards[i] = self.reward_model.forward(np.array([np.concatenate([obs[i,:], [i/100], state])]))
-                #rewards[i] = self.reward_model.forward(np.array([np.concatenate([obs[i,:], state])]))
-                rewards[i] = self.reward_model.forward(np.array([state]))
+                rewards[i] = self.reward_model.forward(np.array([np.concatenate([obs[i,:], state])]))
+                #rewards[i] = self.reward_model.forward(np.array([state]))
 
             batch = SampleBatch({'obs': obs,
                                  'actions': actions,

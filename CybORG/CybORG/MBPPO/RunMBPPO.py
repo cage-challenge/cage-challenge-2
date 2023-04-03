@@ -41,9 +41,9 @@ print("Num GPUs Available: ", len(tf.config.list_physical_devices('GPU')))
 tf.autograph.set_verbosity(0)
 
 
-NUM_WORKER = 20
+NUM_WORKER = 10
 BATCH_SIZE = 2000
-ITERS = 100
+ITERS = 80
 RED_AGENT = "B_Line"
 import os
 os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"
@@ -84,6 +84,9 @@ for t in range(7):
         .training(train_batch_size=BATCH_SIZE, gamma=0.9, lr=0.0001, 
                 #   model={"fcnet_hiddens": [512, 512], "fcnet_activation": "tanh",})\
                     model={"fcnet_hiddens": [256, 256], "fcnet_activation": "tanh",})\
+                          # "use_lstm": False,
+                           # "max_seq_len": 5,
+                          #  "lstm_cell_size": 256,})\
         .environment(disable_env_checking=True, env = 'CybORG')\
         .framework('tf2')\
         .resources(num_gpus=1)
@@ -96,4 +99,4 @@ for t in range(7):
     rewards = np.zeros(ITERS)
     for i in range(ITERS):
         rewards[i] = print_results(trainer.train())
-        np.save('node_with_obs'+str(t), rewards)
+        np.save('node_priv_unk_lstm'+str(t), rewards)
