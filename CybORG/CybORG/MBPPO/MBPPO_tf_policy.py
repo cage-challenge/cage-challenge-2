@@ -34,6 +34,7 @@ from state_tranistion_model import CAGEStateTranistionModel
 from node_tranistion_model import CAGENodeTranistionModel
 from lstm_node_tranistion_model import CAGENodeTranistionModelLSTM
 from reward_model import CAGERewardModel
+from reward_model_lstm import CAGERewardModelLSTM
 
 import logging
 logging.getLogger("tensorflow").setLevel(logging.ERROR) 
@@ -158,8 +159,8 @@ def get_mbppo_tf_policy(name: str, base: TFPolicyV2Type) -> TFPolicyV2Type:
                 state = self.state_tranistion_model.forward(states, actions_seq)
                 states[-1,:] = state
                 states = np.roll(states,1,axis=0)
-                #rewards[i] = self.reward_model.forward(np.array([np.concatenate([obs[i,:], state])]))
-                rewards[i] = self.reward_model.forward(np.array([states]))
+                rewards[i] = self.reward_model.forward(np.array([np.concatenate([obs[i,:], state])]))
+                #rewards[i] = self.reward_model.forward(np.array([states]))
                 
             batch = SampleBatch({'obs': obs,
                                 'actions': actions,

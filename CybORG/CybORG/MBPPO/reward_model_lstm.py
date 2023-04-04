@@ -14,7 +14,7 @@ import tensorflow as tf
 from tensorflow.keras.layers import Activation, Dropout, Dense, Flatten, LSTM, Input, Bidirectional
 from tensorflow.keras import backend as K
 
-class CAGERewardModel(TFModelV2):
+class CAGERewardModelLSTM(TFModelV2):
     """Transition Dynamics Model (FC Network with Weight Norm)"""
 
     def __init__(
@@ -41,11 +41,13 @@ class CAGERewardModel(TFModelV2):
         self.number_rewards = int(len(self.reward_to_index.keys()))
        # super().__init__()
 
-        input_ = Input(shape=(self.STATE_LEN*2,))
-        x = Dense(256, activation='relu')(input_)
+        input_ = Input(shape=(10,self.STATE_LEN,))
+        x = Bidirectional(LSTM(128))(input_)
+        x = Flatten()(x)
         x = Dropout(0.2)(x)
-        x = Dense(256, activation='relu')(x)
+        x = Dense(128, activation='relu', name='hidden')(x)
         x = Dropout(0.2)(x)
+        x = Dense(128, activation='relu', name='hidden2')(x)
         out = Dense(self.number_rewards, activation='softmax')(x)
 
         def scheduler(epoch, lr):
@@ -53,6 +55,7 @@ class CAGERewardModel(TFModelV2):
                 return lr
             else:
                 return lr * tf.math.exp(-0.05)
+
 
         self.base_model = Model(input_, out)
         self.lr_callback = tf.keras.callbacks.LearningRateScheduler(scheduler)
@@ -79,7 +82,7 @@ class CAGERewardModel(TFModelV2):
         #val_dataset  = val_dataset.shuffle(buffer_size=1024).batch(128, drop_remainder=True)
         try:
             with tf.device("/device:GPU:0"):
-                history = self.base_model.fit(obs[p,:], rewards[p], epochs=self.max_train_epochs, validation_split=self.valid_split, 
+                history = self.base_model.fit(obs[p,:,:], rewards[p], epochs=self.max_train_epochs, validation_split=self.valid_split, 
                                                 verbose=0, callbacks=[self.callback, self.lr_callback], batch_size=256, shuffle=True, workers=4)
                 #history = self.base_model.fit(train_dataset, validation_data=val_dataset, epochs=self.max_train_epochs, 
                 #                             verbose=0, callbacks=[self.callback])

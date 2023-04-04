@@ -13,20 +13,20 @@ from tensorflow.keras.layers import Activation, Dropout, Dense, Flatten, LSTM, I
 
 
 train_test_split = 0.75
-data_path = '/home/adamprice/u75a-Data-Efficient-Decisions/CybORG/CybORG/Notebooks/logs/PPO/no_decoy_200000/data_seqence_5'
+data_path = '/home/adamprice/u75a-Data-Efficient-Decisions/CybORG/CybORG/Notebooks/logs/PPO/no_decoy_200000/data_seqence_10'
 nodes = np.load(data_path + '/nodes.npy')
 actions = np.load(data_path + '/actions.npy')
 node_id = np.load(data_path + '/node_id.npy')
 next_nodes = np.load(data_path + '/next_nodes.npy')
 exploit = np.load(data_path + '/exploit.npy')
-scan = np.load(data_path + '/scan.npy')
+#scan = np.load(data_path + '/scan.npy')
 privileged = np.load(data_path + '/privileged.npy')
 user = np.load(data_path + '/user.npy')
 unknown = np.load(data_path + '/unknown.npy')
-no = np.load(data_path + '/no.npy')
+#no = np.load(data_path + '/no.npy')
 
 #data = np.concatenate([node_id, nodes, actions, privileged, unknown, exploit, user], axis=1)
-data = np.concatenate([node_id, nodes, actions, privileged, unknown], axis=-1)
+data = np.concatenate([node_id, nodes, actions, privileged, unknown, exploit, user], axis=-1)
 print('loaded data')
     
 max_train_epochs = 50
@@ -36,7 +36,10 @@ input_ = Input(shape=(data.shape[1],data.shape[2],))
 #x = Dense(64, activation='relu', name='hidden')(input_)
 x = Bidirectional(LSTM(64))(input_)
 x = Flatten()(x)
+x = Dropout(0.2)(x)
 x = Dense(64, activation='relu', name='hidden')(x)
+x = Dropout(0.2)(x)
+x = Dense(64, activation='relu', name='hidden2')(x)
 outs = []
 
 outs.append(Dense(3, activation='softmax', name='activity')(x))
@@ -48,10 +51,10 @@ def scheduler(epoch, lr):
     if epoch < 2:
         return lr
     else:
-        return lr * tf.math.exp(-0.15)
+        return lr * tf.math.exp(-0.05)
 
 base_model = Model(input_, outs)
-base_model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=0.001), loss=losses, metrics=[tf.keras.metrics.CategoricalAccuracy()])
+base_model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=0.0005), loss=losses, metrics=[tf.keras.metrics.CategoricalAccuracy()])
 es_callback = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=4, min_delta=0.0005)
 lr_callback = tf.keras.callbacks.LearningRateScheduler(scheduler)
 
@@ -61,4 +64,5 @@ data_map['activity'] = next_nodes[p,:3]
 data_map['compromised'] = next_nodes[p,3:]
 with tf.device("/device:GPU:1"):
     history = base_model.fit(data[p,:,:], data_map, epochs=max_train_epochs, validation_split=0.5, 
-                                    verbose=2, callbacks=[es_callback, lr_callback], batch_size=256, shuffle=True)
+                                    verbose=2, callbacks=[es_callback, lr_callback], batch_size=256, shuffle=True,
+                                    workers=4)

@@ -22,7 +22,7 @@ class CAGENodeTranistionModel(TFModelV2):
         self.ACTION_LEN = 3
 
         self.global_itr = 0
-        self.valid_split = 0.2
+        self.valid_split = 0.3
         self.max_train_epochs = 50
 
         self.input_len = 23+3+13+13
@@ -32,6 +32,7 @@ class CAGENodeTranistionModel(TFModelV2):
         losses = []
         input_ = Input(shape=(self.input_len,))
         x = Dense(64, activation='relu', name='hidden')(input_)
+        x = Dropout(0.2)(x)
         outs = []
 
         outs.append(Dense(3, activation='softmax', name='activity')(x))
@@ -41,7 +42,7 @@ class CAGENodeTranistionModel(TFModelV2):
 
         self.base_model = Model(input_, outs)
         self.base_model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=0.001), loss=losses, metrics=[tf.keras.metrics.CategoricalAccuracy()])
-        self.es_callback = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=2)
+        self.es_callback = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=2, restore_best_weights=True)
         def scheduler(epoch, lr):
             if epoch < 1:
                 return lr

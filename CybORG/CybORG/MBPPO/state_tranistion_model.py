@@ -8,11 +8,10 @@ from ray.rllib.policy.sample_batch import SampleBatch
 from ray.rllib.policy.sample_batch import convert_ma_batch_to_sample_batch
 from ray.rllib.utils.typing import SampleBatchType
 from ray.rllib.models.tf.tf_modelv2 import TFModelV2
-from keras.models import Model
-from keras.layers.core import Activation, Dropout, Dense
-from keras.layers import Flatten, LSTM, Input
+from tensorflow.keras.models import Model
+from tensorflow.keras.layers import Activation, Dropout, Dense, Flatten, LSTM, Input
 import tensorflow as tf
-from keras import backend as K
+from tensorflow.keras import backend as K
 
 class CAGEStateTranistionModel(TFModelV2):
     """Transition Dynamics Model (FC Network with Weight Norm)"""
@@ -66,18 +65,18 @@ class CAGEStateTranistionModel(TFModelV2):
         return next_state
     
 
-    def fit(self, samples):
+    def fit(self, obs, actions, next_obs):
 
        
         K.set_value(self.base_model.optimizer.learning_rate, 0.001)
         # Process Samples
-        samples = self.process_samples(samples)
+        #samples = self.process_samples(samples)
 
         data_map = {}
         index = 0 
         for i in range(self.NUM_NODES):
             for n in self.NODE_CLASSES:
-                data_map[str(i)+str(n)] = samples['next_obs'][:,index:index+n]
+                data_map[str(i)+str(n)] = next_obs[:,index:index+n]
                 index += n
 
         history = self.base_model.fit(samples['obs_actions'], data_map, epochs=self.max_train_epochs, validation_split=0.1, verbose=0, callbacks=[self.es_callback, self.lr_callback], batch_size=256)

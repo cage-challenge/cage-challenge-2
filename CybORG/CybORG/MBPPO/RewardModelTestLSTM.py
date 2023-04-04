@@ -67,7 +67,7 @@ def scheduler(epoch, lr):
         return lr * tf.math.exp(-0.05)
 
 input_ = Input(shape=(state.shape[1],state.shape[2],))
-x = Bidirectional(LSTM(64))(input_)
+x = Bidirectional(LSTM(128))(input_)
 x = Flatten()(x)
 x = Dense(128, activation='relu', name='hidden')(x)
 x = Dense(128, activation='relu', name='hidden2')(x)
@@ -81,7 +81,8 @@ p = np.random.permutation(reward_onehot.shape[0])
 p = np.random.permutation(reward_onehot.shape[0])
 with tf.device("/device:GPU:1"):
     history = base_model.fit(state[p,:,:], reward_onehot[p], epochs=max_train_epochs, validation_split=0.5, 
-                                    verbose=2, callbacks=[es_callback, lr_callback], batch_size=256, shuffle=True)
+                                    verbose=2, callbacks=[es_callback, lr_callback], batch_size=256, shuffle=True,
+                                    workers=4)
 
 from sklearn.metrics import confusion_matrix
 

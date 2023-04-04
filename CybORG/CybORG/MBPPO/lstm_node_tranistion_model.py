@@ -23,10 +23,10 @@ class CAGENodeTranistionModelLSTM(TFModelV2):
         self.ACTION_LEN = 3
         self.SEQ_LEN = 10
         self.global_itr = 0
-        self.valid_split = 0.2
+        self.valid_split = 0.3
         self.max_train_epochs = 50
 
-        self.input_len = 23+13+13
+        self.input_len = 23+13+13+13+13
 
         #super(CAGEStateTranistionModel, self).__init__()
 
@@ -35,7 +35,11 @@ class CAGENodeTranistionModelLSTM(TFModelV2):
 
         x = Bidirectional(LSTM(64))(input_)
         x = Flatten()(x)
+        x = Dropout(0.2)(x)
         x = Dense(64, activation='relu', name='hidden')(x)
+        x = Dropout(0.2)(x)
+        x = Dense(64, activation='relu', name='hidden2')(x)
+        x = Dropout(0.2)(x)
         outs = []
 
         outs.append(Dense(3, activation='softmax', name='activity')(x))
@@ -45,18 +49,18 @@ class CAGENodeTranistionModelLSTM(TFModelV2):
 
         self.base_model = Model(input_, outs)
         self.base_model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=0.001), loss=losses, metrics=[tf.keras.metrics.CategoricalAccuracy()])
-        self.es_callback = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=2, min_delta=0.005)
+        self.es_callback = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=3, min_delta=0.0001, restore_best_weights=True)
         def scheduler(epoch, lr):
             if epoch < 2:
                 return lr
             else:
-                return lr * tf.math.exp(-0.1)
+                return lr * tf.math.exp(-0.05)
         self.lr_callback = tf.keras.callbacks.LearningRateScheduler(scheduler)
 
     def forward(self, state, actions):
         next_state = np.zeros(self.STATE_LEN)
-        privileged = state[:,np.arange(3,91,step=7)]
         exploit = state[:,np.arange(0,91,step=7)]
+        privileged = state[:,np.arange(3,91,step=7)]
         user = state[:,np.arange(4,91,step=7)]
         unknown = state[:,np.arange(5,91,step=7)]
         no = state[:,np.arange(6,91,step=7)]
@@ -68,7 +72,7 @@ class CAGENodeTranistionModelLSTM(TFModelV2):
             node_state = state[:,int(n*7):int(n*7)+7]
             node_action =  np.array([self.node_action(actions[i], n) for i in range(self.SEQ_LEN)])
         
-            probs = self.base_model(np.expand_dims([np.concatenate([encoding, node_state, node_action, privileged, unknown], axis=-1)], axis=-1))
+            probs = self.base_model(np.expand_dims([np.concatenate([encoding, node_state, node_action, exploit, privileged, user, unknown], axis=-1)], axis=-1))
             #probs = self.base_model(np.expand_dims([np.concatenate([encoding, node_state, node_action, privileged, user, unknown, no])], axis=-1))
 
             index_state = int(n*7) 
@@ -91,18 +95,18 @@ class CAGENodeTranistionModelLSTM(TFModelV2):
             vec[int(action) // 13] = 1
         return vec
 
-    def fit(self, obs, actions, next_obs):
+    def fit(self, node_vectors, next_nodes):
 
-        K.set_value(self.base_model.optimizer.learning_rate, 0.001)
+        K.set_value(self.base_model.optimizer.learning_rate, 0.0005)
         # Process Samples
-        samples = self.process_samples(obs, actions, next_obs)
-        p = np.random.permutation(samples['nodes'].shape[0])
+        #samples = self.process_samples(obs, actions, next_obs)
+        p = np.random.permutation(node_vectors.shape[0])
         data_map = {}
-        data_map['activity'] = samples['next_nodes'][p,:3]
-        data_map['compromised'] = samples['next_nodes'][p,3:]
+        data_map['activity'] = next_nodes[p,:3]
+        data_map['compromised'] = next_nodes[p,3:]
         with tf.device("/device:GPU:1"):
-            history = self.base_model.fit(samples['nodes'][p,:,:], data_map, epochs=self.max_train_epochs, validation_split=0.2, 
-                                          verbose=0, callbacks=[self.es_callback, self.lr_callback], batch_size=512, shuffle=True, workers=4)
+            history = self.base_model.fit(node_vectors[p,:,:], data_map, epochs=self.max_train_epochs, validation_split=self.valid_split, 
+                                          verbose=0, callbacks=[self.es_callback, self.lr_callback], batch_size=256, shuffle=True, workers=4)
         print('state tranistion val loss: ', history.history['val_loss'])
 
         self.global_itr += 1

@@ -59,7 +59,7 @@ def scheduler(epoch, lr):
     if epoch < 2:
         return lr
     else:
-        return lr * tf.math.exp(-0.15)
+        return lr * tf.math.exp(-0.05)
 
 input_ = Input(shape=(data.shape[1],))
 x = Dense(256, activation='relu')(input_)
@@ -68,8 +68,8 @@ x = Dense(256, activation='relu')(x)
 out = Dense(number_rewards, activation='softmax')(x)
 base_model = Model(input_, out)
 
-base_model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=0.001), loss=tf.keras.losses.CategoricalCrossentropy(), metrics=[tf.keras.metrics.CategoricalAccuracy()])
-es_callback = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=2)
+base_model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=0.0005), loss=tf.keras.losses.CategoricalCrossentropy(), metrics=[tf.keras.metrics.CategoricalAccuracy()])
+es_callback = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=5)
 lr_callback = tf.keras.callbacks.LearningRateScheduler(scheduler)
 
 p = np.random.permutation(reward_onehot.shape[0])

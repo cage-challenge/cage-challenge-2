@@ -12,6 +12,7 @@ Detailed documentation: https://docs.ray.io/en/master/rllib-algorithms.html#ppo
 import logging
 from typing import List, Optional, Type, Union
 import numpy as np
+from bisect import bisect_left
 
 from ray.util.debug import log_once
 from ray.rllib.algorithms.algorithm import Algorithm
@@ -313,11 +314,13 @@ class MBPPO(Algorithm):
     def __init__(self, config, logger_creator) -> None:
         super().__init__(config, logger_creator)
         self.memeory = {}
-        self.memeory['obs'] = []
-        self.memeory['obs_seq'] = []
-        self.memeory['next_obs'] = []
-        self.memeory['rewards'] = []
-        self.memeory['actions'] = []
+        self.memeory['obs'] = None
+        self.memeory['obs_seq'] = None
+        self.memeory['next_obs'] = None
+        self.memeory['rewards'] = None
+        self.memeory['actions'] = None
+        self.reward_to_index = np.load('reward_to_index.npy', allow_pickle=True).item()
+        self.index_to_reward = np.load('index_to_reward.npy', allow_pickle=True).item()
 
     @classmethod
     @override(Algorithm)
@@ -376,8 +379,8 @@ class MBPPO(Algorithm):
             #experience_data = self.local_replay_buffer.sample(self._counters[NUM_AGENT_STEPS_SAMPLED])
             #for pid in self.workers.local_worker().get_policies_to_train({'default_policy'}):
             for pid in {'default_policy'}: #Could extend to multiagent here
-                self.workers.local_worker().get_policy(pid).reward_model.fit(np.array(self.memeory['obs_seq']), np.array(self.memeory['next_obs']), np.array(self.memeory['rewards']))
-                self.workers.local_worker().get_policy(pid).state_tranistion_model.fit(np.array(self.memeory['obs_seq']), np.array(self.memeory['actions']), np.array(self.memeory['next_obs']))
+                self.workers.local_worker().get_policy(pid).reward_model.fit(np.array(self.memeory['obs_concate']), np.array(self.memeory['rewards']))
+                self.workers.local_worker().get_policy(pid).state_tranistion_model.fit(np.array(self.memeory['node_vectors']), np.array(self.memeory['next_nodes']))
 
                 if self._counters[NUM_AGENT_STEPS_SAMPLED] > dreams_start_at:   
                     #Sync
@@ -479,39 +482,86 @@ class MBPPO(Algorithm):
         #TODO vectorises this
         STATE_LEN = 91
         self.seq_len = 10
-        obs = np.zeros((samples['dones'].shape[0]-samples['dones'].sum(), STATE_LEN))
         obs_seq = np.zeros((samples['dones'].shape[0]-samples['dones'].sum(), self.seq_len, STATE_LEN))
-        next_obs = np.zeros((samples['dones'].shape[0]-samples['dones'].sum(), STATE_LEN))
+        node_vectors = np.zeros((samples['dones'].shape[0]*13-samples['dones'].sum()*13, self.seq_len, 7+13+3+13+13+13+13))
+        obs_concat = np.zeros((samples['dones'].shape[0]-samples['dones'].sum(), STATE_LEN*2))
         actions = np.zeros(((samples['dones'].shape[0]-samples['dones'].sum()), self.seq_len))
-        rewards = np.zeros((samples['dones'].shape[0]-samples['dones'].sum()))
-        #eps_id = np.zeros((samples['dones'].shape[0]-samples['dones'].sum()))
-        #ts_ = np.zeros((samples['dones'].shape[0]-samples['dones'].sum()))
+        rewards = np.zeros((samples['dones'].shape[0]-samples['dones'].sum(), len(self.reward_to_index.keys())))
+        next_nodes = np.zeros((samples['dones'].shape[0]*13-samples['dones'].sum()*13, 7))
+        #obs = np.zeros((samples['dones'].shape[0]-samples['dones'].sum(), STATE_LEN))
+        #next_obs = np.zeros((samples['dones'].shape[0]-samples['dones'].sum(), STATE_LEN))
 
-        no_dones_pointer = 0
-        ts = 0
+        s_index = 0; index = 0; ts = 0
         for i in range(samples['dones'].shape[0]-1):
             steps = ts if ts < self.seq_len else self.seq_len-1     
             if samples['dones'][i]:
                 ts = 0
                 continue
-            obs[no_dones_pointer,:] = samples['obs'][i]
-            obs_seq[no_dones_pointer,:steps+1,:] = samples['obs'][i-steps:i+1,:]
-            next_obs[no_dones_pointer,:] = samples['obs'][i+1,:]
-            actions[no_dones_pointer,:steps+1] = samples['actions'][i-steps:i+1]
-            rewards[no_dones_pointer] = samples['rewards'][i]
-            #eps_id[no_dones_pointer] = samples['eps_id'][i]
-           # ts_[no_dones_pointer] = ts
-            no_dones_pointer += 1
+            #obs[s_index,:] = samples['obs'][i]
+            #next_obs[s_index,:] = samples['obs'][i+1,:]
+            obs_concat[s_index,:] = np.concatenate((samples['obs'][i], samples['obs'][i+1]))
+            obs_seq[s_index,:steps+1,:] = samples['obs'][i-steps:i+1,:]
+            reward = self.take_closest(list(self.reward_to_index.keys()), samples['rewards'][i])
+            rewards[s_index,self.reward_to_index[reward]] = 1
+            s_index += 1
+            for n in range(13):     
+                node_vectors[index,:steps+1,n] = 1
+                node_vectors[index,:steps+1,13:20] = samples['obs'][i-steps:i+1,int(n*7):int(n*7)+7]
+                node_vectors[index,:steps+1,20:23] = np.array([self.node_action(samples['actions'][i], n) for i in range(i-steps,i+1)])
+                #exploit = 0
+                node_vectors[index,:steps+1,23:36] = samples['obs'][i-steps:i+1,np.arange(0,91,step=7)]
+                #scan = 1
+                #privilege = 3
+                node_vectors[index,:steps+1,36:49] = samples['obs'][i-steps:i+1,np.arange(3,91,step=7)]
+                #user = 4
+                node_vectors[index,:steps+1,49:62] = samples['obs'][i-steps:i+1,np.arange(4,91,step=7)]
+                #unknown = 5 
+                node_vectors[index,:steps+1,62:] = samples['obs'][i-steps:i+1,np.arange(5,91,step=7)]
+                #no = 6
+                next_nodes[index,:] = samples['obs'][i+1,int(n*7):int(n*7)+7]
+                index += 1
             ts += 1
 
-        self.memeory['obs'].extend(list(obs))
-        self.memeory['obs_seq'].extend(list(obs_seq))
-        self.memeory['next_obs'].extend(list(next_obs))
-        self.memeory['rewards'].extend(list(rewards))
-        self.memeory['actions'].extend(list(actions))
+        if type(self.memeory['obs_seq']) == type(None):
+            self.memeory['obs_seq'] = obs_seq
+           # self.memeory['obs'] = obs
+           # self.memeory['next_obs'] = next_obs
+            self.memeory['obs_concate'] = obs_concat
+            self.memeory['rewards'] = rewards
+            self.memeory['actions'] = actions
+            self.memeory['node_vectors'] = node_vectors
+            self.memeory['next_nodes'] = next_nodes
+        else:
+            self.memeory['obs_seq'] = np.concatenate((self.memeory['obs_seq'], obs_seq))
+            #self.memeory['next_obs'] = np.concatenate((self.memeory['next_obs'], next_obs))
+            self.memeory['obs_concate'] = np.concatenate((self.memeory['obs_concate'], obs_concat))
+            self.memeory['rewards'] = np.concatenate((self.memeory['rewards'], rewards))
+            self.memeory['actions'] = np.concatenate((self.memeory['actions'], actions))
+            self.memeory['node_vectors'] = np.concatenate((self.memeory['node_vectors'], node_vectors))
+            self.memeory['next_nodes'] = np.concatenate((self.memeory['next_nodes'], next_nodes))
+
+    from bisect import bisect_left
+
+    def take_closest(self, myList, myNumber):
+        """
+        Assumes myList is sorted. Returns closest value to myNumber.
+
+        If two numbers are equally close, return the smallest number.
+        """
+        pos = bisect_left(myList, myNumber)
+        if pos == 0:
+            return myList[0]
+        if pos == len(myList):
+            return myList[-1]
+        before = myList[pos - 1]
+        after = myList[pos]
+        if after - myNumber < myNumber - before:
+            return after
+        else:
+            return before
     
     def process_experience(self, samples):    
-        #TODO vectorises this
+
         STATE_LEN = 91
         obs = np.zeros((samples['dones'].shape[0]-samples['dones'].sum(), STATE_LEN))
         next_obs = np.zeros((samples['dones'].shape[0]-samples['dones'].sum(), STATE_LEN))
@@ -529,8 +579,9 @@ class MBPPO(Algorithm):
             #obs[no_dones_pointer,:] = np.concatenate([samples['obs'][i], [ts/100]])
             obs[no_dones_pointer,:] = samples['obs'][i]
             next_obs[no_dones_pointer,:] = samples['obs'][i+1]
-            actions[no_dones_pointer] = samples['actions'][i]
-            rewards[no_dones_pointer] = samples['rewards'][i]
+            actions[no_dones_pointer] = samples['actions'][i]    
+            reward = self.take_closest(list(self.reward_to_index.keys()), samples['rewards'][i])
+            rewards[no_dones_pointer,self.reward_to_index[reward]] = 1
             #eps_id[no_dones_pointer] = samples['eps_id'][i]
            # ts_[no_dones_pointer] = ts
             no_dones_pointer += 1
@@ -556,7 +607,7 @@ class MBPPO(Algorithm):
         action -= 2
         if action % node == 0:
             #Analyse #Remove #Resotre
-            vec[(action // node) - 1] = 1
+            vec[int(action) // 13] = 1
         return vec
 
 
