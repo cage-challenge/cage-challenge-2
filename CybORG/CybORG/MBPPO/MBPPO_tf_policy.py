@@ -159,8 +159,11 @@ def get_mbppo_tf_policy(name: str, base: TFPolicyV2Type) -> TFPolicyV2Type:
                 state = self.state_tranistion_model.forward(states, actions_seq)
                 states[-1,:] = state
                 states = np.roll(states,1,axis=0)
+                a = np.zeros(41)
+                a[int(action[0])] = 1
                 rewards[i] = self.reward_model.forward(np.array([np.concatenate([obs[i,:], state])]))
                 #rewards[i] = self.reward_model.forward(np.array([states]))
+                
                 
             batch = SampleBatch({'obs': obs,
                                 'actions': actions,
@@ -200,7 +203,9 @@ def get_mbppo_tf_policy(name: str, base: TFPolicyV2Type) -> TFPolicyV2Type:
                 state = self.state_tranistion_model.forward(np.array([np.concatenate([state, [i/100], [action[0]]])]), prev_action)
                 #state = self.state_tranistion_model.forward(np.array([np.concatenate([state, [i/100], action_one_hot])]))
                 #rewards[i] = self.reward_model.forward(np.array([np.concatenate([obs[i,:], [i/100], state])]))
-                rewards[i] = self.reward_model.forward(np.array([np.concatenate([obs[i,:], state])]))
+                a = np.zeros(41)
+                a[int(action[0])] = 1
+                rewards[i] = self.reward_model.forward(np.array([np.concatenate([obs[i,:], a])]))
                 #rewards[i] = self.reward_model.forward(np.array([state]))
 
             batch = SampleBatch({'obs': obs,

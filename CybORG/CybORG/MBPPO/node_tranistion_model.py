@@ -12,6 +12,7 @@ from tensorflow.keras.models import Model
 from tensorflow.keras.layers import Activation, Dropout, Dense, Flatten, LSTM, Input, Dropout
 import tensorflow as tf
 from tensorflow.keras import backend as K
+import joblib
 
 class CAGENodeTranistionModel(TFModelV2):
     """Transition Dynamics Model (FC Network with Weight Norm)"""
@@ -49,6 +50,7 @@ class CAGENodeTranistionModel(TFModelV2):
             else:
                 return lr * tf.math.exp(-0.1)
         self.lr_callback = tf.keras.callbacks.LearningRateScheduler(scheduler)
+        self.clf = joblib.load('state_novelty.pkl')
 
     def forward(self, x, previous_action):
         state = x[0,:91]
@@ -62,22 +64,27 @@ class CAGENodeTranistionModel(TFModelV2):
         no = state[np.arange(6,91,step=7)]
         next_state = np.zeros(self.STATE_LEN)
 
-        for i in range(13):
-            encoding = np.zeros(13)
-            encoding[i] = 1
-            node_state = state[int(i*7):int(i*7)+7]
-            node_action = np.concatenate([self.node_action(action[0], i), self.node_action(previous_action, i)])
-            probs = self.base_model(np.expand_dims([np.concatenate([encoding, node_state, node_action, privileged, unknown])], axis=-1))
-            #probs = self.base_model(np.expand_dims([np.concatenate([encoding, node_state, node_action, privileged, user, unknown, no])], axis=-1))
+        valid = -1
+        while valid == -1:
 
-            index_state = int(i*7) 
-            p = probs[0].numpy()[0]
-            next_state[index_state+np.random.choice(np.arange(3), p=p)] = 1
+            for i in range(13):
+                encoding = np.zeros(13)
+                encoding[i] = 1
+                node_state = state[int(i*7):int(i*7)+7]
+                node_action = np.concatenate([self.node_action(action[0], i), self.node_action(previous_action, i)])
+                probs = self.base_model(np.expand_dims([np.concatenate([encoding, node_state, node_action, privileged, unknown])], axis=-1))
+                #probs = self.base_model(np.expand_dims([np.concatenate([encoding, node_state, node_action, privileged, user, unknown, no])], axis=-1))
 
-            index_state = int(i*7) + 3 
-            p = probs[1].numpy()[0]
-            next_state[index_state+np.random.choice(np.arange(4), p=p)] = 1
-          
+                index_state = int(i*7) 
+                p = probs[0].numpy()[0]
+                next_state[index_state+np.random.choice(np.arange(3), p=p)] = 1
+
+                index_state = int(i*7) + 3 
+                p = probs[1].numpy()[0]
+                next_state[index_state+np.random.choice(np.arange(4), p=p)] = 1
+
+            valid = self.clf.predict(np.expand_dims(next_state, axis=0))[0]
+        
         return next_state
     
     def node_action(self, action, node):

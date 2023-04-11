@@ -373,14 +373,14 @@ class MBPPO(Algorithm):
 
         train_results = self.learning_from_samples(train_batch)
 
-        dreams_start_at = 80000
+        dreams_start_at = 800
    
         if self._counters[NUM_AGENT_STEPS_SAMPLED] > dreams_start_at:
             #experience_data = self.local_replay_buffer.sample(self._counters[NUM_AGENT_STEPS_SAMPLED])
             #for pid in self.workers.local_worker().get_policies_to_train({'default_policy'}):
             for pid in {'default_policy'}: #Could extend to multiagent here
-                self.workers.local_worker().get_policy(pid).reward_model.fit(np.array(self.memeory['obs_concate']), np.array(self.memeory['rewards']))
-                self.workers.local_worker().get_policy(pid).state_tranistion_model.fit(np.array(self.memeory['node_vectors']), np.array(self.memeory['next_nodes']))
+                self.workers.local_worker().get_policy(pid).reward_model.fit(self.memeory['obs_concate'], self.memeory['rewards'])
+                self.workers.local_worker().get_policy(pid).state_tranistion_model.fit(self.memeory['node_ids'], self.memeory['node_vectors'], self.memeory['next_nodes'])
 
                 if self._counters[NUM_AGENT_STEPS_SAMPLED] > dreams_start_at:   
                     #Sync
@@ -483,9 +483,11 @@ class MBPPO(Algorithm):
         STATE_LEN = 91
         self.seq_len = 10
         obs_seq = np.zeros((samples['dones'].shape[0]-samples['dones'].sum(), self.seq_len, STATE_LEN))
-        node_vectors = np.zeros((samples['dones'].shape[0]*13-samples['dones'].sum()*13, self.seq_len, 7+13+3+13+13+13+13))
+        node_vectors = np.zeros((samples['dones'].shape[0]*13-samples['dones'].sum()*13, self.seq_len, 7+3+13+13+13+13))
+        node_ids = np.zeros((samples['dones'].shape[0]*13-samples['dones'].sum()*13, 13))
         obs_concat = np.zeros((samples['dones'].shape[0]-samples['dones'].sum(), STATE_LEN*2))
-        actions = np.zeros(((samples['dones'].shape[0]-samples['dones'].sum()), self.seq_len))
+        obs = np.zeros((samples['dones'].shape[0]-samples['dones'].sum(), STATE_LEN))
+        actions = np.zeros(((samples['dones'].shape[0]-samples['dones'].sum()), 41))
         rewards = np.zeros((samples['dones'].shape[0]-samples['dones'].sum(), len(self.reward_to_index.keys())))
         next_nodes = np.zeros((samples['dones'].shape[0]*13-samples['dones'].sum()*13, 7))
         #obs = np.zeros((samples['dones'].shape[0]-samples['dones'].sum(), STATE_LEN))
@@ -500,23 +502,25 @@ class MBPPO(Algorithm):
             #obs[s_index,:] = samples['obs'][i]
             #next_obs[s_index,:] = samples['obs'][i+1,:]
             obs_concat[s_index,:] = np.concatenate((samples['obs'][i], samples['obs'][i+1]))
+            obs[s_index,:] = samples['obs'][i]
             obs_seq[s_index,:steps+1,:] = samples['obs'][i-steps:i+1,:]
             reward = self.take_closest(list(self.reward_to_index.keys()), samples['rewards'][i])
             rewards[s_index,self.reward_to_index[reward]] = 1
+            actions[s_index, samples['actions'][i]] = 1
             s_index += 1
             for n in range(13):     
-                node_vectors[index,:steps+1,n] = 1
-                node_vectors[index,:steps+1,13:20] = samples['obs'][i-steps:i+1,int(n*7):int(n*7)+7]
-                node_vectors[index,:steps+1,20:23] = np.array([self.node_action(samples['actions'][i], n) for i in range(i-steps,i+1)])
+                node_ids[index,n] = 1
+                node_vectors[index,:steps+1,:7] = samples['obs'][i-steps:i+1,int(n*7):int(n*7)+7]
+                node_vectors[index,:steps+1,7:10] = np.array([self.node_action(samples['actions'][i], n) for i in range(i-steps,i+1)])
                 #exploit = 0
-                node_vectors[index,:steps+1,23:36] = samples['obs'][i-steps:i+1,np.arange(0,91,step=7)]
+                node_vectors[index,:steps+1,10:23] = samples['obs'][i-steps:i+1,np.arange(0,91,step=7)]
                 #scan = 1
                 #privilege = 3
-                node_vectors[index,:steps+1,36:49] = samples['obs'][i-steps:i+1,np.arange(3,91,step=7)]
+                node_vectors[index,:steps+1,23:36] = samples['obs'][i-steps:i+1,np.arange(3,91,step=7)]
                 #user = 4
-                node_vectors[index,:steps+1,49:62] = samples['obs'][i-steps:i+1,np.arange(4,91,step=7)]
+                node_vectors[index,:steps+1,36:49] = samples['obs'][i-steps:i+1,np.arange(4,91,step=7)]
                 #unknown = 5 
-                node_vectors[index,:steps+1,62:] = samples['obs'][i-steps:i+1,np.arange(5,91,step=7)]
+                node_vectors[index,:steps+1,49:] = samples['obs'][i-steps:i+1,np.arange(5,91,step=7)]
                 #no = 6
                 next_nodes[index,:] = samples['obs'][i+1,int(n*7):int(n*7)+7]
                 index += 1
@@ -524,21 +528,23 @@ class MBPPO(Algorithm):
 
         if type(self.memeory['obs_seq']) == type(None):
             self.memeory['obs_seq'] = obs_seq
-           # self.memeory['obs'] = obs
+            self.memeory['obs'] = obs
            # self.memeory['next_obs'] = next_obs
             self.memeory['obs_concate'] = obs_concat
             self.memeory['rewards'] = rewards
             self.memeory['actions'] = actions
             self.memeory['node_vectors'] = node_vectors
             self.memeory['next_nodes'] = next_nodes
+            self.memeory['node_ids'] = node_ids
         else:
             self.memeory['obs_seq'] = np.concatenate((self.memeory['obs_seq'], obs_seq))
-            #self.memeory['next_obs'] = np.concatenate((self.memeory['next_obs'], next_obs))
+            self.memeory['obs'] = np.concatenate((self.memeory['obs'], obs))
             self.memeory['obs_concate'] = np.concatenate((self.memeory['obs_concate'], obs_concat))
             self.memeory['rewards'] = np.concatenate((self.memeory['rewards'], rewards))
             self.memeory['actions'] = np.concatenate((self.memeory['actions'], actions))
             self.memeory['node_vectors'] = np.concatenate((self.memeory['node_vectors'], node_vectors))
             self.memeory['next_nodes'] = np.concatenate((self.memeory['next_nodes'], next_nodes))
+            self.memeory['node_ids'] = np.concatenate((self.memeory['node_ids'], node_ids))
 
     from bisect import bisect_left
 

@@ -41,11 +41,11 @@ class CAGERewardModel(TFModelV2):
         self.number_rewards = int(len(self.reward_to_index.keys()))
        # super().__init__()
 
-        input_ = Input(shape=(self.STATE_LEN*2,))
-        x = Dense(256, activation='relu')(input_)
-        x = Dropout(0.2)(x)
-        x = Dense(256, activation='relu')(x)
-        x = Dropout(0.2)(x)
+        input_ = Input(shape=(self.STATE_LEN+self.STATE_LEN,))
+        x = Dense(128, activation='relu')(input_)
+        #x = Dropout(0.2)(x)
+        x = Dense(128, activation='relu')(x)
+        #x = Dropout(0.2)(x)
         out = Dense(self.number_rewards, activation='softmax')(x)
 
         def scheduler(epoch, lr):
@@ -62,10 +62,16 @@ class CAGERewardModel(TFModelV2):
     def forward(self, x):
         probs = self.base_model(x).numpy()[0]
         index = np.random.choice(np.arange(self.number_rewards), p=probs)
+        self.entropy = - np.sum(np.log(probs) * probs) / probs.shape[0]
         ##index = np.random.categorical(probs, 1).numpy()
         return self.index_to_reward[index]
-        
     
+    def load(self, path):
+        self.base_model.load_weights(path)
+
+    def get_entropy(self):
+        return self.entropy
+        
     def fit(self, obs, rewards): 
         # Process Samples
         print(obs.shape)
@@ -78,7 +84,7 @@ class CAGERewardModel(TFModelV2):
         #train_dataset = train_dataset.shuffle(buffer_size=1024).batch(128, drop_remainder=True)
         #val_dataset  = val_dataset.shuffle(buffer_size=1024).batch(128, drop_remainder=True)
         try:
-            with tf.device("/device:GPU:0"):
+            with tf.device("/device:GPU:1"):
                 history = self.base_model.fit(obs[p,:], rewards[p], epochs=self.max_train_epochs, validation_split=self.valid_split, 
                                                 verbose=0, callbacks=[self.callback, self.lr_callback], batch_size=256, shuffle=True, workers=4)
                 #history = self.base_model.fit(train_dataset, validation_data=val_dataset, epochs=self.max_train_epochs, 

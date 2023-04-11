@@ -69,8 +69,8 @@ def scheduler(epoch, lr):
 input_ = Input(shape=(state.shape[1],state.shape[2],))
 x = Bidirectional(LSTM(128))(input_)
 x = Flatten()(x)
-x = Dense(128, activation='relu', name='hidden')(x)
-x = Dense(128, activation='relu', name='hidden2')(x)
+x = Dense(12, activation='relu', name='hidden')(x)
+#x = Dense(128, activation='relu', name='hidden2')(x)
 out = Dense(number_rewards, activation='softmax')(x)
 base_model = Model(input_, out)
 

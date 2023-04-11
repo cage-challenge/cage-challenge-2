@@ -37,6 +37,8 @@ data_path = '/home/adamprice/u75a-Data-Efficient-Decisions/CybORG/CybORG/Noteboo
 state = np.load(data_path + '/data/state.npy')
 rewards = np.load(data_path + '/data/rewards.npy')
 next_state = np.load(data_path + '/data/next_state.npy')
+actions = np.load(data_path + '/data/actions.npy')
+print(actions.shape)
 
 data = np.concatenate([state, next_state], axis=1)
 
@@ -62,17 +64,19 @@ def scheduler(epoch, lr):
         return lr * tf.math.exp(-0.05)
 
 input_ = Input(shape=(data.shape[1],))
-x = Dense(256, activation='relu')(input_)
-x = Dense(256, activation='relu')(x)
+x = Dense(128, activation='relu')(input_)
+x = Dense(128, activation='relu')(x)
 #x = Dense(256, activation='relu')(x)
 out = Dense(number_rewards, activation='softmax')(x)
 base_model = Model(input_, out)
 
-base_model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=0.0005), loss=tf.keras.losses.CategoricalCrossentropy(), metrics=[tf.keras.metrics.CategoricalAccuracy()])
+base_model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=0.001), loss=tf.keras.losses.CategoricalCrossentropy(), metrics=[tf.keras.metrics.CategoricalAccuracy()])
 es_callback = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=5)
 lr_callback = tf.keras.callbacks.LearningRateScheduler(scheduler)
 
 p = np.random.permutation(reward_onehot.shape[0])
-with tf.device("/device:GPU:1"):
+with tf.device("/device:GPU:0"):
     history = base_model.fit(data[p,:], reward_onehot[p], epochs=max_train_epochs, validation_split=0.5, 
                                     verbose=2, callbacks=[es_callback, lr_callback], batch_size=256, shuffle=True)
+    
+base_model.save_weights('reward_model')

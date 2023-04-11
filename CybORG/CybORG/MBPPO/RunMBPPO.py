@@ -89,7 +89,7 @@ for t in range(7):
                           #  "lstm_cell_size": 256,})\
         .environment(disable_env_checking=True, env = 'CybORG')\
         .framework('tf2')\
-        .resources(num_gpus=1)
+        .resources(num_gpus=0)
     )
     trainer = config.build() 
 
@@ -99,4 +99,4 @@ for t in range(7):
     rewards = np.zeros(ITERS)
     for i in range(ITERS):
         rewards[i] = print_results(trainer.train())
-        np.save('node_priv_unk_lstm'+str(t), rewards)
+        np.save('node_validation'+str(t), rewards)
