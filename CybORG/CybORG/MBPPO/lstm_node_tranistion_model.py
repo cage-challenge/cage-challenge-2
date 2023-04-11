@@ -70,8 +70,8 @@ class CAGENodeTranistionModelLSTM(TFModelV2):
         no = state[:,np.arange(6,91,step=7)]
         next_state = np.zeros(self.STATE_LEN)
 
-        valid = -1
-        while valid == -1:
+        valid = -2
+        while valid < 0:
             for n in range(13):
 
                 encoding = np.zeros((1,13))
@@ -91,7 +91,10 @@ class CAGENodeTranistionModelLSTM(TFModelV2):
 
                 next_state[index_state+np.random.choice(np.arange(4), p=p)] = 1
 
-            valid = self.clf.predict(np.expand_dims(next_state, axis=0))[0]
+            if self.clf.predict(np.expand_dims(next_state, axis=0))[0] > 0:
+                valid = 1
+            else:
+                valid += 1 
             
         return next_state
     
