@@ -55,8 +55,8 @@ from ray import air, tune
 tune.Tuner(
         "DQN",
         run_config=air.RunConfig(
-            stop={"timesteps_total": 2e6},
-            local_dir='results/DQN_offline/b_line', name="tune",
+            stop={"timesteps_total": 1e6},
+            local_dir='results/DQN_offline/b_line100000', name="tune",
             checkpoint_config=air.CheckpointConfig(
                 checkpoint_frequency=500, 
             ),
@@ -68,25 +68,25 @@ tune.Tuner(
             "num_gpus": 1,
             "num_workers": 4,
             "horizon": 100,
-            "num_envs_per_worker": 2,
-            "n_step":  5,
+            "num_envs_per_worker": 1,
+            "n_step":  tune.grid_search([5]),
             #algo params
-            "train_batch_size": tune.grid_search([5000, 2000]),
-            "lr": 0.0005,
+            "train_batch_size": tune.grid_search([1000]),
+            "lr": 0.001,
             "gamma": 0.9,
             "framework": 'tf',
             "model": {
                     "fcnet_hiddens": [256, 256],
                     "fcnet_activation": "tanh",
                 },
-            "num_atoms": tune.grid_search([50]),
+            "num_atoms": 50,
             "v_min": -100.0,
             "v_max": 0.0,
             "noisy": True,     
-            "input": '/home/adamprice/u75a-Data-Efficient-Decisions/CybORG/CybORG/Notebooks/logs/PPO/no_decoy_200000' ,
-            "evaluation_num_workers": 4,
+            "input": '/home/ubuntu/u75a-Data-Efficient-Decisions/CybORG/CybORG/OfflineExperiments/logs/DQN/B_Line_no_decoy_100000',
+            "evaluation_num_workers": 2,
             "evaluation_interval": 1,
-            "evaluation_duration": 10,
+            "evaluation_duration": 30,
             "evaluation_config": {"input": "sampler"}
         },
     ).fit()

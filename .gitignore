@@ -55,3 +55,10 @@ CybORG/CybORG/Notebooks/models
 *.ipynb_checkpoints
 *.pb
 *.pyc
+*.json
+*.ip*
+*.csv
+*.is_checkpoint
+*.tune_metadata
+
+CybORG/CybORG/OfflineExperiments/results/DQN_200000_random/tune/*/error.txt
