@@ -56,7 +56,7 @@ tune.Tuner(
         "DQN",
         run_config=air.RunConfig(
             stop={"timesteps_total": 1e6},
-            local_dir='results/DQN_offline/b_line100000', name="tune",
+            local_dir='results/DQN_offline/b_line300000_random', name="tune",
             checkpoint_config=air.CheckpointConfig(
                 checkpoint_frequency=500, 
             ),
@@ -83,7 +83,7 @@ tune.Tuner(
             "v_min": -100.0,
             "v_max": 0.0,
             "noisy": True,     
-            "input": '/home/ubuntu/u75a-Data-Efficient-Decisions/CybORG/CybORG/OfflineExperiments/logs/DQN/B_Line_no_decoy_100000',
+            "input": '/home/ubuntu/u75a-Data-Efficient-Decisions/CybORG/CybORG/OfflineExperiments/logs/DQN/B_Line_no_decoy_300000_random',
             "evaluation_num_workers": 2,
             "evaluation_interval": 1,
             "evaluation_duration": 30,
