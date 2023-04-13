@@ -7,7 +7,7 @@ import tensorflow as tf
 #tf.compat.v1.enable_eager_execution()
 from gym import error, spaces, utils
 from gym.utils import seeding
-from lstm_node_tranistion_model import CAGENodeTranistionModelLSTM
+from lstm_node_tranistion_model_feedback import CAGENodeTranistionModelLSTMFeedback
 from reward_model import CAGERewardModel
 from tensorflow.keras.models import Model
 import numpy as np
@@ -49,7 +49,7 @@ class WorldMovelEnv(gym.Env):
         self.reward_model.load('reward_model')
 
        
-        self.state_tranistion_model = CAGENodeTranistionModelLSTM()
+        self.state_tranistion_model = CAGENodeTranistionModelLSTMFeedback()
         self.state_tranistion_model.load('NodeTranistionModel')
         self.init_state = np.array([0., 0., 1., 0., 0., 0., 1., 0., 0., 1., 0., 0., 0., 1., 0., 0., 1., 0., 0., 0., 1., 0., 0., 1.,
                                     0., 0., 0., 1., 0., 0., 1., 0., 0., 0., 1., 0., 0., 1., 0., 0., 0., 1., 0., 0., 1., 0., 0., 0.,
@@ -70,7 +70,8 @@ class WorldMovelEnv(gym.Env):
            # valid = self.clf.predict(np.expand_dims(state, axis=0))[0]
         self.states[-1,:] = state
 
-        reward = self.reward_model.forward(np.array([np.concatenate([self.states[0,:], self.states[-1,:]])]))
+        #reward = self.reward_model.forward(np.array([np.concatenate([self.states[0,:], self.states[-1,:]])]))
+        reward = self.reward_model.forward(np.expand_dims(self.states[-1,:], axis=0))
         self.states = np.roll(self.states,1,axis=0)
         self.step_count += 1
         done = self.step_count == 99
@@ -104,7 +105,7 @@ OOD_States = []
 ID = []
 ID_States = []
 both = []
-for i in trange(100):
+for i in trange(10):
     done = False
     s = WM.reset()
     while not done:

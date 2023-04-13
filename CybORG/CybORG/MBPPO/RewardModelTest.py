@@ -52,6 +52,7 @@ reward_classes = np.vectorize(reward_to_index.get)(rewards)
 reward_onehot = np.eye(int(len(reward_to_index.keys())))[np.array(reward_classes, dtype=np.int8)]
     
 
+
 STATE_LEN = 91
 ACTION_LEN = 3
     
@@ -75,8 +76,8 @@ es_callback = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=5)
 lr_callback = tf.keras.callbacks.LearningRateScheduler(scheduler)
 
 p = np.random.permutation(reward_onehot.shape[0])
-with tf.device("/device:GPU:0"):
-    history = base_model.fit(data[p,:], reward_onehot[p], epochs=max_train_epochs, validation_split=0.5, 
-                                    verbose=2, callbacks=[es_callback, lr_callback], batch_size=256, shuffle=True)
+with tf.device("/device:GPU:1"):
+    history = base_model.fit(data[p,:], reward_onehot[p], epochs=max_train_epochs, validation_split=0.1, 
+                                    verbose=2, callbacks=[es_callback, lr_callback], batch_size=64, shuffle=True)
     
 base_model.save_weights('reward_model')

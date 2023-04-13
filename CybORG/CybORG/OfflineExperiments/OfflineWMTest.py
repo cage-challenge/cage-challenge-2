@@ -7,12 +7,13 @@ import tensorflow as tf
 #tf.compat.v1.enable_eager_execution()
 from gym import error, spaces, utils
 from gym.utils import seeding
-from CybORG.MBPPO.lstm_node_tranistion_model import CAGENodeTranistionModelLSTM
+from CybORG.MBPPO.lstm_node_tranistion_model_feedback import CAGENodeTranistionModelLSTMFeedback
 from CybORG.MBPPO.reward_model import CAGERewardModel
 from tensorflow.keras.models import Model
 import numpy as np
 from tqdm import trange
 import joblib
+from multiprocessing.dummy import Pool
 
 import inspect
 import time
@@ -24,7 +25,6 @@ from CybORG.Agents.Wrappers.rllib_wrapper import RLlibWrapper
 from ray.tune.registry import register_env
 from ray.rllib.algorithms.ppo import PPOConfig
 import ray
-warnings.filterwarnings('ignore')
 
 
 state_len = 91
@@ -33,8 +33,8 @@ encoding_len = state_len + num_actions
 NUM_NODES = 13
 NODE_CLASSES = [3, 4]
 
-REWARD_MODEL = ''
-STATE_TRANISION_MODEL = ''
+REWARD_MODEL = '/home/adamprice/u75a-Data-Efficient-Decisions/CybORG/CybORG/MBPPO/reward_model'
+STATE_TRANISION_MODEL = '/home/adamprice/u75a-Data-Efficient-Decisions/CybORG/CybORG/MBPPO/NodeTranistionModel'
 SEQ_LEN = 10
 
 class WorldMovelEnv(gym.Env):
@@ -52,7 +52,7 @@ class WorldMovelEnv(gym.Env):
         self.reward_model.load(REWARD_MODEL)
 
        
-        self.state_tranistion_model = CAGENodeTranistionModelLSTM()
+        self.state_tranistion_model = CAGENodeTranistionModelLSTMFeedback()
         self.state_tranistion_model.load(STATE_TRANISION_MODEL)
         self.init_state = np.array([0., 0., 1., 0., 0., 0., 1., 0., 0., 1., 0., 0., 0., 1., 0., 0., 1., 0., 0., 0., 1., 0., 0., 1.,
                                     0., 0., 0., 1., 0., 0., 1., 0., 0., 0., 1., 0., 0., 1., 0., 0., 0., 1., 0., 0., 1., 0., 0., 0.,
@@ -61,8 +61,7 @@ class WorldMovelEnv(gym.Env):
         self.states = np.zeros((SEQ_LEN, state_len))
         self.states[0,:] = self.init_state
         self.actions_seq = np.zeros(SEQ_LEN)
-        self.clf = joblib.load('state_novelty.pkl')
-
+        
     def step(self, action):
 
         self.actions_seq[-1] = action
@@ -72,13 +71,15 @@ class WorldMovelEnv(gym.Env):
 
         self.states[-1,:] = state
 
+        a = np.zeros(41)
+        a[action] = 1
         reward = self.reward_model.forward(np.array([np.concatenate([self.states[0,:], self.states[-1,:]])]))
         self.states = np.roll(self.states,1,axis=0)
         self.step_count += 1
         done = self.step_count == 99
         if done:
             self.step_count = 0
-        return state, reward, done, {'entropy': self.reward_model.get_entropy()}
+        return state, reward, done, {}
 
     def reset(self):
         step_count = 0
@@ -118,3 +119,40 @@ config = (
         .resources(num_gpus=1)
     )
 trainer = config.build()
+
+def print_results(results_dict):
+    train_iter = results_dict["training_iteration"]
+    r_mean = results_dict["episode_reward_mean"]
+    r_max = results_dict["episode_reward_max"]
+    r_min = results_dict["episode_reward_min"]
+    print(f"{train_iter:4d} \tr_mean: {r_mean:.1f} \tr_max: {r_max:.1f} \tr_min: {r_min: .1f}")
+    return r_mean
+
+
+def eval():
+    rewards = []
+    def run_episode(i):
+        cyborg = env_creator_cyborg({})
+        r = 0
+        observation = cyborg.reset()
+        for j in range(100):
+            action = trainer.compute_single_action(observation, explore=False)
+            observation, rew, done, info = cyborg.step(action)
+            r += rew
+        rewards.append(r)
+    p = Pool(10)
+    p.map(run_episode, range(20))
+    p.close()
+    p.join()
+    print(rewards)
+    return mean(rewards)
+
+ITERS = 200
+rewards_dream = np.zeros(ITERS)
+rewards_real = np.zeros(ITERS)
+for i in range(ITERS):
+    rewards_dream[i] = print_results(trainer.train())
+    np.save('offline_node_dream', rewards_dream)
+    rewards_real[i] = eval()
+    np.save('offline_node_real', rewards_real)
+    print('eval reward: ', rewards_real[i])

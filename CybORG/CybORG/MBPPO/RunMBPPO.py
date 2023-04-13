@@ -41,7 +41,7 @@ print("Num GPUs Available: ", len(tf.config.list_physical_devices('GPU')))
 tf.autograph.set_verbosity(0)
 
 
-NUM_WORKER = 10
+NUM_WORKER = 20
 BATCH_SIZE = 2000
 ITERS = 80
 RED_AGENT = "B_Line"
@@ -99,4 +99,4 @@ for t in range(7):
     rewards = np.zeros(ITERS)
     for i in range(ITERS):
         rewards[i] = print_results(trainer.train())
-        np.save('node_validation'+str(t), rewards)
+        np.save('node_validation_feedforward'+str(t), rewards)

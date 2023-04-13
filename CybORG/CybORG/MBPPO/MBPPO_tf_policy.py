@@ -33,6 +33,7 @@ from ray.rllib.policy.sample_batch import SampleBatch
 from state_tranistion_model import CAGEStateTranistionModel
 from node_tranistion_model import CAGENodeTranistionModel
 from lstm_node_tranistion_model import CAGENodeTranistionModelLSTM
+from lstm_node_tranistion_model_feedback import CAGENodeTranistionModelLSTMFeedback
 from reward_model import CAGERewardModel
 from reward_model_lstm import CAGERewardModelLSTM
 
@@ -128,7 +129,7 @@ def get_mbppo_tf_policy(name: str, base: TFPolicyV2Type) -> TFPolicyV2Type:
             
         def make_world_model(self):
             
-            self.state_tranistion_model = CAGENodeTranistionModelLSTM()#CAGENodeTranistionModel()#CAGENodeTranistionModel()  CAGEStateTranistionModel
+            self.state_tranistion_model = CAGENodeTranistionModelLSTMFeedback()#CAGENodeTranistionModel()#CAGENodeTranistionModel()  CAGEStateTranistionModel
             self.reward_model = CAGERewardModel()
 
         

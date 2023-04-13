@@ -321,6 +321,7 @@ class MBPPO(Algorithm):
         self.memeory['actions'] = None
         self.reward_to_index = np.load('reward_to_index.npy', allow_pickle=True).item()
         self.index_to_reward = np.load('index_to_reward.npy', allow_pickle=True).item()
+        self.wm_train_interval = 0
 
     @classmethod
     @override(Algorithm)
@@ -373,26 +374,30 @@ class MBPPO(Algorithm):
 
         train_results = self.learning_from_samples(train_batch)
 
-        dreams_start_at = 800
+        dreams_start_at = 80000
    
         if self._counters[NUM_AGENT_STEPS_SAMPLED] > dreams_start_at:
-            #experience_data = self.local_replay_buffer.sample(self._counters[NUM_AGENT_STEPS_SAMPLED])
-            #for pid in self.workers.local_worker().get_policies_to_train({'default_policy'}):
-            for pid in {'default_policy'}: #Could extend to multiagent here
-                self.workers.local_worker().get_policy(pid).reward_model.fit(self.memeory['obs_concate'], self.memeory['rewards'])
-                self.workers.local_worker().get_policy(pid).state_tranistion_model.fit(self.memeory['node_ids'], self.memeory['node_vectors'], self.memeory['next_nodes'])
+            if self.wm_train_interval == 0:
+                #experience_data = self.local_replay_buffer.sample(self._counters[NUM_AGENT_STEPS_SAMPLED])
+                #for pid in self.workers.local_worker().get_policies_to_train({'default_policy'}):
+                for pid in {'default_policy'}: #Could extend to multiagent here
+                    self.workers.local_worker().get_policy(pid).reward_model.fit(self.memeory['obs_concate'], self.memeory['rewards'])
+                    self.workers.local_worker().get_policy(pid).state_tranistion_model.fit(self.memeory['node_ids'], self.memeory['node_vectors'], self.memeory['node_predictions'], self.memeory['next_nodes'])
 
-                if self._counters[NUM_AGENT_STEPS_SAMPLED] > dreams_start_at:   
-                    #Sync
-                    reward_weights = self.workers.local_worker().get_policy(pid).reward_model.base_model.get_weights()
-                    def set_reward_weights(policy, pid):
-                        policy.reward_model.base_model.set_weights(reward_weights)
-                    self.workers.foreach_policy(set_reward_weights)
+                    if self._counters[NUM_AGENT_STEPS_SAMPLED] > dreams_start_at:   
+                        #Sync
+                        reward_weights = self.workers.local_worker().get_policy(pid).reward_model.base_model.get_weights()
+                        def set_reward_weights(policy, pid):
+                            policy.reward_model.base_model.set_weights(reward_weights)
+                        self.workers.foreach_policy(set_reward_weights)
 
-                    state_weights = self.workers.local_worker().get_policy(pid).state_tranistion_model.base_model.get_weights()
-                    def set_state_weights(policy, pid):
-                        policy.state_tranistion_model.base_model.set_weights(state_weights)
-                    self.workers.foreach_policy(set_state_weights)
+                        state_weights = self.workers.local_worker().get_policy(pid).state_tranistion_model.base_model.get_weights()
+                        def set_state_weights(policy, pid):
+                            policy.state_tranistion_model.base_model.set_weights(state_weights)
+                        self.workers.foreach_policy(set_state_weights)
+                self.wm_train_interval = 3
+            else: 
+                self.wm_train_interval -= 1
 
         #Dream
         if self._counters[NUM_AGENT_STEPS_SAMPLED] > dreams_start_at:
@@ -490,7 +495,7 @@ class MBPPO(Algorithm):
         actions = np.zeros(((samples['dones'].shape[0]-samples['dones'].sum()), 41))
         rewards = np.zeros((samples['dones'].shape[0]-samples['dones'].sum(), len(self.reward_to_index.keys())))
         next_nodes = np.zeros((samples['dones'].shape[0]*13-samples['dones'].sum()*13, 7))
-        #obs = np.zeros((samples['dones'].shape[0]-samples['dones'].sum(), STATE_LEN))
+        node_predictions = np.zeros((samples['dones'].shape[0]*13-samples['dones'].sum()*13, STATE_LEN))
         #next_obs = np.zeros((samples['dones'].shape[0]-samples['dones'].sum(), STATE_LEN))
 
         s_index = 0; index = 0; ts = 0
@@ -526,6 +531,13 @@ class MBPPO(Algorithm):
                 index += 1
             ts += 1
 
+        #Todo
+        for i in range(next_nodes.shape[0]):
+            index = (i // 13) * 13
+            range_ = i % 13
+            if range_ > 0:
+                node_predictions[i,:int(range_*7)] = next_nodes[index:index+range_,:].reshape(-1)
+
         if type(self.memeory['obs_seq']) == type(None):
             self.memeory['obs_seq'] = obs_seq
             self.memeory['obs'] = obs
@@ -536,6 +548,7 @@ class MBPPO(Algorithm):
             self.memeory['node_vectors'] = node_vectors
             self.memeory['next_nodes'] = next_nodes
             self.memeory['node_ids'] = node_ids
+            self.memeory['node_predictions'] = node_predictions
         else:
             self.memeory['obs_seq'] = np.concatenate((self.memeory['obs_seq'], obs_seq))
             self.memeory['obs'] = np.concatenate((self.memeory['obs'], obs))
@@ -545,6 +558,7 @@ class MBPPO(Algorithm):
             self.memeory['node_vectors'] = np.concatenate((self.memeory['node_vectors'], node_vectors))
             self.memeory['next_nodes'] = np.concatenate((self.memeory['next_nodes'], next_nodes))
             self.memeory['node_ids'] = np.concatenate((self.memeory['node_ids'], node_ids))
+            self.memeory['node_predictions'] = np.concatenate((self.memeory['node_predictions'], node_predictions))
 
     from bisect import bisect_left
 
