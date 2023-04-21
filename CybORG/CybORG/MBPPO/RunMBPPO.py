@@ -75,13 +75,12 @@ register_env(name="CybORG", env_creator=env_creator)
 
 from MBPPO import MBPPOConfig
 
-for t in range(7):
-# TODO: maybe add horizon to the callback initialiser
+for t in range(5):
     config = (
         MBPPOConfig()
         #Each rollout worker uses a single cpu
         .rollouts(num_rollout_workers=NUM_WORKER, num_envs_per_worker=1)\
-        .training(train_batch_size=BATCH_SIZE, gamma=0.9, lr=0.0001, 
+        .training(train_batch_size=BATCH_SIZE, gamma=0.9, lr=0.0001, seq_len=20,
                 #   model={"fcnet_hiddens": [512, 512], "fcnet_activation": "tanh",})\
                     model={"fcnet_hiddens": [256, 256], "fcnet_activation": "tanh",})\
                           # "use_lstm": False,
@@ -89,7 +88,7 @@ for t in range(7):
                           #  "lstm_cell_size": 256,})\
         .environment(disable_env_checking=True, env = 'CybORG')\
         .framework('tf2')\
-        .resources(num_gpus=0)
+        .resources(num_gpus=1)
     )
     trainer = config.build() 
 
@@ -99,4 +98,4 @@ for t in range(7):
     rewards = np.zeros(ITERS)
     for i in range(ITERS):
         rewards[i] = print_results(trainer.train())
-        np.save('node_validation_feedforward'+str(t), rewards)
+        np.save('pred_fix'+str(t), rewards)

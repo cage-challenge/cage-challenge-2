@@ -11,41 +11,34 @@ from ray.rllib.models.tf.tf_modelv2 import TFModelV2
 from tensorflow.keras.models import Model
 from tensorflow.keras.layers import Activation, Dropout, Dense, Flatten, LSTM, Input
 import tensorflow as tf
-from tensorflow.keras.layers import Activation, Dropout, Dense, Flatten, LSTM, Input, Bidirectional
+from tensorflow.keras.layers import Activation, Dropout, Dense, Flatten, LSTM, Input, Bidirectional, concatenate
 from tensorflow.keras import backend as K
 
 class CAGERewardModel(TFModelV2):
     """Transition Dynamics Model (FC Network with Weight Norm)"""
 
-    def __init__(
-        self,
-      #  input_size,
-      #  output_size,
-      #  hidden_layers=(512, 512),
-      #  hidden_nonlinearity=None,
-      #  output_nonlinearity=None,
-      #  weight_normalization=False,
-      #  use_bias=True,
-    ):
+    def __init__(self, seq_len):
         
         self.NUM_NODES = 13
         self.NODE_CLASSES = [3, 4]
         self.STATE_LEN = 91
         self.ACTION_LEN = 41
-
+        self.SEQ_LEN = seq_len
         self.global_itr = 0
         self.valid_split = 0.2
         self.max_train_epochs = 50
         self.reward_to_index = np.load('/home/adamprice/u75a-Data-Efficient-Decisions/CybORG/CybORG/MBPPO/reward_to_index.npy', allow_pickle=True).item()
         self.index_to_reward = np.load('/home/adamprice/u75a-Data-Efficient-Decisions/CybORG/CybORG/MBPPO/index_to_reward.npy', allow_pickle=True).item()
         self.number_rewards = int(len(self.reward_to_index.keys()))
+        print(self.number_rewards )
        # super().__init__()
 
-        input_ = Input(shape=(self.STATE_LEN*2,))
-        x = Dense(128, activation='relu')(input_)
-        #x = Dropout(0.2)(x)
-        x = Dense(128, activation='relu')(x)
-        #x = Dropout(0.2)(x)
+        input_ = Input(shape=(self.SEQ_LEN, self.STATE_LEN+self.ACTION_LEN, ), name='state_action')
+        new_state_in = Input(shape=(self.STATE_LEN,),name='state_in')
+        x = Bidirectional(LSTM(64))(input_)
+        x = Flatten()(x)
+        x = concatenate([x, new_state_in], name='concate')
+        x = Dense(128, activation='relu', name='hidden')(x)
         out = Dense(self.number_rewards, activation='softmax')(x)
 
         def scheduler(epoch, lr):
@@ -54,13 +47,14 @@ class CAGERewardModel(TFModelV2):
             else:
                 return lr * tf.math.exp(-0.05)
 
-        self.base_model = Model(input_, out)
+        self.base_model = Model([input_, new_state_in], out)
         self.lr_callback = tf.keras.callbacks.LearningRateScheduler(scheduler)
-        self.callback = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=3, min_delta=0.01, restore_best_weights=True)
+        self.callback = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=2, min_delta=0.001, restore_best_weights=True)
         self.base_model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=0.001), loss=tf.keras.losses.CategoricalCrossentropy(), metrics=[tf.keras.metrics.CategoricalAccuracy()])
+        self.base_model.load_weights('reward_model_lstm')
 
-    def forward(self, x):
-        probs = self.base_model(x).numpy()[0]
+    def forward(self, x, ns):
+        probs = self.base_model([x, ns]).numpy()[0]
         index = np.random.choice(np.arange(self.number_rewards), p=probs)
         self.entropy = - np.sum(np.log(probs) * probs) / probs.shape[0]
         ##index = np.random.categorical(probs, 1).numpy()
@@ -72,7 +66,7 @@ class CAGERewardModel(TFModelV2):
     def get_entropy(self):
         return self.entropy
         
-    def fit(self, obs, rewards): 
+    def fit(self, obs, ns, rewards): 
         # Process Samples
         print(obs.shape)
         #samples = self.process_samples(obs, next_obs, rewards)
@@ -85,8 +79,8 @@ class CAGERewardModel(TFModelV2):
         #val_dataset  = val_dataset.shuffle(buffer_size=1024).batch(128, drop_remainder=True)
         try:
             with tf.device("/device:GPU:1"):
-                history = self.base_model.fit(obs[p,:], rewards[p], epochs=self.max_train_epochs, validation_split=self.valid_split, 
-                                                verbose=0, callbacks=[self.callback, self.lr_callback], batch_size=256, shuffle=True, workers=4)
+                history = self.base_model.fit([obs[p,:,:], ns[p,:]], rewards[p], epochs=self.max_train_epochs, validation_split=self.valid_split, 
+                                                verbose=0, callbacks=[self.callback, self.lr_callback], batch_size=256, shuffle=True, workers=2)
                 #history = self.base_model.fit(train_dataset, validation_data=val_dataset, epochs=self.max_train_epochs, 
                 #                             verbose=0, callbacks=[self.callback])
             K.clear_session()
