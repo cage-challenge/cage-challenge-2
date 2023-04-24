@@ -28,9 +28,8 @@ unknown = np.load(data_path + '/unknown.npy')
 state = np.load(data_path + '/states.npy')
 state = np.repeat(state, 13, axis=0)
 
-data = np.concatenate([nodes, actions], axis=-1)
-#data = np.concatenate([state, actions], axis=-1)
-#data = np.concatenate([state, actions], axis=-1)
+#data = np.concatenate([nodes, actions], axis=-1)
+data = np.concatenate([state, actions], axis=-1)
 
 print('loaded data')
 
@@ -40,7 +39,11 @@ for i in range(data.shape[0]):
     range_ = i % 13
     if range_ > 0:
         predictions[i,:int(range_*7)+3] = np.concatenate([next_nodes[index:index+range_,:].reshape(-1), next_nodes[index+range_,:3]])
-    
+    else:
+        predictions[i,:3] = next_nodes[index+range_,:3]
+
+
+
 single_node_id = np.zeros((data.shape[0],node_id.shape[2]))
 for i in range(data.shape[0]):
     single_node_id[i,:] = node_id[i,0,:]

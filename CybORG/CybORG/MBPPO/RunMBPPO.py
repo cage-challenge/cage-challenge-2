@@ -80,7 +80,7 @@ for t in range(5):
         MBPPOConfig()
         #Each rollout worker uses a single cpu
         .rollouts(num_rollout_workers=NUM_WORKER, num_envs_per_worker=1)\
-        .training(train_batch_size=BATCH_SIZE, gamma=0.9, lr=0.0001, seq_len=20,
+        .training(train_batch_size=BATCH_SIZE, gamma=0.9, lr=0.0001, seq_len=10,
                 #   model={"fcnet_hiddens": [512, 512], "fcnet_activation": "tanh",})\
                     model={"fcnet_hiddens": [256, 256], "fcnet_activation": "tanh",})\
                           # "use_lstm": False,
@@ -89,6 +89,7 @@ for t in range(5):
         .environment(disable_env_checking=True, env = 'CybORG')\
         .framework('tf2')\
         .resources(num_gpus=1)
+        .exploration(explore=True, exploration_config={"type": "RE3", "embeds_dim": 128, "beta_schedule": "constant", "sub_exploration": {"type": "StochasticSampling",},})\
     )
     trainer = config.build() 
 

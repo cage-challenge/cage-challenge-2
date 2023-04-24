@@ -1,6 +1,6 @@
 import os
 os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"
-os.environ["CUDA_VISIBLE_DEVICES"]="1"
+os.environ["CUDA_VISIBLE_DEVICES"]="-1"
 os.environ["SM_FRAMEWORK"] = "tf.keras"
 
 import numpy as np
@@ -13,7 +13,7 @@ from tensorflow.keras.layers import Activation, Dropout, Dense, Flatten, LSTM, I
 from keras.utils.vis_utils import plot_model
 
 train_test_split = 0.75
-data_path = '/home/adamprice/u75a-Data-Efficient-Decisions/CybORG/CybORG/Notebooks/logs/PPO/no_decoy_200000/data_seqence_5'
+data_path = '/home/adamprice/u75a-Data-Efficient-Decisions/CybORG/CybORG/Notebooks/logs/PPO/no_decoy_200000/data_seqence_10'
 nodes = np.load(data_path + '/nodes.npy')
 actions = np.load(data_path + '/actions.npy')
 node_id = np.load(data_path + '/node_id.npy')
@@ -23,22 +23,25 @@ exploit = np.load(data_path + '/exploit.npy')
 privileged = np.load(data_path + '/privileged.npy')
 user = np.load(data_path + '/user.npy')
 unknown = np.load(data_path + '/unknown.npy')
+actions_oh = np.load(data_path + '/actions_oh.npy')
 #no = np.load(data_path + '/no.npy')
 
-#state = np.load(data_path + '/states.npy')
-#state = np.repeat(state, 13, axis=0)
+state = np.load(data_path + '/states.npy')
+state = np.array(state, dtype=np.int8)
+state = np.repeat(state, 13, axis=0)
+actions_oh = np.array(actions_oh, dtype=np.int8)
+actions_oh = np.repeat(actions_oh, 13, axis=0)
+data = np.concatenate([state, actions_oh], axis=-1)
+#data = np.concatenate([nodes, actions, exploit, privileged, user, unknown], axis=-1)
 
-data = np.concatenate([nodes, actions, exploit, privileged, user, unknown], axis=-1)
-
-for i in range(50,100):
-    print(nodes[i,:])
-exit()
 del nodes
 del actions
 del exploit
 del privileged
 del user
 del unknown
+del state
+del actions_oh
 
 #data = np.concatenate([state, actions], axis=-1)
 print('loaded data')
@@ -87,7 +90,7 @@ lr_callback = tf.keras.callbacks.LearningRateScheduler(scheduler)
 
 p = np.random.permutation(data.shape[0])
 
-with tf.device("/device:GPU:1"):
+with tf.device("/device:CPU:30"):
     history = base_model.fit([data[p,:,:],single_node_id[p,:], predictions[p,:]], next_nodes[p,:3], epochs=max_train_epochs, validation_split=0.5, 
                                     verbose=2, callbacks=[es_callback, lr_callback], batch_size=256, shuffle=True,
                                     workers=4)

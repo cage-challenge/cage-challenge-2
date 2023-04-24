@@ -63,13 +63,13 @@ class CAGENodeTranistionModelLSTMFeedback2(TFModelV2):
         out2 = Dense(4, activation='softmax', name='compromised')(z2)
 
         self.compromised_model = Model(ins2, out2)
-        self.compromised_model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=0.001), loss=tf.keras.losses.CategoricalCrossentropy(), metrics=[tf.keras.metrics.CategoricalAccuracy()], run_eagerly=True)
+        self.compromised_model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=0.0005), loss=tf.keras.losses.CategoricalCrossentropy(), metrics=[tf.keras.metrics.CategoricalAccuracy()], run_eagerly=True)
         
-        self.es_callback = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=1, min_delta=0.0005, restore_best_weights=True)
+        self.es_callback = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=1, min_delta=0.00005, restore_best_weights=True)
         def scheduler(epoch, lr):
             return lr * tf.math.exp(-0.05)
         self.lr_callback = tf.keras.callbacks.LearningRateScheduler(scheduler)
-        self.clf = joblib.load('/home/adamprice/u75a-Data-Efficient-Decisions/CybORG/CybORG/MBPPO/state_novelty.pkl')
+        
 
     def forward(self, state, actions):
         next_state = np.zeros(self.STATE_LEN)
@@ -77,35 +77,34 @@ class CAGENodeTranistionModelLSTMFeedback2(TFModelV2):
         privileged = state[:,np.arange(3,91,step=7)]
         user = state[:,np.arange(4,91,step=7)]
         unknown = state[:,np.arange(5,91,step=7)]
-        no = state[:,np.arange(6,91,step=7)]
-        next_state = np.zeros(self.STATE_LEN)
+        #no = state[:,np.arange(6,91,step=7)]
 
-        #valid = -2
-        #while valid < 0:
-        for n in range(13):
+        valid = -2
+        while valid < 0:
+            for n in range(13):
 
-            encoding = np.zeros((1,13))
-            encoding[:,n] = 1
-            node_state = state[:,int(n*7):int(n*7)+7]
-            node_action =  np.array([self.node_action(actions[i], n) for i in range(self.SEQ_LEN)])
-        
-            probs = self.base_model([np.expand_dims(np.concatenate([state, node_action], axis=-1), axis=0),encoding, np.expand_dims(next_state, axis=0)])
-            #probs = self.base_model([np.expand_dims(np.concatenate([node_state, node_action, exploit, privileged, user, unknown], axis=-1), axis=0), encoding, np.expand_dims(next_state, axis=0)])
+                encoding = np.zeros((1,13))
+                encoding[:,n] = 1
+                node_state = state[:,int(n*7):int(n*7)+7]
+                node_action =  np.array([self.node_action(actions[i], n) for i in range(self.SEQ_LEN)])
+            
+                probs = self.base_model([np.expand_dims(np.concatenate([state, node_action], axis=-1), axis=0),encoding, np.expand_dims(next_state, axis=0)])
+                #probs = self.base_model([np.expand_dims(np.concatenate([node_state, node_action, exploit, privileged, user, unknown], axis=-1), axis=0), encoding, np.expand_dims(next_state, axis=0)])
 
-            index_state = int(n*7) 
-            p = probs.numpy()[0]
-            next_state[index_state+np.random.choice(np.arange(3), p=p)] = 1
+                index_state = int(n*7) 
+                p = probs.numpy()[0]
+                next_state[index_state+np.random.choice(np.arange(3), p=p)] = 1
 
-            probs = self.compromised_model([np.expand_dims(np.concatenate([state, node_action], axis=-1), axis=0), encoding, np.expand_dims(next_state, axis=0)])
-            #probs = self.compromised_model([np.expand_dims(np.concatenate([node_state, node_action], axis=-1), axis=0), encoding, np.expand_dims(next_state, axis=0)])
-            index_state = int(n*7) + 3 
-            p = probs.numpy()[0] 
-            next_state[index_state+np.random.choice(np.arange(4), p=p)] = 1
+                probs = self.compromised_model([np.expand_dims(np.concatenate([state, node_action], axis=-1), axis=0), encoding, np.expand_dims(next_state, axis=0)])
+                #probs = self.compromised_model([np.expand_dims(np.concatenate([node_state, node_action, exploit], axis=-1), axis=0), encoding, np.expand_dims(next_state, axis=0)])
+                index_state = int(n*7) + 3 
+                p = probs.numpy()[0] 
+                next_state[index_state+np.random.choice(np.arange(4), p=p)] = 1
 
-                #if self.clf.predict(np.expand_dims(next_state, axis=0))[0] > 0:
-                #    valid = 1
-                #else:
-                #    valid += 1 
+            if any((next_state==self.known_states).all(1)):
+                valid = 1
+            else:
+                valid += 1 
             
         return next_state
     
@@ -125,21 +124,20 @@ class CAGENodeTranistionModelLSTMFeedback2(TFModelV2):
         K.set_value(self.compromised_model.optimizer.learning_rate, 0.0005)
 
         p = np.random.permutation(node_vectors.shape[0])
-        #data_map = {}
-        #data_map['activity'] = next_nodes[p,:3]
-        #data_map['compromised'] = next_nodes[p,3:]
+
         with tf.device("/device:GPU:1"):
              history = self.base_model.fit([node_vectors[p,:,:],node_ids[p,:],predictions1[p,:]], next_nodes[p,:3], epochs=self.max_train_epochs, validation_split=self.valid_split, 
-                                          verbose=0, callbacks=[self.es_callback, self.lr_callback], batch_size=512, shuffle=True, workers=2)
+                                          verbose=0, callbacks=[self.es_callback, self.lr_callback], batch_size=1024, shuffle=True, workers=2)
         print('Activity val loss: ', history.history['val_loss'])
         K.clear_session()
         with tf.device("/device:GPU:1"):
             history = self.compromised_model.fit([node_vectors[p,:,:],node_ids[p,:],predictions2[p,:]], next_nodes[p,3:], epochs=self.max_train_epochs, validation_split=self.valid_split, 
-                                          verbose=0, callbacks=[self.es_callback, self.lr_callback], batch_size=512, shuffle=True, workers=2)
+                                          verbose=0, callbacks=[self.es_callback, self.lr_callback], batch_size=1024, shuffle=True, workers=2)
         print('Compromised val loss: ', history.history['val_loss'])
         K.clear_session()
         self.global_itr += 1
         # Returns Metric Dictionary
+
         return self.metrics
     
     def load(self, path):
@@ -151,36 +149,9 @@ class CAGENodeTranistionModelLSTMFeedback2(TFModelV2):
     def get_weights(self):
         return [self.base_model.get_weights(), self.compromised_model.get_weights()]
     
-    def set_weights(self, weights):
+    def set_weights(self, weights, unique):
         self.base_model.set_weights(weights[0])
         self.compromised_model.set_weights(weights[1])
+        self.known_states = unique
         
-    def process_samples(self, obs, actions, next_obs):
-        processed = {}
-        nodes = np.zeros((obs.shape[0]*13, self.SEQ_LEN, self.input_len))
-        next_nodes = np.zeros((obs.shape[0]*13, 7))
-        index = 0
-
-        for i in range(obs.shape[0]):
-            step = obs[i][-1]
-            exploit = obs[i][:,np.arange(0,91,step=7)]
-            scan = obs[i][:,np.arange(0,91,step=7)]
-            privileged = obs[i][:,np.arange(3,91,step=7)]
-            user = obs[i][:,np.arange(4,91,step=7)]
-            unknown = obs[i][:,np.arange(5,91,step=7)]
-            no = obs[i][:,np.arange(6,91,step=7)]
-            for n in range(13):
-                encoding = np.zeros((self.SEQ_LEN, 13))
-                encoding[:,n] = 1
-                node_state = obs[i,:,int(n*7):int(n*7)+7]
-                node_action = np.array([self.node_action(actions[i][k], n) for k in range(self.SEQ_LEN)])
-
-                nodes[index,:] = np.concatenate([encoding, node_state, node_action, privileged, unknown], axis=-1)
-                #nodes[index,:] = np.concatenate([encoding, node_state, node_action, privileged, user, unknown, no])
-
-                next_nodes[index,:] = next_obs[i][int(n*7):int(n*7)+7]
-                index += 1
-
-        processed['nodes'] = nodes
-        processed['next_nodes'] = next_nodes
-        return SampleBatch(processed)
+   

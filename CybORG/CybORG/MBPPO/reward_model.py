@@ -39,6 +39,7 @@ class CAGERewardModel(TFModelV2):
         x = Flatten()(x)
         x = concatenate([x, new_state_in], name='concate')
         x = Dense(128, activation='relu', name='hidden')(x)
+        x = Dropout(0.2)(x)
         out = Dense(self.number_rewards, activation='softmax')(x)
 
         def scheduler(epoch, lr):
@@ -49,15 +50,14 @@ class CAGERewardModel(TFModelV2):
 
         self.base_model = Model([input_, new_state_in], out)
         self.lr_callback = tf.keras.callbacks.LearningRateScheduler(scheduler)
-        self.callback = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=2, min_delta=0.001, restore_best_weights=True)
+        self.callback = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=2, min_delta=0.0005, restore_best_weights=True)
         self.base_model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=0.001), loss=tf.keras.losses.CategoricalCrossentropy(), metrics=[tf.keras.metrics.CategoricalAccuracy()])
-        self.base_model.load_weights('reward_model_lstm')
 
     def forward(self, x, ns):
         probs = self.base_model([x, ns]).numpy()[0]
         index = np.random.choice(np.arange(self.number_rewards), p=probs)
+        probs[probs==0] = 1e-8
         self.entropy = - np.sum(np.log(probs) * probs) / probs.shape[0]
-        ##index = np.random.categorical(probs, 1).numpy()
         return self.index_to_reward[index]
     
     def load(self, path):
@@ -69,14 +69,7 @@ class CAGERewardModel(TFModelV2):
     def fit(self, obs, ns, rewards): 
         # Process Samples
         print(obs.shape)
-        #samples = self.process_samples(obs, next_obs, rewards)
         p = np.random.permutation(obs.shape[0])
-        #val_size = int(0.2 * obs.shape[0])
-        #train_size = int(0.8 * obs.shape[0])
-        #val_dataset = dataset.skip(train_size)
-        #train_dataset = dataset.take(train_size)
-        #train_dataset = train_dataset.shuffle(buffer_size=1024).batch(128, drop_remainder=True)
-        #val_dataset  = val_dataset.shuffle(buffer_size=1024).batch(128, drop_remainder=True)
         try:
             with tf.device("/device:GPU:1"):
                 history = self.base_model.fit([obs[p,:,:], ns[p,:]], rewards[p], epochs=self.max_train_epochs, validation_split=self.valid_split, 
@@ -92,17 +85,6 @@ class CAGERewardModel(TFModelV2):
             print('reward train fail')
         return self.metrics
         
-    def process_samples(self, obs, next_obs, rewards):
-        processed = {}
-        for i, r in enumerate(rewards):
-            rewards[i] = take_closest(list(self.reward_to_index.keys()), r)
-        reward_classes = np.vectorize(self.reward_to_index.get)(rewards)
-        reward_onehot = np.eye(int(len(self.reward_to_index.keys())))[np.array(reward_classes, dtype=np.int8)]
-        processed['rewards'] = reward_onehot
-        #processed['obs_concat'] = np.concatenate([obs, next_obs], axis=1)
-        processed['obs_concat'] = obs
-        return SampleBatch(processed)
-
 from bisect import bisect_left
 
 def take_closest(myList, myNumber):

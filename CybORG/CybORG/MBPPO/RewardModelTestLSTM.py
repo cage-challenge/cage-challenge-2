@@ -1,6 +1,6 @@
 import os
 os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"
-os.environ["CUDA_VISIBLE_DEVICES"]="1"
+os.environ["CUDA_VISIBLE_DEVICES"]="-1"
 #os.environ["SM_FRAMEWORK"] = "tf.keras"
 
 import numpy as np
@@ -33,7 +33,7 @@ def take_closest(myList, myNumber):
         return before
 
 train_test_split = 0.75
-data_path = '/home/adamprice/u75a-Data-Efficient-Decisions/CybORG/CybORG/Notebooks/logs/PPO/no_decoy_200000/data_seqence_10'
+data_path = '/home/adamprice/u75a-Data-Efficient-Decisions/CybORG/CybORG/Notebooks/logs/PPO/no_decoy_200000/data_seqence_20'
 state = np.load(data_path + '/states.npy')
 rewards = np.load(data_path + '/rewards.npy')
 next_state = np.load(data_path + '/next_states.npy')
@@ -59,10 +59,13 @@ for i in range(labels.shape[0]):
 number_rewards = int(len(reward_to_index.keys()))
 print(number_rewards)
 
+reward_onehot = np.zeros((rewards.shape[0], len(reward_to_index.keys())))
+
 for i in range(rewards.shape[0]):
-    rewards[i] = take_closest(list(reward_to_index.keys()), rewards[i])
-reward_classes = np.vectorize(reward_to_index.get)(rewards)
-reward_onehot = np.eye(int(len(reward_to_index.keys())))[np.array(reward_classes, dtype=np.int8)]
+    r = take_closest(list(reward_to_index.keys()), rewards[i])
+    reward_onehot[i,reward_to_index[r]] = 1
+#reward_classes = np.vectorize(reward_to_index.get)(rewards)
+#reward_onehot = np.eye(int(len(reward_to_index.keys())))[np.array(reward_classes, dtype=np.int8)]
 print(reward_onehot.mean(axis=0))
 
 STATE_LEN = 91
@@ -90,7 +93,7 @@ base_model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=0.001), loss
 es_callback = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=2, restore_best_weights=True)
 lr_callback = tf.keras.callbacks.LearningRateScheduler(scheduler)
 p = np.random.permutation(reward_onehot.shape[0])
-with tf.device("/device:GPU:1"):
+with tf.device("/device:CPU:0"):
     history = base_model.fit([state_actions[p,:,:], next_state[p,:]], reward_onehot[p], epochs=max_train_epochs, validation_split=0.5, 
                                     verbose=2, callbacks=[es_callback, lr_callback], batch_size=256, shuffle=True,
                                     workers=4)
