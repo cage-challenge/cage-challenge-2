@@ -1,6 +1,6 @@
 import os
 os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"
-os.environ["CUDA_VISIBLE_DEVICES"]="1"
+os.environ["CUDA_VISIBLE_DEVICES"]="-1"
 os.environ["SM_FRAMEWORK"] = "tf.keras"
 
 import numpy as np
@@ -13,36 +13,45 @@ from tensorflow.keras.layers import Activation, Dropout, Dense, Flatten, LSTM, I
 from keras.utils.vis_utils import plot_model
 
 train_test_split = 0.75
-data_path = '/home/adamprice/u75a-Data-Efficient-Decisions/CybORG/CybORG/Notebooks/logs/PPO/no_decoy_200000/data_seqence_5'
+data_path = '/home/adamprice/u75a-Data-Efficient-Decisions/CybORG/CybORG/Notebooks/logs/PPO/no_decoy_200000/data_seqence_15'
 nodes = np.load(data_path + '/nodes.npy')
 actions = np.load(data_path + '/actions.npy')
 node_id = np.load(data_path + '/node_id.npy')
 next_nodes = np.load(data_path + '/next_nodes.npy')
-exploit = np.load(data_path + '/exploit.npy')
-#scan = np.load(data_path + '/scan.npy')
-privileged = np.load(data_path + '/privileged.npy')
-user = np.load(data_path + '/user.npy')
-unknown = np.load(data_path + '/unknown.npy')
-#no = np.load(data_path + '/no.npy')
+# exploit = np.load(data_path + '/exploit.npy')
+# #scan = np.load(data_path + '/scan.npy')
+# privileged = np.load(data_path + '/privileged.npy')
+# user = np.load(data_path + '/user.npy')
+# unknown = np.load(data_path + '/unknown.npy')
+# #no = np.load(data_path + '/no.npy')
+next_states = np.load(data_path + '/next_states.npy')
 
-state = np.load(data_path + '/states.npy')
-state = np.repeat(state, 13, axis=0)
+#state = np.load(data_path + '/states.npy')
+#state = np.repeat(state, 13, axis=0)
 
-#data = np.concatenate([nodes, actions], axis=-1)
-data = np.concatenate([state, actions], axis=-1)
+data = np.concatenate([nodes, actions], axis=-1)
+#data = np.concatenate([state, actions], axis=-1)
 
 print('loaded data')
+print('From data: ', next_nodes[:,3:].mean(axis=0))
 
-predictions = np.zeros((data.shape[0],91))
-for i in range(data.shape[0]):
-    index = (i // 13) * 13
-    range_ = i % 13
-    if range_ > 0:
-        predictions[i,:int(range_*7)+3] = np.concatenate([next_nodes[index:index+range_,:].reshape(-1), next_nodes[index+range_,:3]])
-    else:
-        predictions[i,:3] = next_nodes[index+range_,:3]
+# predictions = np.zeros((data.shape[0],91))
+# index=0
+# for i in range(next_states.shape[0]):
+#     for n in range(13):     
+#         if n > 0:
+#             predictions[index,:int(n*7)] = next_states[i,0:n*7]
+#             predictions[index,:int(n*7)+3] = next_states[i,0:(n*7)+3]
+#         else:
+#             predictions[index,:3] = next_states[i,:3]
+#         index += 1
 
-
+predictions = np.zeros((data.shape[0],3))
+index=0
+for i in range(next_states.shape[0]):
+    for n in range(13):     
+        predictions[index,:] = next_states[i,(n*7):(n*7)+3]
+        index += 1
 
 single_node_id = np.zeros((data.shape[0],node_id.shape[2]))
 for i in range(data.shape[0]):
@@ -54,7 +63,7 @@ losses = []
 ins = []
 input_ = Input(shape=(data.shape[1],data.shape[2],))
 id_input = Input(13,)
-pred = Input(91,)
+pred = Input(predictions.shape[-1],)
 x = Bidirectional(LSTM(64))(input_)
 x = concatenate([x, id_input, pred])
 x = Dense(64, activation='relu', name='hidden')(x)
@@ -80,10 +89,9 @@ lr_callback = tf.keras.callbacks.LearningRateScheduler(scheduler)
 
 data_map = {}
 p = np.random.permutation(data.shape[0])
-data_map['compromised'] = next_nodes[p,3:]
 
-with tf.device("/device:GPU:1"):
-    history = base_model.fit([data[p,:,:],single_node_id[p,:], predictions[p,:]], data_map, epochs=max_train_epochs, validation_split=0.5, 
+with tf.device("/device:CPU:34"):
+    history = base_model.fit([data[p,:,:],single_node_id[p,:], predictions[p,:]], next_nodes[p,3:], epochs=max_train_epochs, validation_split=0.5, 
                                     verbose=2, callbacks=[es_callback, lr_callback], batch_size=256, shuffle=True,
                                     workers=4)
 

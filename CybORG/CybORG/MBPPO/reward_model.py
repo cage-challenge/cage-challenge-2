@@ -40,25 +40,29 @@ class CAGERewardModel(TFModelV2):
         x = concatenate([x, new_state_in], name='concate')
         x = Dense(128, activation='relu', name='hidden')(x)
         x = Dropout(0.2)(x)
-        out = Dense(self.number_rewards, activation='softmax')(x)
+        x = Dense(32, activation='relu', name='hidden2')(x)
+        x = Dropout(0.2)(x)
+        #out = Dense(self.number_rewards, activation='softmax')(x)
+        out = Dense(1)(x)
 
         def scheduler(epoch, lr):
-            if epoch < 2:
+            if epoch < 1:
                 return lr
             else:
-                return lr * tf.math.exp(-0.05)
+                return lr * tf.math.exp(-0.1)
 
         self.base_model = Model([input_, new_state_in], out)
         self.lr_callback = tf.keras.callbacks.LearningRateScheduler(scheduler)
-        self.callback = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=2, min_delta=0.0005, restore_best_weights=True)
-        self.base_model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=0.001), loss=tf.keras.losses.CategoricalCrossentropy(), metrics=[tf.keras.metrics.CategoricalAccuracy()])
+        self.callback = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=4, min_delta=0.0001, restore_best_weights=True)
+        self.base_model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=0.0005), loss=tf.keras.losses.MeanSquaredError())#, loss=tf.keras.losses.CategoricalCrossentropy(), metrics=[tf.keras.metrics.CategoricalAccuracy()])
 
     def forward(self, x, ns):
-        probs = self.base_model([x, ns]).numpy()[0]
-        index = np.random.choice(np.arange(self.number_rewards), p=probs)
-        probs[probs==0] = 1e-8
-        self.entropy = - np.sum(np.log(probs) * probs) / probs.shape[0]
-        return self.index_to_reward[index]
+        # probs = self.base_model([x, ns]).numpy()[0]
+        # index = np.random.choice(np.arange(self.number_rewards), p=probs)
+        # probs[probs==0] = 1e-8
+        # self.entropy = - np.sum(np.log(probs) * probs) / probs.shape[0]
+        # return self.index_to_reward[index]
+        return -self.base_model([x, ns]).numpy()[0]
     
     def load(self, path):
         self.base_model.load_weights(path)
@@ -70,15 +74,16 @@ class CAGERewardModel(TFModelV2):
         # Process Samples
         print(obs.shape)
         p = np.random.permutation(obs.shape[0])
+        K.set_value(self.base_model.optimizer.learning_rate, 0.0005)
         try:
             with tf.device("/device:GPU:1"):
                 history = self.base_model.fit([obs[p,:,:], ns[p,:]], rewards[p], epochs=self.max_train_epochs, validation_split=self.valid_split, 
-                                                verbose=0, callbacks=[self.callback, self.lr_callback], batch_size=256, shuffle=True, workers=2)
+                                                verbose=0, callbacks=[self.callback, self.lr_callback], batch_size=128, shuffle=True, workers=2)
                 #history = self.base_model.fit(train_dataset, validation_data=val_dataset, epochs=self.max_train_epochs, 
                 #                             verbose=0, callbacks=[self.callback])
             K.clear_session()
             print('reward val loss: ', history.history['val_loss'])
-            print('reward accuracy ', history.history['val_categorical_accuracy'])
+            #print('reward accuracy ', history.history['val_categorical_accuracy'])
             self.global_itr += 1
                 # Returns Metric Dictionary
         except:

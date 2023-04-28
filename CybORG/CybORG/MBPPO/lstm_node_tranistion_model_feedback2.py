@@ -22,10 +22,10 @@ class CAGENodeTranistionModelLSTMFeedback2(TFModelV2):
     def __init__(self, seq_len):
         
         self.STATE_LEN = 91
-        self.ACTION_LEN = 3
+        self.ACTION_LEN = 41
         self.SEQ_LEN = seq_len
         self.global_itr = 0
-        self.valid_split = 0.3
+        self.valid_split = 0.2
         self.max_train_epochs = 50
 
         self.input_len = self.STATE_LEN + self.ACTION_LEN
@@ -33,7 +33,7 @@ class CAGENodeTranistionModelLSTMFeedback2(TFModelV2):
         #super(CAGEStateTranistionModel, self).__init__()
 
         losses = []
-        input_ = Input(shape=(self.SEQ_LEN,self.input_len,), name='main_in')
+        input_ = Input(shape=(self.SEQ_LEN,self.STATE_LEN,), name='main_in')
         id_input = Input(13, name='id_in')
         prediction = Input(91, name='pred_in')
         x = Bidirectional(LSTM(64),name='lstm')(input_)
@@ -78,28 +78,30 @@ class CAGENodeTranistionModelLSTMFeedback2(TFModelV2):
         user = state[:,np.arange(4,91,step=7)]
         unknown = state[:,np.arange(5,91,step=7)]
         #no = state[:,np.arange(6,91,step=7)]
-
-        valid = -2
+        valid = -3
         while valid < 0:
+            index_state = 0
+            next_state = np.zeros(self.STATE_LEN)
             for n in range(13):
 
-                encoding = np.zeros((1,13))
-                encoding[:,n] = 1
-                node_state = state[:,int(n*7):int(n*7)+7]
-                node_action =  np.array([self.node_action(actions[i], n) for i in range(self.SEQ_LEN)])
+                encoding = np.zeros(13)
+                encoding[n] = 1
+                #node_state = state[:,int(n*7):int(n*7)+7]
+                #node_action =  np.array([self.node_action(actions[i], n) for i in range(self.SEQ_LEN)])
             
-                probs = self.base_model([np.expand_dims(np.concatenate([state, node_action], axis=-1), axis=0),encoding, np.expand_dims(next_state, axis=0)])
+                probs = self.base_model([np.expand_dims(np.concatenate([state], axis=-1), axis=0), np.expand_dims(encoding, axis=0), np.expand_dims(next_state, axis=0)])
                 #probs = self.base_model([np.expand_dims(np.concatenate([node_state, node_action, exploit, privileged, user, unknown], axis=-1), axis=0), encoding, np.expand_dims(next_state, axis=0)])
 
-                index_state = int(n*7) 
                 p = probs.numpy()[0]
                 next_state[index_state+np.random.choice(np.arange(3), p=p)] = 1
+                index_state += 3
 
-                probs = self.compromised_model([np.expand_dims(np.concatenate([state, node_action], axis=-1), axis=0), encoding, np.expand_dims(next_state, axis=0)])
-                #probs = self.compromised_model([np.expand_dims(np.concatenate([node_state, node_action, exploit], axis=-1), axis=0), encoding, np.expand_dims(next_state, axis=0)])
-                index_state = int(n*7) + 3 
+                probs = self.compromised_model([np.expand_dims(np.concatenate([state, actions], axis=-1), axis=0), np.expand_dims(encoding, axis=0), np.expand_dims(next_state, axis=0)])
+                #probs = self.compromised_model([np.expand_dims(np.concatenate([node_state, node_action], axis=-1), axis=0), encoding, np.expand_dims(next_state, axis=0)])
                 p = probs.numpy()[0] 
-                next_state[index_state+np.random.choice(np.arange(4), p=p)] = 1
+                #next_state[index_state+np.random.choice(np.arange(4), p=p)] = 1
+                next_state[index_state+np.argmax(p)] = 1
+                index_state += 4
 
             if any((next_state==self.known_states).all(1)):
                 valid = 1
@@ -124,16 +126,19 @@ class CAGENodeTranistionModelLSTMFeedback2(TFModelV2):
         K.set_value(self.compromised_model.optimizer.learning_rate, 0.0005)
 
         p = np.random.permutation(node_vectors.shape[0])
-
+        print('Activity From data: ', next_nodes[:,:3].mean(axis=0))
         with tf.device("/device:GPU:1"):
-             history = self.base_model.fit([node_vectors[p,:,:],node_ids[p,:],predictions1[p,:]], next_nodes[p,:3], epochs=self.max_train_epochs, validation_split=self.valid_split, 
-                                          verbose=0, callbacks=[self.es_callback, self.lr_callback], batch_size=1024, shuffle=True, workers=2)
+             history = self.base_model.fit([node_vectors[p,:,:self.STATE_LEN],node_ids[p,:],predictions1[p,:]], next_nodes[p,:3], epochs=self.max_train_epochs, validation_split=self.valid_split, 
+                                          verbose=0, callbacks=[self.es_callback, self.lr_callback], batch_size=512, shuffle=True, workers=8)
         print('Activity val loss: ', history.history['val_loss'])
+        print('Activity val accuracy ', history.history['val_categorical_accuracy'])
         K.clear_session()
+        print('Compromised From data: ', next_nodes[:,3:].mean(axis=0))
         with tf.device("/device:GPU:1"):
             history = self.compromised_model.fit([node_vectors[p,:,:],node_ids[p,:],predictions2[p,:]], next_nodes[p,3:], epochs=self.max_train_epochs, validation_split=self.valid_split, 
-                                          verbose=0, callbacks=[self.es_callback, self.lr_callback], batch_size=1024, shuffle=True, workers=2)
+                                          verbose=0, callbacks=[self.es_callback, self.lr_callback], batch_size=512, shuffle=True, workers=8)
         print('Compromised val loss: ', history.history['val_loss'])
+        print('Compromised val accuracy ', history.history['val_categorical_accuracy'])
         K.clear_session()
         self.global_itr += 1
         # Returns Metric Dictionary

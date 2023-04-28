@@ -149,34 +149,34 @@ def get_mbppo_tf_policy(name: str, base: TFPolicyV2Type) -> TFPolicyV2Type:
             dones = np.full(100, False)
             dones[-1] = True
             states = np.zeros((self.SEQ_LEN, self.STATE_LEN))
-            states[0,:] = self.inital_state
+            states[-1,:] = self.inital_state
             actions_seq = np.zeros(self.SEQ_LEN)
             actions_onehot = np.zeros((self.SEQ_LEN, 41))
             state = self.inital_state
             for i in range(100):
-                obs[i,:] = states[0,:]
+                obs[i,:] = states[-1,:]
                 action, _, info = self.compute_actions(np.array([state]), explore=True)
-                if i < self.SEQ_LEN:
-                    actions_seq[i] = action
-                    actions_onehot[i,action] = 1
-                else:
-                    actions_seq = np.roll(actions_seq,-1,axis=0)
-                    actions_seq[-1] = action         
-                    actions_onehot = np.roll(actions_onehot,-1,axis=0)
-                    actions_onehot[-1,action] = 1
+                # if i < self.SEQ_LEN:
+                #     actions_seq[i] = action
+                #     actions_onehot[i,action] = 1
+                # else:
+                actions_seq = np.roll(actions_seq,-1,axis=0)
+                actions_seq[-1] = action         
+                actions_onehot = np.roll(actions_onehot,-1,axis=0)
+                actions_onehot[-1,action] = 1
 
                 actions[i] = np.float64(action[0])
                 action_logps[i] = np.float64(info['action_logp'][0])
                 action_dist_inputs[i,:] = info['action_dist_inputs'][0]
                 values[i] = info['vf_preds'][0]
-                state = self.state_tranistion_model.forward(states, actions_seq)
+                state = self.state_tranistion_model.forward(states, actions_onehot)
                 state_action = np.concatenate([states, actions_onehot], axis=-1)
                 rewards[i] = self.reward_model.forward(np.array([state_action]), np.array([state]))
-                if i < self.SEQ_LEN -1:
-                    states[i+1] = state
-                else:
-                    states = np.roll(states,-1,axis=0)
-                    states[-1] = state
+                # if i < self.SEQ_LEN -1:
+                #     states[i+1] = state
+                # else:
+                states = np.roll(states,-1,axis=0)
+                states[-1] = state
                     
             batch = SampleBatch({'obs': obs,
                                 'actions': actions,
@@ -186,8 +186,9 @@ def get_mbppo_tf_policy(name: str, base: TFPolicyV2Type) -> TFPolicyV2Type:
                                 'action_logp': action_logps,
                                 'dones': dones})
             
-            return compute_advantages(batch, values[-1], self.config['gamma'], self.config['lambda'], 
-                                        self.config["use_gae"], self.config['use_critic'])
+            return self.postprocess_trajectory(batch)
+            # return compute_advantages(batch, values[-1], self.config['gamma'], self.config['lambda'], 
+            #                             self.config["use_gae"], self.config['use_critic'])
         
 
         @override(base)

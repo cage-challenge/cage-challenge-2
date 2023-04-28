@@ -14,15 +14,15 @@ from keras.utils.vis_utils import plot_model
 
 train_test_split = 0.75
 data_path = '/home/adamprice/u75a-Data-Efficient-Decisions/CybORG/CybORG/Notebooks/logs/PPO/no_decoy_200000/data_seqence_10'
-nodes = np.load(data_path + '/nodes.npy')
+#nodes = np.load(data_path + '/nodes.npy')
 actions = np.load(data_path + '/actions.npy')
 node_id = np.load(data_path + '/node_id.npy')
 next_nodes = np.load(data_path + '/next_nodes.npy')
-exploit = np.load(data_path + '/exploit.npy')
-#scan = np.load(data_path + '/scan.npy')
-privileged = np.load(data_path + '/privileged.npy')
-user = np.load(data_path + '/user.npy')
-unknown = np.load(data_path + '/unknown.npy')
+# exploit = np.load(data_path + '/exploit.npy')
+# #scan = np.load(data_path + '/scan.npy')
+# privileged = np.load(data_path + '/privileged.npy')
+# user = np.load(data_path + '/user.npy')
+# unknown = np.load(data_path + '/unknown.npy')
 actions_oh = np.load(data_path + '/actions_oh.npy')
 #no = np.load(data_path + '/no.npy')
 
@@ -32,14 +32,31 @@ state = np.repeat(state, 13, axis=0)
 actions_oh = np.array(actions_oh, dtype=np.int8)
 actions_oh = np.repeat(actions_oh, 13, axis=0)
 data = np.concatenate([state, actions_oh], axis=-1)
+
+
 #data = np.concatenate([nodes, actions, exploit, privileged, user, unknown], axis=-1)
 
-del nodes
+# single_action = np.zeros((actions.shape[0], 4))
+# for i in range(actions.shape[0]):
+#    f = True
+#    for k in range(10):
+#        if actions[i,k,:].max() == 0:
+#            a = np.argmax(actions[i,k-1,:])
+#            f = False
+#    if f:
+#        a = np.argmax(actions[i,-1,:]) 
+#    if a < 2: 
+#        single_action[i,0] = 1
+#    else:
+#        a -= 2
+#        single_action[i, (a % 3)+1] = 1
+
+#del nodes
 del actions
-del exploit
-del privileged
-del user
-del unknown
+# del exploit
+# del privileged
+# del user
+# del unknown
 del state
 del actions_oh
 
@@ -65,11 +82,13 @@ ins = []
 input_ = Input(shape=(data.shape[1],data.shape[2],))
 id_input = Input(13,)
 pred = Input(91,)
+a_in = Input(shape=(4), name='a_in')
+
 x = Bidirectional(LSTM(64))(input_)
 x = concatenate([x, id_input, pred])
-x = Dense(64, activation='relu', name='hidden')(x)
-x = Dropout(0.2)(x)
-z = Dense(32, activation='relu', name='hidden_activity')(x)
+# x = Dense(64, activation='relu', name='hidden')(x)
+# x = Dropout(0.2)(x)
+z = Dense(64, activation='relu', name='hidden_activity')(x)
 z = Dropout(0.2, name='dropout_activity')(z)
 outs = []
 ins = [input_, id_input, pred]
@@ -80,7 +99,7 @@ def scheduler(epoch, lr):
     if epoch < 2:
         return lr
     else:
-        return lr * tf.math.exp(-0.03)
+        return lr * tf.math.exp(-0.05)
 
 base_model = Model(ins, outs)
 base_model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=0.0005), loss=losses, metrics=[tf.keras.metrics.CategoricalAccuracy()])
@@ -90,7 +109,7 @@ lr_callback = tf.keras.callbacks.LearningRateScheduler(scheduler)
 
 p = np.random.permutation(data.shape[0])
 
-with tf.device("/device:CPU:30"):
+with tf.device("/device:CPU:24"):
     history = base_model.fit([data[p,:,:],single_node_id[p,:], predictions[p,:]], next_nodes[p,:3], epochs=max_train_epochs, validation_split=0.5, 
                                     verbose=2, callbacks=[es_callback, lr_callback], batch_size=256, shuffle=True,
                                     workers=4)

@@ -1,2 +1,2 @@
-model_checkpoint_path: "NodeTranistionModelFA"
-all_model_checkpoint_paths: "NodeTranistionModelFA"
+model_checkpoint_path: "reward_model_lstm"
+all_model_checkpoint_paths: "reward_model_lstm"

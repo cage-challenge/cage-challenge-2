@@ -376,7 +376,7 @@ class MBPPO(Algorithm):
 
         train_results = self.learning_from_samples(train_batch)
 
-        dreams_start_at = 100000
+        dreams_start_at = 120000
    
         if self._counters[NUM_AGENT_STEPS_SAMPLED] > dreams_start_at:
             if self.wm_train_interval == 0:
@@ -490,12 +490,13 @@ class MBPPO(Algorithm):
         #TODO vectorises this
         STATE_LEN = 91
         #obs_seq = np.zeros((samples['dones'].shape[0]-samples['dones'].sum(), self.seq_len, STATE_LEN))
-        node_vectors = np.zeros((samples['dones'].shape[0]*13-samples['dones'].sum()*13, self.seq_len, STATE_LEN+3), dtype=np.int8)
+        node_vectors = np.zeros((samples['dones'].shape[0]*13-samples['dones'].sum()*13, self.seq_len, STATE_LEN+41), dtype=np.int8)
         node_ids = np.zeros((samples['dones'].shape[0]*13-samples['dones'].sum()*13, 13), dtype=np.int8)
         next_obs = np.zeros((samples['dones'].shape[0]-samples['dones'].sum(), STATE_LEN), dtype=np.int8)
         #actions_hist = np.zeros(((samples['dones'].shape[0]-samples['dones'].sum()), self.seq_len, 41))
         obs_action_hist = np.zeros(((samples['dones'].shape[0]-samples['dones'].sum()), self.seq_len, STATE_LEN+41), dtype=np.int8)
-        rewards = np.zeros((samples['dones'].shape[0]-samples['dones'].sum(), len(self.reward_to_index.keys())), dtype=np.int8)
+        #rewards = np.zeros((samples['dones'].shape[0]-samples['dones'].sum(), len(self.reward_to_index.keys())), dtype=np.int8)
+        rewards = np.zeros((samples['dones'].shape[0]-samples['dones'].sum()), dtype=np.float32())
         next_nodes = np.zeros((samples['dones'].shape[0]*13-samples['dones'].sum()*13, 7), dtype=np.int8)
         node_predictions = np.zeros((samples['dones'].shape[0]*13-samples['dones'].sum()*13, STATE_LEN), dtype=np.int8)
         node_predictions2 = np.zeros((samples['dones'].shape[0]*13-samples['dones'].sum()*13, STATE_LEN), dtype=np.int8)
@@ -504,20 +505,27 @@ class MBPPO(Algorithm):
         s_index = 0; index = 0; ts = 0
         for i in range(samples['dones'].shape[0]-1):
             steps = ts if ts < self.seq_len else self.seq_len-1     
+            pad = self.seq_len-(ts+1) if ts < self.seq_len else 0  
             if samples['dones'][i]:
                 ts = 0
                 continue
             next_obs[s_index,:] = samples['obs'][i+1,:]
-            obs_action_hist[s_index,:steps+1,:STATE_LEN] = samples['obs'][i-steps:i+1,:]
-            obs_action_hist[s_index,:steps+1,STATE_LEN:] = np.eye(41)[samples['actions'][i-steps:i+1]]
-            reward = self.take_closest(list(self.reward_to_index.keys()), samples['rewards'][i])
-            rewards[s_index,self.reward_to_index[reward]] = 1        
+            obs_action_hist[s_index,pad:,:STATE_LEN] = samples['obs'][i-steps:i+1,:]
+            obs_action_hist[s_index,pad:,STATE_LEN:] = np.eye(41)[samples['actions'][i-steps:i+1]]
+            #reward = self.take_closest(list(self.reward_to_index.keys()), samples['rewards'][i])
+            #rewards[s_index,self.reward_to_index[reward]] = 1      
+            rewards[s_index] = -samples['rewards'][i]
             s_index += 1
             for n in range(13):     
                 node_ids[index,n] = 1
-                node_vectors[index,:steps+1,:STATE_LEN] = samples['obs'][i-steps:i+1,:]
-                node_vectors[index,:steps+1,STATE_LEN:] = np.array([self.node_action(samples['actions'][i], n) for i in range(i-steps,i+1)])
-
+                node_vectors[index,pad:,:STATE_LEN] = samples['obs'][i-steps:i+1,:]
+                #node_vectors[index,:steps+1,STATE_LEN:] = np.array([self.node_action(samples['actions'][i], n) for i in range(i-steps,i+1)])
+                node_vectors[index,pad:,STATE_LEN:] = np.eye(41)[samples['actions'][i-steps:i+1]]
+                if n > 0:
+                    node_predictions[index,:int(n*7)] = samples['obs'][i,:n*7]
+                    node_predictions2[index,:int(n*7)+3] = samples['obs'][i,:(n*7)+3]
+                else:
+                    node_predictions2[index,:3] = samples['obs'][i,:3]
                 # node_vectors[index,:steps+1,:7] = samples['obs'][i-steps:i+1,int(n*7):int(n*7)+7]
                 # node_vectors[index,:steps+1,7:10] = np.array([self.node_action(samples['actions'][i], n) for i in range(i-steps,i+1)])
                 # #exploit = 0
@@ -533,16 +541,6 @@ class MBPPO(Algorithm):
                 next_nodes[index,:] = samples['obs'][i+1,int(n*7):int(n*7)+7]
                 index += 1
             ts += 1
-
-        #Todo
-        for i in range(next_nodes.shape[0]):
-            index = (i // 13) * 13
-            range_ = i % 13
-            if range_ > 0:
-                node_predictions[i,:int(range_*7)] = next_nodes[index:index+range_,:].reshape(-1)
-                node_predictions2[i,:int(range_*7)+3] = np.concatenate([next_nodes[index:index+range_,:].reshape(-1), next_nodes[index+range_,:3]])
-            else:
-                node_predictions2[i,:3] = next_nodes[index+range_,:3]
 
         if type(self.memeory['obs_action_hist']) == type(None):
             self.memeory['obs_action_hist'] = obs_action_hist
