@@ -52,41 +52,42 @@ register_env(name="CybORG", env_creator=env_creator)
 
 from ray import air, tune
 
-tune.Tuner(
-        "DQN",
-        run_config=air.RunConfig(
-            stop={"timesteps_total": 1e6},
-            local_dir='results/DQN_offline/b_line300000_random', name="tune",
-            checkpoint_config=air.CheckpointConfig(
-                checkpoint_frequency=500, 
+for b in [300000, 500000, 700000]:
+    tune.Tuner(
+            "DQN",
+            run_config=air.RunConfig(
+                stop={"timesteps_total": 2e6},
+                local_dir='results/DQN_offline/b_line' + str(b) + '_random', name="tune",
+                checkpoint_config=air.CheckpointConfig(
+                    checkpoint_frequency=500, 
+                ),
             ),
-        ),
-        param_space={
-            # CC3 specific.
-            "env": "CybORG",
-            # General
-            "num_gpus": 1,
-            "num_workers": 4,
-            "horizon": 100,
-            "num_envs_per_worker": 1,
-            "n_step":  tune.grid_search([5]),
-            #algo params
-            "train_batch_size": tune.grid_search([1000]),
-            "lr": 0.001,
-            "gamma": 0.9,
-            "framework": 'tf',
-            "model": {
-                    "fcnet_hiddens": [256, 256],
-                    "fcnet_activation": "tanh",
-                },
-            "num_atoms": 50,
-            "v_min": -100.0,
-            "v_max": 0.0,
-            "noisy": True,     
-            "input": '/home/ubuntu/u75a-Data-Efficient-Decisions/CybORG/CybORG/OfflineExperiments/logs/DQN/B_Line_no_decoy_300000_random',
-            "evaluation_num_workers": 2,
-            "evaluation_interval": 1,
-            "evaluation_duration": 30,
-            "evaluation_config": {"input": "sampler"}
-        },
-    ).fit()
+            param_space={
+                # CC3 specific.
+                "env": "CybORG",
+                # General
+                "num_gpus": 1,
+                "num_workers": 4,
+                "horizon": 100,
+                "num_envs_per_worker": 1,
+                "n_step":  tune.grid_search([5]),
+                #algo params
+                "train_batch_size": tune.grid_search([1000]),
+                "lr": 0.001,
+                "gamma": 0.9,
+                "framework": 'tf',
+                "model": {
+                        "fcnet_hiddens": [256, 256],
+                        "fcnet_activation": "tanh",
+                    },
+                "num_atoms": 50,
+                "v_min": -100.0,
+                "v_max": 0.0,
+                "noisy": True,     
+                "input": '/home/ubuntu/u75a-Data-Efficient-Decisions/CybORG/CybORG/OfflineExperiments/logs/DQN/B_Line_no_decoy_' + str(b) + '_random',
+                "evaluation_num_workers": 2,
+                "evaluation_interval": 1,
+                "evaluation_duration": 30,
+                "evaluation_config": {"input": "sampler"}
+            },
+        ).fit()
