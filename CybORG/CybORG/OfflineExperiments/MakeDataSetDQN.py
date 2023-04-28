@@ -66,7 +66,7 @@ from ray.rllib.algorithms.dqn import DQNConfig
 from ray.rllib.policy.policy import PolicySpec
 from ray import air, tune
 
-for b in [700000]:
+for b in [700000, 500000, 300000]:
 
     tune.Tuner(
         "DQN",

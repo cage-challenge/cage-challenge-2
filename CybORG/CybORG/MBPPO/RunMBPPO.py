@@ -41,13 +41,13 @@ print("Num GPUs Available: ", len(tf.config.list_physical_devices('GPU')))
 tf.autograph.set_verbosity(0)
 
 
-NUM_WORKER = 10
-BATCH_SIZE = 2000
-ITERS = 80
+NUM_WORKER = 20
+BATCH_SIZE = 4000
+ITERS = 60
 RED_AGENT = "B_Line"
 import os
 os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"
-os.environ["CUDA_VISIBLE_DEVICES"]="0"
+os.environ["CUDA_VISIBLE_DEVICES"]="-1"
 
 def env_creator(env_config: dict):
     # import pdb; pdb.set_trace()
@@ -75,13 +75,12 @@ register_env(name="CybORG", env_creator=env_creator)
 
 from MBPPO import MBPPOConfig
 
-for t in range(7):
-# TODO: maybe add horizon to the callback initialiser
+for s in range(5):
     config = (
         MBPPOConfig()
         #Each rollout worker uses a single cpu
         .rollouts(num_rollout_workers=NUM_WORKER, num_envs_per_worker=1)\
-        .training(train_batch_size=BATCH_SIZE, gamma=0.9, lr=0.0001, 
+        .training(train_batch_size=BATCH_SIZE, gamma=0.9, lr=0.0001, seq_len=30,
                 #   model={"fcnet_hiddens": [512, 512], "fcnet_activation": "tanh",})\
                     model={"fcnet_hiddens": [256, 256], "fcnet_activation": "tanh",})\
                           # "use_lstm": False,
@@ -90,6 +89,7 @@ for t in range(7):
         .environment(disable_env_checking=True, env = 'CybORG')\
         .framework('tf2')\
         .resources(num_gpus=0)
+        #.exploration(explore=True, exploration_config={"type": "RE3", "embeds_dim": 128, "beta_schedule": "constant", "sub_exploration": {"type": "StochasticSampling",},})\
     )
     trainer = config.build() 
 
@@ -99,4 +99,4 @@ for t in range(7):
     rewards = np.zeros(ITERS)
     for i in range(ITERS):
         rewards[i] = print_results(trainer.train())
-        np.save('node_validation'+str(t), rewards)
+        np.save(''+str(s), rewards)

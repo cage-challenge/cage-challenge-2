@@ -15,7 +15,7 @@ from tensorflow.keras.layers import Bidirectional
 from tensorflow.keras import backend as K
 import joblib
 
-class CAGENodeTranistionModelLSTM(TFModelV2):
+class CAGENodeTranistionModelLSTMFeedback(TFModelV2):
     """Transition Dynamics Model (FC Network with Weight Norm)"""
 
     def __init__(self):
@@ -27,27 +27,29 @@ class CAGENodeTranistionModelLSTM(TFModelV2):
         self.valid_split = 0.3
         self.max_train_epochs = 50
 
-        self.input_len = 7+3+13+13+13+13
+        self.input_len = 62
 
         #super(CAGEStateTranistionModel, self).__init__()
 
         losses = []
-        input_ = Input(shape=(self.SEQ_LEN,self.input_len,))
-        id_input = Input(13,)
-        x = Bidirectional(LSTM(64))(input_)
-        x = concatenate([x, id_input])
+        input_ = Input(shape=(self.SEQ_LEN,self.input_len,), name='main_in')
+        id_input = Input(13, name='id_in')
+        prediction = Input(91, name='pred_in')
+        x = Bidirectional(LSTM(64),name='lstm')(input_)
+        x = concatenate([x, id_input, prediction],name='concate')
         x = Dense(64, activation='relu', name='hidden')(x)
         x = Dropout(0.2)(x)
         y = Dense(32, activation='relu', name='hidden_activity')(x)
         y = Dropout(0.2, name='dropout_activity')(y)
         z = Dense(32, activation='relu', name='hidden_compromised')(x)
         z = Dropout(0.2, name='dropout_compromised')(z)
-        ins = [id_input,input_]
         outs = []
+        ins = [input_, id_input, prediction]
         outs.append(Dense(3, activation='softmax', name='activity')(y))
         outs.append(Dense(4, activation='softmax', name='compromised')(z))
         losses.append(tf.keras.losses.CategoricalCrossentropy())
         losses.append(tf.keras.losses.CategoricalCrossentropy())
+
 
         self.base_model = Model(ins, outs)
         self.base_model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=0.001), loss=losses, metrics=[tf.keras.metrics.CategoricalAccuracy()], run_eagerly=True)
@@ -76,22 +78,23 @@ class CAGENodeTranistionModelLSTM(TFModelV2):
             node_state = state[:,int(n*7):int(n*7)+7]
             node_action =  np.array([self.node_action(actions[i], n) for i in range(self.SEQ_LEN)])
         
-            probs = self.base_model([encoding,np.expand_dims(np.concatenate([node_state, node_action, exploit, privileged, user, unknown], axis=-1), axis=0)])
+            probs = self.base_model([np.expand_dims(np.concatenate([node_state, node_action, exploit, privileged, user, unknown], axis=-1), axis=0),encoding, np.expand_dims(next_state, axis=0)])
             #probs = self.base_model(np.expand_dims(np.concatenate([encoding, node_state, node_action, exploit, privileged, user, unknown], axis=-1), axis=0))
 
             index_state = int(n*7) 
             p = probs[0].numpy()[0]
             next_state[index_state+np.random.choice(np.arange(3), p=p)] = 1
 
+            #probs = self.base_model([np.expand_dims(np.concatenate([node_state, node_action, exploit, privileged, user, unknown], axis=-1), axis=0), encoding, np.expand_dims(next_state, axis=0)])
+
             index_state = int(n*7) + 3 
             p = probs[1].numpy()[0] 
-
             next_state[index_state+np.random.choice(np.arange(4), p=p)] = 1
 
-            #if self.clf.predict(np.expand_dims(next_state, axis=0))[0] > 0:
-            #    valid = 1
-            #else:
-            #    valid += 1 
+                #if self.clf.predict(np.expand_dims(next_state, axis=0))[0] > 0:
+                #    valid = 1
+                #else:
+                #    valid += 1 
             
         return next_state
     
@@ -105,17 +108,21 @@ class CAGENodeTranistionModelLSTM(TFModelV2):
             vec[int(action) // 13] = 1
         return vec
 
-    def fit(self, node_ids, node_vectors, next_nodes):
+    def fit(self, node_ids, node_vectors, predictions, next_nodes):
 
         K.set_value(self.base_model.optimizer.learning_rate, 0.0005)
         # Process Samples
         #samples = self.process_samples(obs, actions, next_obs)
+        node_ids = np.concatenate([node_ids, node_ids], axis=0)
+        node_vectors = np.concatenate([node_vectors, node_vectors], axis=0)
+        next_nodes = np.concatenate([next_nodes, next_nodes], axis=0)
+
         p = np.random.permutation(node_vectors.shape[0])
         data_map = {}
         data_map['activity'] = next_nodes[p,:3]
         data_map['compromised'] = next_nodes[p,3:]
         with tf.device("/device:GPU:1"):
-            history = self.base_model.fit([node_ids[p,:],node_vectors[p,:,:]], data_map, epochs=self.max_train_epochs, validation_split=self.valid_split, 
+            history = self.base_model.fit([node_ids[p,:],node_vectors[p,:,:],predictions[p,:]], data_map, epochs=self.max_train_epochs, validation_split=self.valid_split, 
                                           verbose=0, callbacks=[self.es_callback, self.lr_callback], batch_size=256, shuffle=True, workers=4)
         print('state tranistion val loss: ', history.history['val_loss'])
 
