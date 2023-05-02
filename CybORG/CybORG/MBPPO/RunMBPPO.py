@@ -46,8 +46,14 @@ BATCH_SIZE = 4000
 ITERS = 60
 RED_AGENT = "B_Line"
 import os
-os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"
-os.environ["CUDA_VISIBLE_DEVICES"]="-1"
+# os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"
+# os.environ["CUDA_VISIBLE_DEVICES"]="0"
+
+gpus = tf.config.experimental.list_physical_devices('GPU')
+tf.config.experimental.set_memory_growth(gpus[0], True)
+tf.config.experimental.set_memory_growth(gpus[1], True)
+#for gpu in gpus:
+#        tf.config.experimental.set_virtual_device_configuration(gpu,[tf.config.experimental.VirtualDeviceConfiguration(memory_limit=15360)])
 
 def env_creator(env_config: dict):
     # import pdb; pdb.set_trace()
@@ -80,7 +86,7 @@ for s in range(5):
         MBPPOConfig()
         #Each rollout worker uses a single cpu
         .rollouts(num_rollout_workers=NUM_WORKER, num_envs_per_worker=1)\
-        .training(train_batch_size=BATCH_SIZE, gamma=0.9, lr=0.0001, seq_len=30,
+        .training(train_batch_size=BATCH_SIZE, gamma=0.9, lr=0.0001, seq_len=50,
                 #   model={"fcnet_hiddens": [512, 512], "fcnet_activation": "tanh",})\
                     model={"fcnet_hiddens": [256, 256], "fcnet_activation": "tanh",})\
                           # "use_lstm": False,
@@ -97,6 +103,6 @@ for s in range(5):
     warnings.filterwarnings("ignore")
 
     rewards = np.zeros(ITERS)
-    for i in range(ITERS):
+    for i in range(0,ITERS):
         rewards[i] = print_results(trainer.train())
-        np.save(''+str(s), rewards)
+        np.save('100_seq'+str(s), rewards)

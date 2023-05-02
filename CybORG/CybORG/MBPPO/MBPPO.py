@@ -44,7 +44,7 @@ from ray.rllib.utils.metrics import (
 from ray.rllib.policy.sample_batch import SampleBatch
 from ray.rllib.utils.replay_buffers import ReplayBuffer, StorageUnit 
 logger = logging.getLogger(__name__)
-
+from tensorflow.keras import backend as K
 
 class MBPPOConfig(PGConfig):
     """Defines a configuration class from which a PPO Algorithm can be built.
@@ -376,7 +376,7 @@ class MBPPO(Algorithm):
 
         train_results = self.learning_from_samples(train_batch)
 
-        dreams_start_at = 120000
+        dreams_start_at = 80000
    
         if self._counters[NUM_AGENT_STEPS_SAMPLED] > dreams_start_at:
             if self.wm_train_interval == 0:
@@ -385,7 +385,7 @@ class MBPPO(Algorithm):
                 for pid in {'default_policy'}: #Could extend to multiagent here
                     self.workers.local_worker().get_policy(pid).reward_model.fit(self.memeory['obs_action_hist'], self.memeory['next_obs'], self.memeory['rewards'])
                     self.workers.local_worker().get_policy(pid).state_tranistion_model.fit(self.memeory['node_ids'], self.memeory['node_vectors'], self.memeory['node_predictions'], self.memeory['node_predictions2'], self.memeory['next_nodes'])
-
+                    K.clear_session()
                     #Sync
                     reward_weights = self.workers.local_worker().get_policy(pid).reward_model.base_model.get_weights()
                     def set_reward_weights(policy, pid):

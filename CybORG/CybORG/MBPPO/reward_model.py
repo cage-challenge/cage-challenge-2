@@ -26,14 +26,14 @@ class CAGERewardModel(TFModelV2):
         self.SEQ_LEN = seq_len
         self.global_itr = 0
         self.valid_split = 0.2
-        self.max_train_epochs = 50
+        self.max_train_epochs = 60
         self.reward_to_index = np.load('/home/adamprice/u75a-Data-Efficient-Decisions/CybORG/CybORG/MBPPO/reward_to_index.npy', allow_pickle=True).item()
         self.index_to_reward = np.load('/home/adamprice/u75a-Data-Efficient-Decisions/CybORG/CybORG/MBPPO/index_to_reward.npy', allow_pickle=True).item()
         self.number_rewards = int(len(self.reward_to_index.keys()))
         print(self.number_rewards )
        # super().__init__()
 
-        input_ = Input(shape=(self.SEQ_LEN, self.STATE_LEN+self.ACTION_LEN, ), name='state_action')
+        input_ = Input(shape=(self.SEQ_LEN ,132), name='state_action')
         new_state_in = Input(shape=(self.STATE_LEN,),name='state_in')
         x = Bidirectional(LSTM(64))(input_)
         x = Flatten()(x)
@@ -49,12 +49,12 @@ class CAGERewardModel(TFModelV2):
             if epoch < 1:
                 return lr
             else:
-                return lr * tf.math.exp(-0.1)
+                return lr * tf.math.exp(-0.05)
 
         self.base_model = Model([input_, new_state_in], out)
         self.lr_callback = tf.keras.callbacks.LearningRateScheduler(scheduler)
         self.callback = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=4, min_delta=0.0001, restore_best_weights=True)
-        self.base_model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=0.0005), loss=tf.keras.losses.MeanSquaredError())#, loss=tf.keras.losses.CategoricalCrossentropy(), metrics=[tf.keras.metrics.CategoricalAccuracy()])
+        self.base_model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=0.0001), loss=tf.keras.losses.MeanSquaredError())#, loss=tf.keras.losses.CategoricalCrossentropy(), metrics=[tf.keras.metrics.CategoricalAccuracy()])
 
     def forward(self, x, ns):
         # probs = self.base_model([x, ns]).numpy()[0]
@@ -72,13 +72,15 @@ class CAGERewardModel(TFModelV2):
         
     def fit(self, obs, ns, rewards): 
         # Process Samples
-        print(obs.shape)
         p = np.random.permutation(obs.shape[0])
-        K.set_value(self.base_model.optimizer.learning_rate, 0.0005)
+        K.set_value(self.base_model.optimizer.learning_rate, 0.0001)
+        print(obs.shape)
+        print(ns.shape)
+        print(rewards.shape)
         try:
-            with tf.device("/device:GPU:1"):
+            with tf.device("/device:CPU:35"):
                 history = self.base_model.fit([obs[p,:,:], ns[p,:]], rewards[p], epochs=self.max_train_epochs, validation_split=self.valid_split, 
-                                                verbose=0, callbacks=[self.callback, self.lr_callback], batch_size=128, shuffle=True, workers=2)
+                                            verbose=0, callbacks=[self.callback, self.lr_callback], batch_size=99*5, shuffle=True)
                 #history = self.base_model.fit(train_dataset, validation_data=val_dataset, epochs=self.max_train_epochs, 
                 #                             verbose=0, callbacks=[self.callback])
             K.clear_session()

@@ -1,6 +1,6 @@
 import os
-os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"
-os.environ["CUDA_VISIBLE_DEVICES"]="-1"
+#os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"
+#os.environ["CUDA_VISIBLE_DEVICES"]="0"
 #os.environ["SM_FRAMEWORK"] = "tf.keras"
 
 import numpy as np
@@ -110,7 +110,7 @@ base_model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=0.0005), los
 es_callback = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=3, restore_best_weights=True)
 lr_callback = tf.keras.callbacks.LearningRateScheduler(scheduler)
 p = np.random.permutation(rewards.shape[0])
-with tf.device("/device:CPU:35"):
+with tf.device("/device:GPU:1"):
     history = base_model.fit([state_actions[p,:,:], next_state[p,:]], rewards[p], epochs=max_train_epochs, validation_split=0.5, 
                                     verbose=2, callbacks=[es_callback, lr_callback], batch_size=256, shuffle=True,
                                     workers=4)
