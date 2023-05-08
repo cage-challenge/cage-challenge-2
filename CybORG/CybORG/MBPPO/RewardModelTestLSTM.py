@@ -92,10 +92,10 @@ def scheduler(epoch, lr):
         return lr
     else:
         return lr * tf.math.exp(-0.05)
+        
 
 input_ = Input(shape=(state_actions.shape[1],state_actions.shape[2],), name='state_action')
 new_state_in = Input(shape=(next_state.shape[1]),name='state_in')
-a_in = Input(shape=(4), name='a_in')
 
 x = Bidirectional(LSTM(64))(input_)
 x = Flatten()(x)

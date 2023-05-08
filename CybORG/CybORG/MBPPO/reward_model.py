@@ -26,11 +26,7 @@ class CAGERewardModel(TFModelV2):
         self.SEQ_LEN = seq_len
         self.global_itr = 0
         self.valid_split = 0.2
-        self.max_train_epochs = 80
-        self.reward_to_index = np.load('/home/adamprice/u75a-Data-Efficient-Decisions/CybORG/CybORG/MBPPO/reward_to_index.npy', allow_pickle=True).item()
-        self.index_to_reward = np.load('/home/adamprice/u75a-Data-Efficient-Decisions/CybORG/CybORG/MBPPO/index_to_reward.npy', allow_pickle=True).item()
-        self.number_rewards = int(len(self.reward_to_index.keys()))
-        print(self.number_rewards )
+        self.max_train_epochs = 60
        # super().__init__()
 
         input_ = Input(shape=(self.SEQ_LEN ,132), name='state_action')
@@ -42,7 +38,6 @@ class CAGERewardModel(TFModelV2):
         x = Dropout(0.2)(x)
         x = Dense(32, activation='relu', name='hidden2')(x)
         x = Dropout(0.2)(x)
-        #out = Dense(self.number_rewards, activation='softmax')(x)
         out = Dense(1)(x)
 
         def scheduler(epoch, lr):
@@ -57,11 +52,6 @@ class CAGERewardModel(TFModelV2):
         self.base_model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=0.0001), loss=tf.keras.losses.MeanSquaredError())#, loss=tf.keras.losses.CategoricalCrossentropy(), metrics=[tf.keras.metrics.CategoricalAccuracy()])
 
     def forward(self, x, ns):
-        # probs = self.base_model([x, ns]).numpy()[0]
-        # index = np.random.choice(np.arange(self.number_rewards), p=probs)
-        # probs[probs==0] = 1e-8
-        # self.entropy = - np.sum(np.log(probs) * probs) / probs.shape[0]
-        # return self.index_to_reward[index]
         return -self.base_model([x, ns]).numpy()[0]
     
     def load(self, path):
