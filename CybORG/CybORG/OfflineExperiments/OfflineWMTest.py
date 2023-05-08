@@ -4,7 +4,7 @@ os.environ["CUDA_VISIBLE_DEVICES"]="0"
 
 import gym
 import tensorflow as tf 
-#tf.compat.v1.enable_eager_execution()
+tf.compat.v1.enable_eager_execution()
 from gym import error, spaces, utils
 from gym.utils import seeding
 from CybORG.MBPPO.lstm_node_tranistion_model_feedback2 import CAGENodeTranistionModelLSTMFeedback2
@@ -33,9 +33,9 @@ encoding_len = state_len + num_actions
 NUM_NODES = 13
 NODE_CLASSES = [3, 4]
 
-REWARD_MODEL = '/home/adamprice/u75a-Data-Efficient-Decisions/CybORG/CybORG/MBPPO/reward_model_lstm'
-STATE_TRANISION_MODEL = '/home/adamprice/u75a-Data-Efficient-Decisions/CybORG/CybORG/MBPPO/'
-SEQ_LEN = 10
+REWARD_MODEL = '/home/adamprice/u75a-Data-Efficient-Decisions/CybORG/CybORG/OfflineExperiments/reward_model_lstm'
+STATE_TRANISION_MODEL = '/home/ubuntu/u75a-Data-Efficient-Decisions/CybORG/CybORG/OfflineExperiments/'
+SEQ_LEN = 40
 
 class WorldMovelEnv(gym.Env):
 
@@ -48,11 +48,10 @@ class WorldMovelEnv(gym.Env):
         self.step_count = 0
 
         # Reward Model
-        self.reward_model = CAGERewardModel()
+        self.reward_model = CAGERewardModel(SEQ_LEN)
         self.reward_model.load('reward_model_lstm')
 
-       
-        self.state_tranistion_model = CAGENodeTranistionModelLSTMFeedback2()
+        self.state_tranistion_model = CAGENodeTranistionModelLSTMFeedback2(SEQ_LEN)
         self.state_tranistion_model.load(STATE_TRANISION_MODEL+'NodeTranistionModelFA')
         self.state_tranistion_model.load_comp(STATE_TRANISION_MODEL+'NodeTranistionModelFC')
         self.init_state = np.array([0., 0., 1., 0., 0., 0., 1., 0., 0., 1., 0., 0., 0., 1., 0., 0., 1., 0., 0., 0., 1., 0., 0., 1.,
@@ -60,45 +59,32 @@ class WorldMovelEnv(gym.Env):
                                     1., 0., 0., 1., 0., 0., 0., 1., 0., 0., 1., 0., 0., 0., 1., 0., 0., 1., 0., 0., 0., 1., 0., 0.,
                                     1., 0., 0., 0., 1., 0., 0., 1., 0., 0., 0., 1., 0., 0., 1., 0., 0., 0., 1.])
         self.states = np.zeros((SEQ_LEN, state_len))
-        self.states[0,:] = self.init_state
-        self.actions_seq = np.zeros(SEQ_LEN)
+        self.states[-1,:] = self.init_state
         self.actions_onehot = np.zeros((SEQ_LEN, 41))
-
         
     def step(self, action):
 
-        if self.step_count < 10:
-            self.actions_seq[self.step_count] = action
-        else:
-            self.actions_seq = np.roll(self.actions_seq,-1,axis=0)
-            self.actions_seq[-1] = action
-            self.actions_onehot = np.roll(self.actions_onehot,-1,axis=0)
-            self.actions_onehot[-1,action] = 1
-            
-        state = self.state_tranistion_model.forward(self.states[0:10,:], self.actions_seq[0:10])
 
+        self.actions_onehot = np.roll(self.actions_onehot,-1,axis=0)
+        self.actions_onehot[-1,action] = 1
+
+        state = self.state_tranistion_model.forward(self.states, self.actions_onehot)
         state_action = np.concatenate([self.states, self.actions_onehot], axis=-1)
-
         reward = self.reward_model.forward(np.array([state_action]), np.array([state]))
 
-        self.step_count += 1
-        if self.step_count < 10:
-            self.states[self.step_count] = state
-        else:
-            self.states = np.roll(self.states,-1,axis=0)
-            self.states[-1] = state
+        self.states = np.roll(self.states,-1,axis=0)
+        self.states[-1] = self.state
 
         done = self.step_count == 99
-        if done:
-            self.step_count = 0
+
         return state, reward, done, {}
 
     def reset(self):
         self.step_count = 0
         self.states = np.zeros((SEQ_LEN, state_len))
-        self.states[0,:] = self.init_state
-        self.actions_seq = np.zeros(SEQ_LEN)        
-
+        self.states[-1,:] = self.init_state
+        self.actions_onehot = np.zeros((SEQ_LEN, 41))
+      
         return self.init_state
 
     def render(self, mode='human', close=False):
@@ -124,7 +110,7 @@ register_env(name="CybORG_WM", env_creator=env_creator_wm)
 config = (
         PPOConfig()
         .rollouts(num_rollout_workers=20, num_envs_per_worker=1)\
-        .training(train_batch_size=2000, gamma=0.9, lr=0.0001, 
+        .training(train_batch_size=4000, gamma=0.9, lr=0.0001, 
                     model={"fcnet_hiddens": [256, 256], "fcnet_activation": "tanh",})
         .environment(disable_env_checking=True, env ='CybORG_WM')\
         .framework('tf2')\

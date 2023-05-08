@@ -35,7 +35,7 @@ warnings.filterwarnings('ignore')
 #     return id
 
 NUM_WORKER = 4
-BATCH_SIZE = 2000
+BATCH_SIZE = 4000
 ITERS = 100
 RED_AGENT = "B_Line"
 #RED_AGENT = "Meander"
@@ -65,7 +65,7 @@ register_env(name="CybORG", env_creator=env_creator)
 from ray.rllib.algorithms.ppo import PPOConfig
 from ray.rllib.policy.policy import PolicySpec
 
-for b in [75, 150, 225]:
+for b in [200]:
     ITERS = b
     config = (
         PPOConfig()
@@ -77,7 +77,8 @@ for b in [75, 150, 225]:
         .environment(disable_env_checking=True, env = 'CybORG')\
         # .resources(num_gpus=0)\
         .framework('tf')\
-        .exploration(explore=True, exploration_config={"type": "RE3", "embeds_dim": 64, "beta_schedule": "constant", "sub_exploration": {"type": "StochasticSampling",},})\
+        #.exploration(explore=True, exploration_config={"type": "RE3", "embeds_dim": 64, "beta_schedule": "constant", "sub_exploration": {"type": "StochasticSampling",},})\
+        .exploration(explore=True, exploration_config={"type": "Random"})\
         .offline_data(output=f"logs/PPO/{RED_AGENT}_no_decoy_{ITERS*BATCH_SIZE}", output_compress_columns=['prev_actions', 'prev_rewards', 'dones', 't', 'action_prob', 'action_logp', 'action_dist_inputs', 'advantages', 'value_targets'], #'eps_id', 'unroll_id', 'agent_index',
                     output_config={"format": "json"},)\
     )
