@@ -26,7 +26,7 @@ class CAGERewardModel(TFModelV2):
         self.SEQ_LEN = seq_len
         self.global_itr = 0
         self.valid_split = 0.2
-        self.max_train_epochs = 60
+        self.max_train_epochs = 80
         self.reward_to_index = np.load('/home/adamprice/u75a-Data-Efficient-Decisions/CybORG/CybORG/MBPPO/reward_to_index.npy', allow_pickle=True).item()
         self.index_to_reward = np.load('/home/adamprice/u75a-Data-Efficient-Decisions/CybORG/CybORG/MBPPO/index_to_reward.npy', allow_pickle=True).item()
         self.number_rewards = int(len(self.reward_to_index.keys()))
@@ -49,7 +49,7 @@ class CAGERewardModel(TFModelV2):
             if epoch < 1:
                 return lr
             else:
-                return lr * tf.math.exp(-0.05)
+                return lr * tf.math.exp(-0.03)
 
         self.base_model = Model([input_, new_state_in], out)
         self.lr_callback = tf.keras.callbacks.LearningRateScheduler(scheduler)
@@ -73,14 +73,14 @@ class CAGERewardModel(TFModelV2):
     def fit(self, obs, ns, rewards): 
         # Process Samples
         p = np.random.permutation(obs.shape[0])
-        K.set_value(self.base_model.optimizer.learning_rate, 0.0001)
+        K.set_value(self.base_model.optimizer.learning_rate, 0.0002)
         print(obs.shape)
         print(ns.shape)
         print(rewards.shape)
         try:
             with tf.device("/device:CPU:35"):
                 history = self.base_model.fit([obs[p,:,:], ns[p,:]], rewards[p], epochs=self.max_train_epochs, validation_split=self.valid_split, 
-                                            verbose=0, callbacks=[self.callback, self.lr_callback], batch_size=99*5, shuffle=True)
+                                            verbose=0, callbacks=[self.callback, self.lr_callback], batch_size=200, shuffle=True)
                 #history = self.base_model.fit(train_dataset, validation_data=val_dataset, epochs=self.max_train_epochs, 
                 #                             verbose=0, callbacks=[self.callback])
             K.clear_session()
@@ -88,8 +88,9 @@ class CAGERewardModel(TFModelV2):
             #print('reward accuracy ', history.history['val_categorical_accuracy'])
             self.global_itr += 1
                 # Returns Metric Dictionary
-        except:
+        except Exception as e:
             print('reward train fail')
+            print(e)
         return self.metrics
         
 from bisect import bisect_left

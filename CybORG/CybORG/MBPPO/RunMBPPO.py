@@ -43,7 +43,7 @@ tf.autograph.set_verbosity(0)
 
 NUM_WORKER = 20
 BATCH_SIZE = 4000
-ITERS = 60
+ITERS = 50
 RED_AGENT = "B_Line"
 import os
 # os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"
@@ -86,7 +86,7 @@ for s in range(5):
         MBPPOConfig()
         #Each rollout worker uses a single cpu
         .rollouts(num_rollout_workers=NUM_WORKER, num_envs_per_worker=1)\
-        .training(train_batch_size=BATCH_SIZE, gamma=0.9, lr=0.0001, seq_len=50,
+        .training(train_batch_size=BATCH_SIZE, gamma=0.9, lr=0.0001, seq_len=40,
                 #   model={"fcnet_hiddens": [512, 512], "fcnet_activation": "tanh",})\
                     model={"fcnet_hiddens": [256, 256], "fcnet_activation": "tanh",})\
                           # "use_lstm": False,
@@ -105,4 +105,4 @@ for s in range(5):
     rewards = np.zeros(ITERS)
     for i in range(0,ITERS):
         rewards[i] = print_results(trainer.train())
-        np.save('100_seq'+str(s), rewards)
+        np.save('40_seq_lim_mem_4000_dream'+str(s), rewards)

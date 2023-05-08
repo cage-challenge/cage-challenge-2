@@ -103,7 +103,7 @@ class MBPPOConfig(PGConfig):
         self.vf_clip_param = 0.0
         self.grad_clip = None
         self.kl_target = 0.03
-        self.seq_len = 10
+        self.seq_len = 20
 
         # Override some of PG/AlgorithmConfig's default values with PPO-specific values.
         self.num_rollout_workers = 20
@@ -317,14 +317,16 @@ class MBPPO(Algorithm):
 
     def __init__(self, config, logger_creator) -> None:
         super().__init__(config, logger_creator)
-        self.memeory = {}
-        self.memeory['obs_action_hist'] = None
+        self.memory = {}
+        self.memory['obs_action_hist'] = None
         self.reward_to_index = np.load('reward_to_index.npy', allow_pickle=True).item()
         self.index_to_reward = np.load('index_to_reward.npy', allow_pickle=True).item()
         self.wm_train_interval = 0
         self.seq_len = config['seq_len']
         self.known_states = None
         self.local_replay_buffer = None
+        self.max_storage = 100000
+        self.memory_pointer = 0
 
     @classmethod
     @override(Algorithm)
@@ -376,15 +378,15 @@ class MBPPO(Algorithm):
 
         train_results = self.learning_from_samples(train_batch)
 
-        dreams_start_at = 80000
+        dreams_start_at = 60000
    
-        if self._counters[NUM_AGENT_STEPS_SAMPLED] > dreams_start_at:
+        if self._counters[NUM_AGENT_STEPS_SAMPLED] >= dreams_start_at:
             if self.wm_train_interval == 0:
                 #experience_data = self.local_replay_buffer.sample(self._counters[NUM_AGENT_STEPS_SAMPLED])
                 #for pid in self.workers.local_worker().get_policies_to_train({'default_policy'}):
                 for pid in {'default_policy'}: #Could extend to multiagent here
-                    self.workers.local_worker().get_policy(pid).reward_model.fit(self.memeory['obs_action_hist'], self.memeory['next_obs'], self.memeory['rewards'])
-                    self.workers.local_worker().get_policy(pid).state_tranistion_model.fit(self.memeory['node_ids'], self.memeory['node_vectors'], self.memeory['node_predictions'], self.memeory['node_predictions2'], self.memeory['next_nodes'])
+                    self.workers.local_worker().get_policy(pid).reward_model.fit(self.memory['obs_action_hist'], self.memory['next_obs'], self.memory['rewards'])
+                    self.workers.local_worker().get_policy(pid).state_tranistion_model.fit(self.memory['node_ids'], self.memory['node_vectors'], self.memory['node_predictions'], self.memory['node_predictions2'], self.memory['next_nodes'])
                     K.clear_session()
                     #Sync
                     reward_weights = self.workers.local_worker().get_policy(pid).reward_model.base_model.get_weights()
@@ -403,14 +405,14 @@ class MBPPO(Algorithm):
                 self.wm_train_interval -= 1
 
         #Dream
-        if self._counters[NUM_AGENT_STEPS_SAMPLED] > dreams_start_at:
+        if self._counters[NUM_AGENT_STEPS_SAMPLED] >= dreams_start_at:
             s = []; 
             for d in range(1):
-                for i in range(1):
+                for i in range(2):
                     samples = self.workers.foreach_policy(dream)
                     s.append(SampleBatch.concat_samples(samples))
                 samples = SampleBatch.concat_samples(s)
-                print('Dream Reward Mean: ', np.sum(samples['rewards'])/20)
+                print('Dream Reward Mean: ', np.sum(samples['rewards'])/40)
                 self.encode_batch(samples, True)
                 self.learning_from_samples(samples.as_multi_agent())
         
@@ -542,26 +544,39 @@ class MBPPO(Algorithm):
                 index += 1
             ts += 1
 
-        if type(self.memeory['obs_action_hist']) == type(None):
-            self.memeory['obs_action_hist'] = obs_action_hist
-            self.memeory['next_obs'] = next_obs
-            self.memeory['rewards'] = rewards
-            self.memeory['node_vectors'] = node_vectors
-            self.memeory['next_nodes'] = next_nodes
-            self.memeory['node_ids'] = node_ids
-            self.memeory['node_predictions'] = node_predictions
-            self.memeory['node_predictions2'] = node_predictions2
-        else:
-            self.memeory['obs_action_hist'] = np.concatenate((self.memeory['obs_action_hist'], obs_action_hist))
-            self.memeory['next_obs'] = np.concatenate((self.memeory['next_obs'], next_obs))
-            self.memeory['rewards'] = np.concatenate((self.memeory['rewards'], rewards))
-            self.memeory['node_vectors'] = np.concatenate((self.memeory['node_vectors'], node_vectors))
-            self.memeory['next_nodes'] = np.concatenate((self.memeory['next_nodes'], next_nodes))
-            self.memeory['node_ids'] = np.concatenate((self.memeory['node_ids'], node_ids))
-            self.memeory['node_predictions'] = np.concatenate((self.memeory['node_predictions'], node_predictions))
-            self.memeory['node_predictions2'] = np.concatenate((self.memeory['node_predictions2'], node_predictions2))
+        if type(self.memory['obs_action_hist']) == type(None):
+            self.memory['obs_action_hist'] = obs_action_hist
+            self.memory['next_obs'] = next_obs
+            self.memory['rewards'] = rewards
+            self.memory['node_vectors'] = node_vectors
+            self.memory['next_nodes'] = next_nodes
+            self.memory['node_ids'] = node_ids
+            self.memory['node_predictions'] = node_predictions
+            self.memory['node_predictions2'] = node_predictions2
+        elif self.memory['obs_action_hist'].shape[0] > self.max_storage:
+            self.memory['obs_action_hist'][self.memory_pointer:self.memory_pointer+obs_action_hist.shape[0]] = obs_action_hist
+            self.memory['next_obs'][self.memory_pointer:self.memory_pointer+next_obs.shape[0]] = next_obs
+            self.memory['rewards'][self.memory_pointer:self.memory_pointer+rewards.shape[0]] = rewards
 
-        self.known_states = np.unique(self.memeory['next_obs'], axis=0)
+            self.memory['node_vectors'][self.memory_pointer*13:self.memory_pointer*13+node_vectors.shape[0]] = node_vectors
+            self.memory['next_nodes'][self.memory_pointer*13:self.memory_pointer*13+node_vectors.shape[0]] = next_nodes
+            self.memory['node_ids'][self.memory_pointer*13:self.memory_pointer*13+node_vectors.shape[0]]= node_ids
+            self.memory['node_predictions'][self.memory_pointer*13:self.memory_pointer*13+node_vectors.shape[0]] = node_predictions
+            self.memory['node_predictions2'][self.memory_pointer*13:self.memory_pointer*13+node_vectors.shape[0]] = node_predictions2
+            self.memory_pointer += obs_action_hist.shape[0]
+            if self.memory['obs_action_hist'].shape[0] + self.memory_pointer > self.max_storage:
+                self.memory_pointer = 0
+        else:
+            self.memory['obs_action_hist'] = np.concatenate((self.memory['obs_action_hist'], obs_action_hist))
+            self.memory['next_obs'] = np.concatenate((self.memory['next_obs'], next_obs))
+            self.memory['rewards'] = np.concatenate((self.memory['rewards'], rewards))
+            self.memory['node_vectors'] = np.concatenate((self.memory['node_vectors'], node_vectors))
+            self.memory['next_nodes'] = np.concatenate((self.memory['next_nodes'], next_nodes))
+            self.memory['node_ids'] = np.concatenate((self.memory['node_ids'], node_ids))
+            self.memory['node_predictions'] = np.concatenate((self.memory['node_predictions'], node_predictions))
+            self.memory['node_predictions2'] = np.concatenate((self.memory['node_predictions2'], node_predictions2))
+
+        self.known_states = np.unique(self.memory['next_obs'], axis=0)
     
     from bisect import bisect_left
 
