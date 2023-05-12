@@ -325,7 +325,7 @@ class MBPPO(Algorithm):
         self.seq_len = config['seq_len']
         self.known_states = None
         self.local_replay_buffer = None
-        self.max_storage = 100000
+        self.max_storage = 120000
         self.memory_pointer = 0
 
     @classmethod
@@ -378,7 +378,7 @@ class MBPPO(Algorithm):
 
         train_results = self.learning_from_samples(train_batch)
 
-        dreams_start_at = 60000
+        dreams_start_at = 800000000
    
         if self._counters[NUM_AGENT_STEPS_SAMPLED] >= dreams_start_at:
             if self.wm_train_interval == 0:
@@ -557,7 +557,6 @@ class MBPPO(Algorithm):
             self.memory['obs_action_hist'][self.memory_pointer:self.memory_pointer+obs_action_hist.shape[0]] = obs_action_hist
             self.memory['next_obs'][self.memory_pointer:self.memory_pointer+next_obs.shape[0]] = next_obs
             self.memory['rewards'][self.memory_pointer:self.memory_pointer+rewards.shape[0]] = rewards
-
             self.memory['node_vectors'][self.memory_pointer*13:self.memory_pointer*13+node_vectors.shape[0]] = node_vectors
             self.memory['next_nodes'][self.memory_pointer*13:self.memory_pointer*13+node_vectors.shape[0]] = next_nodes
             self.memory['node_ids'][self.memory_pointer*13:self.memory_pointer*13+node_vectors.shape[0]]= node_ids

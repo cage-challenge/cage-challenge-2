@@ -12,6 +12,7 @@ state_length = 91
 num_actions = 41
 seq_len = 40
 
+
 states = np.zeros((num_data_points, seq_len, state_length), dtype=np.int8)
 rewards = np.zeros(num_data_points)
 next_states = np.zeros((num_data_points, state_length), dtype=np.int8)
@@ -45,6 +46,7 @@ for i in trange(int(num_episodes/episodes_per_sample)):
     
 data_path = data_path + '/data_seqence_40'
 #os.mkdir(data_path)
+np.save(data_path + '/unique_obs.npy', np.unique(next_states, axis=0))
 np.save(data_path + '/states.npy', states)
 np.save(data_path + '/next_states.npy', next_states)
 np.save(data_path + '/actions.npy', action_hist_oh)

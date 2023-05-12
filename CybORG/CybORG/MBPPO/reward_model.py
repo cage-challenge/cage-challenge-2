@@ -56,9 +56,6 @@ class CAGERewardModel(TFModelV2):
     
     def load(self, path):
         self.base_model.load_weights(path)
-
-    def get_entropy(self):
-        return self.entropy
         
     def fit(self, obs, ns, rewards): 
         # Process Samples
