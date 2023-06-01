@@ -4,7 +4,7 @@ import pandas as pd
 from tqdm import trange
 import os
 
-data_path = data_path = '/home/ubuntu/u75a-Data-Efficient-Decisions/CybORG/CybORG/OfflineExperiments/logs/PPO/B_Line_no_decoy_800000'
+data_path = data_path = '/home/ubuntu/u75a-Data-Efficient-Decisions/CybORG/CybORG/OfflineExperiments/logs/PPO/B_Line_no_decoy_300000'
 input_reader = JsonReader(data_path)
 num_episodes = int(800000/100)
 num_data_points = num_episodes * 99
@@ -45,7 +45,7 @@ for i in trange(int(num_episodes/episodes_per_sample)):
             index += 1
     
 data_path = data_path + '/data_seqence_40'
-#os.mkdir(data_path)
+os.mkdir(data_path)
 np.save(data_path + '/unique_obs.npy', np.unique(next_states, axis=0))
 np.save(data_path + '/states.npy', states)
 np.save(data_path + '/next_states.npy', next_states)

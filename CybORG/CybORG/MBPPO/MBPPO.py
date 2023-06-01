@@ -325,7 +325,7 @@ class MBPPO(Algorithm):
         self.seq_len = config['seq_len']
         self.known_states = None
         self.local_replay_buffer = None
-        self.max_storage = 120000
+        self.max_storage = 140000
         self.memory_pointer = 0
 
     @classmethod
@@ -378,7 +378,7 @@ class MBPPO(Algorithm):
 
         train_results = self.learning_from_samples(train_batch)
 
-        dreams_start_at = 800000000
+        dreams_start_at = 160000
    
         if self._counters[NUM_AGENT_STEPS_SAMPLED] >= dreams_start_at:
             if self.wm_train_interval == 0:
@@ -406,16 +406,15 @@ class MBPPO(Algorithm):
 
         #Dream
         if self._counters[NUM_AGENT_STEPS_SAMPLED] >= dreams_start_at:
-            s = []; 
+            s = []
             for d in range(1):
-                for i in range(2):
-                    samples = self.workers.foreach_policy(dream)
-                    s.append(SampleBatch.concat_samples(samples))
-                samples = SampleBatch.concat_samples(s)
-                print('Dream Reward Mean: ', np.sum(samples['rewards'])/40)
-                self.encode_batch(samples, True)
-                self.learning_from_samples(samples.as_multi_agent())
-        
+                samples = self.workers.foreach_policy(dream)
+                s.append(SampleBatch.concat_samples(samples))
+            samples = SampleBatch.concat_samples(s)
+            print('Dream Reward Mean: ', np.sum(samples['rewards'])/40)
+            self.encode_batch(samples, True)
+            self.learning_from_samples(samples.as_multi_agent())
+
         return train_results
 
     def learning_from_samples(self, samples):
@@ -575,8 +574,14 @@ class MBPPO(Algorithm):
             self.memory['node_predictions'] = np.concatenate((self.memory['node_predictions'], node_predictions))
             self.memory['node_predictions2'] = np.concatenate((self.memory['node_predictions2'], node_predictions2))
 
-        self.known_states = np.unique(self.memory['next_obs'], axis=0)
-    
+        if type(self.known_states) == type(None):
+            self.known_states = np.unique(next_obs, axis=0)
+        else:
+            self.known_states = np.concatenate([next_obs, self.known_states], axis=0)
+            self.known_states = np.unique(self.known_states, axis=0)
+
+        print(self.known_states.shape)
+
     from bisect import bisect_left
 
     def take_closest(self, myList, myNumber):
@@ -605,7 +610,7 @@ class MBPPO(Algorithm):
 
 
 def dream(policy, pid):
-    return policy.fetch_dream_lstm()
+    return policy.fetch_dream_lstm_batch()
 
 # Deprecated: Use ray.rllib.algorithms.ppo.PPOConfig instead!
 class _deprecated_default_config(dict):

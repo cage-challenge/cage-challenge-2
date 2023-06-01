@@ -17,7 +17,7 @@ from numba import cuda
 import joblib
 from tqdm.keras import TqdmCallback
 
-class CAGENodeTranistionModelLSTMFeedback2(TFModelV2):
+class CAGENodeTranistionModelBatch(TFModelV2):
     """Transition Dynamics Model (FC Network with Weight Norm)"""
 
     def __init__(self, seq_len):
@@ -72,44 +72,40 @@ class CAGENodeTranistionModelLSTMFeedback2(TFModelV2):
 
         
 
-    def forward(self, state, actions):
-        next_state = np.zeros(self.STATE_LEN)
-        # exploit = state[:,np.arange(0,91,step=7)]
-        # privileged = state[:,np.arange(3,91,step=7)]
-        # user = state[:,np.arange(4,91,step=7)]
-        # unknown = state[:,np.arange(5,91,step=7)]
-        #no = state[:,np.arange(6,91,step=7)]
-        #valid = -3
-        #while valid < 0:
+    def forward(self, state_action):
         index_state = 0
-        next_state = np.zeros(self.STATE_LEN)
+        #Generate more next states than need so some can be filtered out as OOD states
+        state_rolls = 1
+        batch_size = state_action.shape[0]
+        next_state = np.zeros((state_rolls*batch_size,self.STATE_LEN))
+        state_action = np.repeat(state_action, state_rolls, axis=0)
         for n in range(13):
 
-            encoding = np.zeros(13)
-            encoding[n] = 1
-            #node_state = state[:,int(n*7):int(n*7)+7]
-            #node_action =  np.array([self.node_action(actions[i], n) for i in range(self.SEQ_LEN)])
-        
-            probs = self.base_model([np.expand_dims(np.concatenate([state, actions], axis=-1), axis=0), np.expand_dims(encoding, axis=0), np.expand_dims(next_state, axis=0)])
-            #probs = self.base_model([np.expand_dims(np.concatenate([node_state, node_action, exploit, privileged, user, unknown], axis=-1), axis=0), encoding, np.expand_dims(next_state, axis=0)])
-
-            p = probs.numpy()[0]
-            next_state[index_state+np.random.choice(np.arange(3), p=p)] = 1
+            encoding = np.zeros((state_rolls*batch_size,13))
+            encoding[:,n] = 1
+     
+            probs = self.base_model([state_action, encoding, next_state])
+            p = probs.numpy()
+            for i in range(state_rolls*batch_size):
+                next_state[i,index_state+np.random.choice(np.arange(3), p=p[i])] = 1
             index_state += 3
 
-            probs = self.compromised_model([np.expand_dims(np.concatenate([state, actions], axis=-1), axis=0), np.expand_dims(encoding, axis=0), np.expand_dims(next_state, axis=0)])
-            #probs = self.compromised_model([np.expand_dims(np.concatenate([node_state, node_action], axis=-1), axis=0), encoding, np.expand_dims(next_state, axis=0)])
-            p = probs.numpy()[0] 
-            next_state[index_state+np.random.choice(np.arange(4), p=p)] = 1
-            #next_state[index_state+np.argmax(p)] = 1
+            probs = self.compromised_model([state_action, encoding, next_state])
+            p = probs.numpy()
+            for i in range(state_rolls*batch_size):
+                next_state[i,index_state+np.random.choice(np.arange(4), p=p[i])] = 1
             index_state += 4
 
-            # if any((next_state==self.known_states).all(1)):
-            #     valid = 1
-            # else:
-            #     valid += 1 
-            
-        return next_state
+        #Select the first ID state for each rollout, rollouts indexed by % batch_size
+        return_states = np.zeros((batch_size,self.STATE_LEN))
+        for i in range(batch_size):
+            return_states[i,:] = next_state[i,:]
+            for k in range(i,state_rolls*batch_size,batch_size):
+                if any((next_state[k,:]==self.known_states).all(1)):
+                    return_states[i,:] = next_state[k,:]
+                    break
+        
+        return return_states
     
     def node_action(self, action, node):
         vec = np.zeros(3)
@@ -126,43 +122,35 @@ class CAGENodeTranistionModelLSTMFeedback2(TFModelV2):
         K.set_value(self.base_model.optimizer.learning_rate, 0.0005)
         K.set_value(self.compromised_model.optimizer.learning_rate, 0.0005)
 
-        p = np.random.permutation(node_vectors.shape[0])
+        #p = np.random.permutation(node_vectors.shape[0])
         print('Activity From data: ', next_nodes[:,:3].mean(axis=0))
         try:
             with tf.device("/device:GPU:0"):
-                history = self.base_model.fit([node_vectors[p,:,:],node_ids[p,:],predictions1[p,:]], next_nodes[p,:3], epochs=self.max_train_epochs, validation_split=self.valid_split, 
+                history = self.base_model.fit([node_vectors,node_ids,predictions1], next_nodes[:,:3], epochs=self.max_train_epochs, validation_split=self.valid_split, 
                                             verbose=0, callbacks=[self.es_callback, self.lr_callback], batch_size=512, shuffle=True, workers=4)
             print('Activity val loss: ', history.history['val_loss'])
             print('Activity val accuracy ', history.history['val_categorical_accuracy'])
         except: #Memory allocation issues
-            time.sleep(15)
-            try:
-                with tf.device("/device:CPU:38"):
-                    history = self.base_model.fit([node_vectors[p,:,:],node_ids[p,:],predictions2[p,:]], next_nodes[p,:3], epochs=self.max_train_epochs, validation_split=self.valid_split, 
-                                                verbose=0, callbacks=[self.es_callback, self.lr_callback], batch_size=1024, shuffle=True, workers=4)
-                    print('Compromised val loss: ', history.history['val_loss'])
-                    print('Compromised val accuracy ', history.history['val_categorical_accuracy'])
-            except:
-                print('Activity train fail')
+            print('Activity train fail')
 
         K.clear_session()
         print('Compromised From data: ', next_nodes[:,3:].mean(axis=0))
         try:
             with tf.device("/device:GPU:1"):
-                history = self.compromised_model.fit([node_vectors[p,:,:],node_ids[p,:],predictions2[p,:]], next_nodes[p,3:], epochs=self.max_train_epochs, validation_split=self.valid_split, 
+                history = self.compromised_model.fit([node_vectors,node_ids,predictions2], next_nodes[:,3:], epochs=self.max_train_epochs, validation_split=self.valid_split, 
                                             verbose=0, callbacks=[self.es_callback, self.lr_callback], batch_size=512, shuffle=True, workers=4)
             print('Compromised val loss: ', history.history['val_loss'])
             print('Compromised val accuracy ', history.history['val_categorical_accuracy'])
-        except: #Memory allocation issues
-            time.sleep(15)
+        except:
+            print('Compromised train fail')
             try:
                 with tf.device("/device:CPU:38"):
-                    history = self.compromised_model.fit([node_vectors[p,:,:],node_ids[p,:],predictions2[p,:]], next_nodes[p,3:], epochs=self.max_train_epochs, validation_split=self.valid_split, 
-                                                verbose=0, callbacks=[self.es_callback, self.lr_callback], batch_size=1024, shuffle=True, workers=4)
-                    print('Compromised val loss: ', history.history['val_loss'])
-                    print('Compromised val accuracy ', history.history['val_categorical_accuracy'])
+                    history = self.compromised_model.fit([node_vectors,node_ids,predictions2], next_nodes[:,3:], epochs=self.max_train_epochs, validation_split=self.valid_split, 
+                                                verbose=0, callbacks=[self.es_callback, self.lr_callback], batch_size=512, shuffle=True, workers=4)
+                print('Compromised val loss: ', history.history['val_loss'])
+                print('Compromised val accuracy ', history.history['val_categorical_accuracy'])
             except:
-                print('Compromised train fail')
+                print('Compromised train fail CPU')
         K.clear_session()
         self.global_itr += 1
         # Returns Metric Dictionary
@@ -182,5 +170,4 @@ class CAGENodeTranistionModelLSTMFeedback2(TFModelV2):
         self.base_model.set_weights(weights[0])
         self.compromised_model.set_weights(weights[1])
         self.known_states = unique
-        
    

@@ -32,7 +32,6 @@ class CAGERewardModel(TFModelV2):
         input_ = Input(shape=(self.SEQ_LEN ,132), name='state_action')
         new_state_in = Input(shape=(self.STATE_LEN,),name='state_in')
         x = Bidirectional(LSTM(64))(input_)
-        x = Flatten()(x)
         x = concatenate([x, new_state_in], name='concate')
         x = Dense(128, activation='relu', name='hidden')(x)
         x = Dropout(0.2)(x)
@@ -52,7 +51,7 @@ class CAGERewardModel(TFModelV2):
         self.base_model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=0.0001), loss=tf.keras.losses.MeanSquaredError())#, loss=tf.keras.losses.CategoricalCrossentropy(), metrics=[tf.keras.metrics.CategoricalAccuracy()])
 
     def forward(self, x, ns):
-        return -self.base_model([x, ns]).numpy()[0]
+        return -self.base_model([x, ns]).numpy().reshape(-1)
     
     def load(self, path):
         self.base_model.load_weights(path)

@@ -34,6 +34,7 @@ from state_tranistion_model import CAGEStateTranistionModel
 from node_tranistion_model import CAGENodeTranistionModel
 from lstm_node_tranistion_model import CAGENodeTranistionModelLSTM
 from lstm_node_tranistion_model_feedback2 import CAGENodeTranistionModelLSTMFeedback2
+from CAGENodeTranistionModelBatch import CAGENodeTranistionModelBatch
 from reward_model import CAGERewardModel
 from reward_model_lstm import CAGERewardModelLSTM
 
@@ -131,7 +132,7 @@ def get_mbppo_tf_policy(name: str, base: TFPolicyV2Type) -> TFPolicyV2Type:
             self.local_replay_buffer = None
             
         def make_world_model(self):
-            self.state_tranistion_model = CAGENodeTranistionModelLSTMFeedback2(self.SEQ_LEN)#CAGENodeTranistionModel()#CAGENodeTranistionModel()  CAGEStateTranistionModel
+            self.state_tranistion_model = CAGENodeTranistionModelBatch(self.SEQ_LEN)#CAGENodeTranistionModel()#CAGENodeTranistionModel()  CAGEStateTranistionModel
             self.reward_model = CAGERewardModel(self.SEQ_LEN)
 
         def set_known_states(self, states):
@@ -156,10 +157,8 @@ def get_mbppo_tf_policy(name: str, base: TFPolicyV2Type) -> TFPolicyV2Type:
             for i in range(100):
                 obs[i,:] = states[-1,:]
                 action, _, info = self.compute_actions(np.array([state]), explore=True)
-   
                 actions_onehot = np.roll(actions_onehot,-1,axis=0)
                 actions_onehot[-1,action] = 1
-
                 actions[i] = np.float64(action[0])
                 action_logps[i] = np.float64(info['action_logp'][0])
                 action_dist_inputs[i,:] = info['action_dist_inputs'][0]
@@ -167,7 +166,6 @@ def get_mbppo_tf_policy(name: str, base: TFPolicyV2Type) -> TFPolicyV2Type:
                 state = self.state_tranistion_model.forward(states, actions_onehot)
                 state_action = np.concatenate([states, actions_onehot], axis=-1)
                 rewards[i] = self.reward_model.forward(np.array([state_action]), np.array([state]))
-
                 states = np.roll(states,-1,axis=0)
                 states[-1] = state
                     
@@ -180,8 +178,60 @@ def get_mbppo_tf_policy(name: str, base: TFPolicyV2Type) -> TFPolicyV2Type:
                                 'dones': dones})
             
             return self.postprocess_trajectory(batch)
+                                
+        def fetch_dream_lstm_batch(self):
+            num_episodes = 2
+            obs = np.zeros((num_episodes, 100, self.STATE_LEN))
+            actions = np.zeros((num_episodes, 100), dtype=np.float64)
+            action_dist_inputs = np.zeros((num_episodes, 100, self.ACTION_LEN), dtype=np.float64)
+            values = np.zeros((num_episodes, 100))
+            action_logps = np.zeros((num_episodes, 100), dtype=np.float64)
+            rewards = np.zeros((num_episodes, 100))
+            dones = np.full((num_episodes, 100), False)
+            dones[:,-1] = True
+            states = np.zeros((num_episodes, self.SEQ_LEN, self.STATE_LEN))
+            states[:,-1,:] = self.inital_state
+            actions_onehot = np.zeros((num_episodes,self.SEQ_LEN, 41))      
+            state = np.zeros((num_episodes,self.STATE_LEN))
+            action = np.zeros(num_episodes)
+            for i in range(num_episodes):
+                state[i,:] = self.inital_state
+
+            for i in range(100):
+                for k in range(num_episodes):
+                    obs[k,i,:] = states[k,-1,:]
+                infos = []
+                action, _, infos = self.compute_actions(state, explore=True)
+                actions_onehot = np.roll(actions_onehot,-1,axis=1)
+                for k in range(num_episodes):
+                    actions_onehot[k,-1,action[k]] = 1
+                actions[:,i] = np.float64(action)             
+                action_logps[:,i] = np.float64(infos['action_logp'])
+                action_dist_inputs[:,i,:] = infos['action_dist_inputs']
+                values[:,i] = infos['vf_preds']
+                state_action = np.concatenate([states, actions_onehot], axis=-1)
+                state = self.state_tranistion_model.forward(state_action)
+                rewards[:,i] = self.reward_model.forward(state_action, state)
+                states = np.roll(states,-1,axis=1)
+                for k in range(num_episodes):
+                    states[k,-1,:] = state[k]
+                
+            s = []
+            for i in range(num_episodes):
+                batch = SampleBatch({'obs': obs[i,:,:],
+                                    'actions': actions[i,:],
+                                    'rewards': rewards[i,:],
+                                    'vf_preds': values[i,:],
+                                    'action_dist_inputs': action_dist_inputs[i,:,:],
+                                    'action_logp': action_logps[i,:],
+                                    'dones': dones[i,:]})
+                batch = self.postprocess_trajectory(batch)
+                s.append(batch)
+            
+            return SampleBatch.concat_samples(s)
             # return compute_advantages(batch, values[-1], self.config['gamma'], self.config['lambda'], 
             #                             self.config["use_gae"], self.config['use_critic'])
+        
         
 
         @override(base)
