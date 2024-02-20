@@ -514,6 +514,8 @@ The validation process involves summing the average scores of 1000 episodes for 
 
 The CAGE team will continue to develop this platform and plan to announce a new challenge problem after the close of this challenge\. Future topics may include expanded action sets, the introduction of multiple agents, and more complex and realistic scenarios\. 
 
+Cage Challenge 4 was just released! Find out more details [here[(https://github.com/cage-challenge/cage-challenge-4)
+
 # Appendix A - Blue Action Sets
 
 | Action     | Purpose                                                                                                                                                                                                                                                 | Parameters                                                                    | Output                                 |
