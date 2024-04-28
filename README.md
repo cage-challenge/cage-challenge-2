@@ -357,7 +357,15 @@ We are pleased to announce the final results for the TTCP CAGE Challenge 2 in th
 
 We would like to thank all those who participated in this challenge. There was a myriad of approaches taken by all teams, and multiple unique strategies that were implemented by the agents. Our congratulations go to the victor, team ‘CardiffUni’, who implemented a hierarchical proximal policy optimisation in combination with a greedy decoy heuristic agent. Owing to how close the competition was, we would also like to congratulate teams ‘Keeping it RL’ and ‘Mindrake’ for their outstanding agents. The validated total scores are the result of summing the average scores of 1000 episodes for each combination of trial length and red agent with random.seed(153), with 95% confidence intervals calculated and shown. 
 
-TTCP CAGE Challenge 3 will be launched later in September 2022.  
+For more details about the Challenge, please refer to the paper [On Autonomous Agents in a Cyber Defence Environment](https://arxiv.org/abs/2309.07388) which can be referenced as:
+```
+@article{kiely2023autonomous,
+  title={On Autonomous Agents in a Cyber Defence Environment},
+  author={Kiely, Mitchell and Bowman, David and Standen, Maxwell and Moir, Christopher},
+  journal={arXiv preprint arXiv:2309.07388},
+  year={2023}
+} 
+```
 
 # Introduction
 
