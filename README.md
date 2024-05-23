@@ -459,16 +459,15 @@ When submitting a blue agent it should be for the extended version of the challe
 - A description of your approach in developing a blue agent\.
 - The files and terminal output of the evaluation function\.
 
-We also invite teams to submit full papers on their work on this CAGE challenge or using the CybORG environment to IJCAI, AAAI or any other venue of their choice\. Please cite the challenge announcement as follows to reference the challenge:
+We also invite teams to submit full papers on their work on this CAGE challenge or using the CybORG environment to IJCAI, AAAI or any other venue of their choice\. When citing CAGE Challenge 2, please use the following reference: 
 
 ```
-@PROCEEDINGS{cage_challenge_2_announcement,
-  author = {CAGE},
-  Title = {TTCP CAGE Challenge 2},
-  booktitle = {AAAI-22 Workshop on Artificial Intelligence for Cyber Security (AICS)} 
-  Howpublished = {\url{https://github.com/cage-challenge/cage-challenge-2}},
-  Year = {2022}
-}
+@article{kiely2023autonomous,
+  title={On Autonomous Agents in a Cyber Defence Environment},
+  author={Kiely, Mitchell and Bowman, David and Standen, Maxwell and Moir, Christopher},
+  journal={arXiv preprint arXiv:2309.07388},
+  year={2023}
+} 
 ```
 
 In addition, authors may reference the following paper that describes CybORG:
@@ -480,18 +479,6 @@ In addition, authors may reference the following paper that describes CybORG:
   booktitle = {IJCAI-21 1st International Workshop on Adaptive Cyber Defense.} 
   Publisher = {arXiv},
   Year = {2021}
-}
-```
-
-The challenge software can be referenced as:
-
-```
-@misc{cage_challenge_2,
-  Title = {Cyber Autonomy Gym for Experimentation Challenge 2},
-  Note = {Created by Maxwell Standen, David Bowman, Son Hoang, Toby Richer, Martin Lucas, Richard Van Tassel, Phillip Vu, Mitchell Kiely},
-  Publisher = {GitHub},
-  Howpublished = {\url{https://github.com/cage-challenge/cage-challenge-2}},
-  Year = {2022}
 }
 ```
 
